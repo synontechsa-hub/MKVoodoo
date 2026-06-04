@@ -1,4 +1,4 @@
-"""Hardware detection for SynConvert.
+"""Hardware detection for MKVoodoo.
 
 Determines the best available FFmpeg encoder at startup:
   1. NVIDIA NVENC  (h264_nvenc)

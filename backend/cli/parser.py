@@ -1,10 +1,10 @@
 import argparse
 
 def build_parser() -> argparse.ArgumentParser:
-    """Define the CLI structure for SynConvert."""
+    """Define the CLI structure for MKVoodoo."""
     parser = argparse.ArgumentParser(
-        prog="synconvert",
-        description="SynConvert — Offline batch video transcoder",
+        prog="mkvoodoo",
+        description="MKVoodoo — Offline batch video transcoder",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 

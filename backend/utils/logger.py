@@ -48,7 +48,7 @@ class SynLogger:
     def session_start(self, total_files: int, encoder_label: str):
         print()
         print(_fmt("━" * 60, _BOLD))
-        print(_fmt("  SynConvert v1.0.4", _BOLD, _CYAN))
+        print(_fmt("  MKVoodoo v1.0.4", _BOLD, _CYAN))
         print(f"  Encoder  : {_fmt(encoder_label, _BOLD)}")
         print(f"  Files    : {_fmt(str(total_files), _BOLD)}")
         print(_fmt("━" * 60, _BOLD))
@@ -80,9 +80,9 @@ class SynLogger:
         try:
             from plyer import notification
             notification.notify(
-                title=f"SynConvert: {title}",
+                title=f"MKVoodoo: {title}",
                 message=message,
-                app_name="SynConvert",
+                app_name="MKVoodoo",
                 timeout=10
             )
         except Exception:

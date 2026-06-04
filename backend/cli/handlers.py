@@ -11,7 +11,7 @@ from backend.services.naming_service import NamingService
 from backend.services.queue_service import QueueService
 from backend.services.converter_service import ConverterService
 from backend.core.engine import FFmpegEngine
-from backend.core.exceptions import SynConvertError
+from backend.core.exceptions import MKVoodooError
 from backend.utils.logger import SynLogger
 from backend.presets import get_preset, list_presets
 

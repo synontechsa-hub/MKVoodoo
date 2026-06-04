@@ -1,4 +1,4 @@
-"""Logging system for SynConvert.
+"""Logging system for MKVoodoo.
 
 Provides:
   - Console progress output (with colour when supported)
@@ -83,7 +83,7 @@ class SynLogger:
         self._total = total_files
         print()
         print(_fmt("━" * 60, _BOLD))
-        print(_fmt("  SynConvert v1.0.2", _BOLD, _CYAN))
+        print(_fmt("  MKVoodoo v1.0.2", _BOLD, _CYAN))
         print(f"  Encoder  : {_fmt(encoder_label, _BOLD)}")
         print(f"  Files    : {_fmt(str(total_files), _BOLD)}")
         print(f"  Log      : {self._log_file}")

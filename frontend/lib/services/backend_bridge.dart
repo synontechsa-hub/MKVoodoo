@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 import '../models/backend_status.dart';
 import '../models/scan_proposal.dart';
 
-/// The bridge between Flutter and the Python SynConvert backend.
+/// The bridge between Flutter and the Python MKVoodoo backend.
 class BackendBridge {
   static final BackendBridge _instance = BackendBridge._internal();
   factory BackendBridge() => _instance;
@@ -14,7 +14,7 @@ class BackendBridge {
   Process? _activeProcess;
 
   String get _backendRoot {
-    final envRoot = Platform.environment['SYNCONVERT_ROOT'];
+    final envRoot = Platform.environment['MKVOODOO_ROOT'];
     if (envRoot != null && envRoot.isNotEmpty) {
       return envRoot;
     }

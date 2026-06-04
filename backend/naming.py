@@ -1,4 +1,4 @@
-"""Output filename generation for SynConvert.
+"""Output filename generation for MKVoodoo.
 
 Handles:
   - Season number extraction from folder names

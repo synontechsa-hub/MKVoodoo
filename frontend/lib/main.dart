@@ -31,13 +31,13 @@ void main() {
           create: (context) => SettingsController(context.read<BackendBridge>()),
         ),
       ],
-      child: const SynConvertApp(),
+      child: const MKVoodooApp(),
     ),
   );
 }
 
-class SynConvertApp extends StatelessWidget {
-  const SynConvertApp({super.key});
+class MKVoodooApp extends StatelessWidget {
+  const MKVoodooApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class SynConvertApp extends StatelessWidget {
     );
 
     return MaterialApp(
-      title: 'SynConvert',
+      title: 'MKVoodoo',
       debugShowCheckedModeBanner: false,
       themeMode: themeProvider.themeMode,
       theme: lightTheme,

@@ -1,4 +1,4 @@
-"""Job queue for SynConvert.
+"""Job queue for MKVoodoo.
 
 Manages a persistent list of conversion jobs. State is written to a JSON
 file after every status change so that interrupted runs can be resumed.

@@ -9,7 +9,7 @@ def main():
     frontend_dir = root / "frontend"
     venv_python = root / ".venv" / "Scripts" / "python.exe"
 
-    print("🚀 SynConvert v1.0.6 Launcher")
+    print("🚀 MKVoodoo v1.0.6 Launcher")
     print("━" * 30)
 
     # 1. Check Environment
@@ -54,10 +54,10 @@ def main():
     print("━" * 30)
 
     # 4. Launch Flutter (Windows Desktop)
-    # FIX: Pass SYNCONVERT_ROOT as an environment variable so backend_bridge.dart
+    # FIX: Pass MKVOODOO_ROOT as an environment variable so backend_bridge.dart
     # can resolve the correct Python path without guessing from the executable location.
     env = os.environ.copy()
-    env["SYNCONVERT_ROOT"] = str(root)
+    env["MKVOODOO_ROOT"] = str(root)
 
     try:
         subprocess.run(

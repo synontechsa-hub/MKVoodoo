@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "synconvert"
+name = "mkvoodoo"
 version = "1.0.6"
 description = "Offline-first batch video transcoder for mobile playback"
 readme = "README.md"
@@ -22,7 +22,7 @@ dev = [
 ]
 
 [project.scripts]
-synconvert = "backend.main:main"
+mkvoodoo = "backend.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

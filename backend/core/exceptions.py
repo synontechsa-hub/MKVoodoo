@@ -1,14 +1,14 @@
-"""Custom exceptions for SynConvert."""
+"""Custom exceptions for MKVoodoo."""
 
-class SynConvertError(Exception):
-    """Base class for all SynConvert exceptions."""
+class MKVoodooError(Exception):
+    """Base class for all MKVoodoo exceptions."""
     pass
 
-class ConfigError(SynConvertError):
+class ConfigError(MKVoodooError):
     """Raised when configuration is missing or malformed."""
     pass
 
-class HardwareError(SynConvertError):
+class HardwareError(MKVoodooError):
     """Raised when hardware detection or initialization fails."""
     pass
 
@@ -16,15 +16,15 @@ class GPUInitError(HardwareError):
     """Specific error when a GPU backend exists but fails to start."""
     pass
 
-class ScannerError(SynConvertError):
+class ScannerError(MKVoodooError):
     """Raised during directory scanning or file identification."""
     pass
 
-class NamingError(SynConvertError):
+class NamingError(MKVoodooError):
     """Raised during template parsing or filename generation."""
     pass
 
-class ConversionError(SynConvertError):
+class ConversionError(MKVoodooError):
     """Base class for conversion failures."""
     pass
 
@@ -36,6 +36,6 @@ class DiskFullError(ConversionError):
     """Raised when the output drive has insufficient space."""
     pass
 
-class PresetError(SynConvertError):
+class PresetError(MKVoodooError):
     """Raised when a requested preset is missing or invalid."""
     pass

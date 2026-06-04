@@ -1,4 +1,4 @@
-"""Preset definitions for SynConvert.
+"""Preset definitions for MKVoodoo.
 
 Each preset fully specifies the FFmpeg encoding parameters for a conversion job.
 The actual encoder (GPU vs CPU) is injected at runtime by the hardware module.

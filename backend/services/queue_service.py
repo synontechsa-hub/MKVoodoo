@@ -5,7 +5,7 @@ from pathlib import Path
 from dataclasses import asdict
 from typing import List, Optional, Dict
 from backend.models.job import Job, JobStatus
-from backend.core.exceptions import SynConvertError
+from backend.core.exceptions import MKVoodooError
 
 class QueueService:
     """Service for managing the persistent job queue."""
@@ -113,7 +113,7 @@ class QueueService:
                 with open(self._path, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2)
         except Exception as exc:
-            raise SynConvertError(f"Failed to save queue: {exc}")
+            raise MKVoodooError(f"Failed to save queue: {exc}")
 
     def _load(self):
         if not self._path.exists():

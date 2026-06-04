@@ -1,4 +1,4 @@
-"""Tests for synconvert.scanner"""
+"""Tests for mkvoodoo.scanner"""
 
 from __future__ import annotations
 

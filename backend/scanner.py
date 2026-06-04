@@ -1,4 +1,4 @@
-"""File scanner for SynConvert.
+"""File scanner for MKVoodoo.
 
 Recursively walks input directories and discovers supported video files.
 Produces ScanResult objects that carry both the absolute source path and
