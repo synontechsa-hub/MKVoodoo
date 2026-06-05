@@ -146,49 +146,7 @@ class _ProposalTableState extends State<ProposalTable> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: controller.outputPath != null
-                  ? const Color(0xFFB900FF).withValues(alpha: 0.4)
-                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.drive_folder_upload_rounded,
-                color: controller.outputPath != null
-                    ? const Color(0xFFB900FF)
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  controller.outputPath ?? 'No output folder selected',
-                  style: TextStyle(
-                    color: controller.outputPath != null
-                        ? Theme.of(context).colorScheme.onSurface
-                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              TextButton(
-                onPressed: () => controller.pickOutputFolder(),
-                child: Text(
-                  controller.outputPath != null ? 'Change' : 'Select Output',
-                  style: const TextStyle(color: Color(0xFFB900FF)),
-                ),
-              ),
-            ],
-          ),
-        ),
+
         const SizedBox(height: 16),
         Expanded(
           child: Container(
@@ -262,23 +220,18 @@ class _ProposalTableState extends State<ProposalTable> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             ElevatedButton(
-              onPressed: controller.outputPath != null ? () => controller.startConversion() : null,
+              onPressed: () => controller.startConversion(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFB900FF),
                 foregroundColor: Colors.black,
-                disabledBackgroundColor: const Color(
-                  0xFFB900FF,
-                ).withValues(alpha: 0.3),
                 minimumSize: const Size(200, 56),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child: Text(
-                controller.outputPath != null
-                    ? 'Start Conversion'
-                    : 'Select Output First',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              child: const Text(
+                'Start Conversion',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],

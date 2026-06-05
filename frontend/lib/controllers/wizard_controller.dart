@@ -10,7 +10,6 @@ class WizardController extends ChangeNotifier {
   StreamSubscription<String>? _conversionSubscription;
 
   List<String> _inputPaths = [];
-  String? _outputPath;
   String? _defaultAudioBitrate;
   List<ScanProposal>? _proposals;
   bool _isScanning = false;
@@ -27,7 +26,6 @@ class WizardController extends ChangeNotifier {
 
   // Getters
   List<String> get inputPaths => _inputPaths;
-  String? get outputPath => _outputPath;
   String? get defaultAudioBitrate => _defaultAudioBitrate;
   List<ScanProposal>? get proposals => _proposals;
   bool get isScanning => _isScanning;
@@ -42,15 +40,9 @@ class WizardController extends ChangeNotifier {
     notifyListeners();
   }
 
-  set outputPath(String? val) {
-    _outputPath = val;
-    notifyListeners();
-  }
-
   Future<void> _loadDefaultSettings() async {
     try {
       final config = await _bridge.getConfig();
-      _outputPath = config['output_dir'] as String?;
       _defaultAudioBitrate = config['default_audio_bitrate'] as String?;
       notifyListeners();
     } catch (_) {}
@@ -93,15 +85,7 @@ class WizardController extends ChangeNotifier {
     }
   }
 
-  Future<void> pickOutputFolder() async {
-    final folder = await FilePicker.getDirectoryPath(
-      dialogTitle: 'Select Output Folder',
-    );
-    if (folder != null) {
-      _outputPath = folder;
-      notifyListeners();
-    }
-  }
+
 
   void updateProposalTracks(ScanProposal proposal, List<int>? audio, List<int>? subs, String? bitrate) {
     proposal.selectedAudioTracks = audio;
@@ -172,8 +156,39 @@ class WizardController extends ChangeNotifier {
     }
   }
 
+  String _buildOutputPath(String globalOutput, ScanProposal p_scan, String outName) {
+    final src = p_scan.source.replaceAll('\\', '/');
+    final rel = p_scan.relative.replaceAll('\\', '/');
+    
+    String rootDir = src;
+    if (src.endsWith(rel)) {
+      rootDir = src.substring(0, src.length - rel.length);
+    }
+    
+    if (rootDir.endsWith('/')) {
+      rootDir = rootDir.substring(0, rootDir.length - 1);
+    }
+    
+    final rootFolderName = rootDir.split('/').last;
+    final relativeDir = p.dirname(p_scan.relative);
+    
+    if (rootFolderName.isEmpty || rootFolderName.contains(':')) {
+      return p.join(globalOutput, relativeDir, outName);
+    }
+    
+    return p.join(globalOutput, rootFolderName, relativeDir, outName);
+  }
+
   Future<void> startConversion() async {
-    if (_proposals == null || _proposals!.isEmpty || _outputPath == null) return;
+    if (_proposals == null || _proposals!.isEmpty) return;
+    
+    final config = await _bridge.getConfig();
+    final globalOutput = config['output_dir'] as String?;
+    if (globalOutput == null || globalOutput.trim().isEmpty) {
+      _conversionLog.add('❌ Cannot start: Output directory is not set in Settings.');
+      notifyListeners();
+      return;
+    }
     
     _isConverting = true;
     _conversionLog.clear();
@@ -184,9 +199,10 @@ class WizardController extends ChangeNotifier {
     try {
       final jobs = _proposals!.map((p_scan) {
         final outName = _useSmartNaming ? p_scan.outputFilename : p_scan.originalFilename;
+        final finalOutput = _buildOutputPath(globalOutput, p_scan, outName);
         return {
           'source': p_scan.source,
-          'output': p.join(_outputPath!, outName),
+          'output': finalOutput,
           'smart_name': _useSmartNaming,
           'output_filename': outName,
           'audio_tracks': p_scan.selectedAudioTracks,

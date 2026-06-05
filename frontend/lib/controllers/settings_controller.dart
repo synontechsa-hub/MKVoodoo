@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../services/backend_bridge.dart';
 
 class SettingsController extends ChangeNotifier {
@@ -92,6 +93,16 @@ class SettingsController extends ChangeNotifier {
       _config = null;
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> pickOutputFolder() async {
+    final folder = await FilePicker.getDirectoryPath(
+      dialogTitle: 'Select Output Folder',
+    );
+    if (folder != null) {
+      outputDirController.text = folder;
       notifyListeners();
     }
   }

@@ -63,10 +63,11 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                   children: [
                     _buildSectionHeader('General'),
                     _buildThemeDropdown(),
-                    _buildTextField(
+                    _buildExplorableField(
                       'Output Directory',
                       controller.outputDirController,
                       'Default folder for converted videos.',
+                      () => controller.pickOutputFolder(),
                     ),
                     const SizedBox(height: 24),
                     _buildTextField(
@@ -243,6 +244,67 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     );
   }
 
+  Widget _buildExplorableField(String label, TextEditingController textController, String hint, VoidCallback onBrowse) {
+    return Container(
+      width: 600,
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: textController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
+                    filled: true,
+                    fillColor: Theme.of(context).cardColor,
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.horizontal(left: Radius.circular(12)),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ),
+              Container(
+                height: 52,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.horizontal(right: Radius.circular(12)),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: ElevatedButton.icon(
+                  onPressed: onBrowse,
+                  icon: const Icon(Icons.folder_open_rounded),
+                  label: const Text('Browse'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFB900FF),
+                    foregroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.horizontal(right: Radius.circular(12)),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDropdown(String label, String value, Map<String, String> options, Function(String) onChanged) {
     return Container(
       width: 600,
@@ -291,25 +353,26 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     return Container(
       width: 600,
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
+      child: Material(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: SwitchListTile(
-        title: Text(
-          title,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-            fontSize: 12,
+        clipBehavior: Clip.antiAlias,
+        child: SwitchListTile(
+          title: Text(
+            title,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
           ),
+          subtitle: Text(
+            subtitle,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              fontSize: 12,
+            ),
+          ),
+          value: value,
+          onChanged: onChanged,
+          activeThumbColor: const Color(0xFFB900FF),
         ),
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: const Color(0xFFB900FF),
       ),
     );
   }
