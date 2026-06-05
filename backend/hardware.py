@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from functools import lru_cache
 
-import static_ffmpeg
+from backend.utils.paths import get_ffmpeg_path
 
 
 class EncoderBackend(Enum):
@@ -41,8 +41,7 @@ class EncoderInfo:
 
 def _ffmpeg_bin() -> str:
     """Return the path to the static FFmpeg binary."""
-    ffmpeg, _ = static_ffmpeg.run.get_or_fetch_platform_executables_else_raise()
-    return str(ffmpeg)
+    return str(get_ffmpeg_path())
 
 
 def _encoder_available(ffmpeg: str, encoder: str) -> bool:

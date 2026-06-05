@@ -2,13 +2,13 @@ import subprocess
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import static_ffmpeg
+from backend.utils.paths import get_ffprobe_path
 
 class ProbeService:
     """Service for probing media files using ffprobe."""
 
     def __init__(self):
-        _, self._ffprobe = static_ffmpeg.run.get_or_fetch_platform_executables_else_raise()
+        self._ffprobe = str(get_ffprobe_path())
 
     def probe_file(self, file_path: str | Path) -> Dict[str, Any]:
         """Probe a file and return its stream information."""

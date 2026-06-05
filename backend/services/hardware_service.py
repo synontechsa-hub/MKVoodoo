@@ -1,31 +1,18 @@
 import subprocess
 from pathlib import Path
 from typing import List
-import static_ffmpeg.run
+from backend.utils.paths import get_ffmpeg_path
 
 from backend.models.hardware import EncoderInfo, EncoderBackend
 from backend.core.exceptions import HardwareError, GPUInitError
 
 def _ffmpeg_bin() -> str:
-    """Resolve the FFmpeg binary path.
-    Checks the system PATH first, then falls back to static_ffmpeg.
-    """
+    """Resolve the FFmpeg binary path."""
     import shutil
-    
-    # 1. Check system PATH first (fast and respects user-installed binaries)
     sys_ffmpeg = shutil.which("ffmpeg")
     if sys_ffmpeg:
         return sys_ffmpeg
-
-    # 2. Fallback to static_ffmpeg
-    try:
-        ffmpeg, _ = static_ffmpeg.run.get_or_fetch_platform_executables_else_raise()
-        return str(ffmpeg)
-    except Exception as exc:
-        raise HardwareError(
-            f"FFmpeg binary not found in PATH and download failed: {exc}\n"
-            "Please ensure FFmpeg is installed and added to your System Environment Variables."
-        )
+    return str(get_ffmpeg_path())
 
 class HardwareService:
     """Service for hardware encoder discovery and selection."""
