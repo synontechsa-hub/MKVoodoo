@@ -122,7 +122,6 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
   }
 
   Widget _buildFolderPicker(BuildContext context, WizardController controller) {
-    return Expanded(
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Expanded(
@@ -149,102 +148,102 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                     ),
                 ],
               ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB900FF).withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.folder_open_rounded,
-                  color: Color(0xFFB900FF),
-                  size: 48,
-                ),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Select Source Folder',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Pick the directory or specific files you want to convert.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
-              ),
-              const SizedBox(height: 32),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.mouse_outlined,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFB900FF).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'or drag and drop them here',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                    child: const Icon(
+                      Icons.folder_open_rounded,
+                      color: Color(0xFFB900FF),
+                      size: 48,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Select Source Folder',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Pick the directory or specific files you want to convert.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  ),
+                  const SizedBox(height: 32),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () => controller.pickInputFolder(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB900FF),
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.mouse_outlined,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'or drag and drop them here',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Browse Folders',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () => controller.pickInputFiles(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFB900FF),
-                  side: const BorderSide(color: Color(0xFFB900FF)),
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: () => controller.pickInputFolder(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFB900FF),
+                      foregroundColor: Colors.black,
+                      minimumSize: const Size(double.infinity, 56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Browse Folders',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  'Select Files',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: () => controller.pickInputFiles(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFB900FF),
+                      side: const BorderSide(color: Color(0xFFB900FF)),
+                      minimumSize: const Size(double.infinity, 56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Select Files',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-        ),
-      ),
       ),
     );
   }
@@ -330,35 +329,36 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                   ),
                 ),
-            child: ListView.builder(
-              controller: _logScrollController,
-              itemCount: controller.conversionLog.length,
-              itemBuilder: (context, index) {
-                final line = controller.conversionLog[index];
-                Color lineColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
-                if (line.contains('✓') || line.contains('success')) {
-                  lineColor = const Color(0xFF2ECC71);
-                } else if (line.contains('✗') ||
-                    line.contains('failed') ||
-                    line.contains('Error')) {
-                  lineColor = Colors.redAccent;
-                } else if (line.contains('⟳') || line.contains('Retry')) {
-                  lineColor = Colors.orangeAccent;
-                }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Text(
-                    line,
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                      color: lineColor,
-                    ),
-                  ),
-                );
-              },
+                child: ListView.builder(
+                  controller: _logScrollController,
+                  itemCount: controller.conversionLog.length,
+                  itemBuilder: (context, index) {
+                    final line = controller.conversionLog[index];
+                    Color lineColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
+                    if (line.contains('✓') || line.contains('success')) {
+                      lineColor = const Color(0xFF2ECC71);
+                    } else if (line.contains('✗') ||
+                        line.contains('failed') ||
+                        line.contains('Error')) {
+                      lineColor = Colors.redAccent;
+                    } else if (line.contains('⟳') || line.contains('Retry')) {
+                      lineColor = Colors.orangeAccent;
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(
+                        line,
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                          color: lineColor,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
           ),
         ),
       ],

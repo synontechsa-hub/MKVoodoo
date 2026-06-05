@@ -149,7 +149,6 @@ class _ProposalTableState extends State<ProposalTable> {
         ),
 
         const SizedBox(height: 16),
-        const SizedBox(height: 16),
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
@@ -166,62 +165,63 @@ class _ProposalTableState extends State<ProposalTable> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(24),
                   child: SingleChildScrollView(
-                child: DataTable(
-                  headingRowColor: WidgetStateProperty.all(
-                    Theme.of(context).dividerColor.withValues(alpha: 0.05),
+                    child: DataTable(
+                      headingRowColor: WidgetStateProperty.all(
+                        Theme.of(context).dividerColor.withValues(alpha: 0.05),
+                      ),
+                      columns: const [
+                        DataColumn(label: Text('Source')),
+                        DataColumn(label: Text('Season')),
+                        DataColumn(label: Text('Episode')),
+                        DataColumn(label: Text('Options')),
+                        DataColumn(label: Text('Output Name')),
+                      ],
+                      rows: proposals
+                          .map(
+                            (proposal) => DataRow(
+                              cells: [
+                                DataCell(
+                                  Text(
+                                    proposal.relative,
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                                DataCell(
+                                  Text('S${proposal.season.toString().padLeft(2, '0')}'),
+                                ),
+                                DataCell(
+                                  Text('E${proposal.episode.toString().padLeft(2, '0')}'),
+                                ),
+                                DataCell(
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.tune_rounded,
+                                      color: (proposal.selectedAudioTracks != null || proposal.selectedSubtitleTracks != null)
+                                          ? const Color(0xFFB900FF)
+                                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                                      size: 20,
+                                    ),
+                                    onPressed: () => _showTrackSelectionDialog(context, proposal),
+                                    tooltip: 'Configure Tracks & Quality',
+                                  ),
+                                ),
+                                DataCell(
+                                  Text(
+                                    controller.useSmartNaming ? proposal.outputFilename : proposal.originalFilename,
+                                    style: const TextStyle(
+                                      color: Color(0xFFB900FF),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    ),
                   ),
-                  columns: const [
-                    DataColumn(label: Text('Source')),
-                    DataColumn(label: Text('Season')),
-                    DataColumn(label: Text('Episode')),
-                    DataColumn(label: Text('Options')),
-                    DataColumn(label: Text('Output Name')),
-                  ],
-                  rows: proposals
-                      .map(
-                        (proposal) => DataRow(
-                          cells: [
-                            DataCell(
-                              Text(
-                                proposal.relative,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            DataCell(
-                              Text('S${proposal.season.toString().padLeft(2, '0')}'),
-                            ),
-                            DataCell(
-                              Text('E${proposal.episode.toString().padLeft(2, '0')}'),
-                            ),
-                            DataCell(
-                              IconButton(
-                                icon: Icon(
-                                  Icons.tune_rounded,
-                                  color: (proposal.selectedAudioTracks != null || proposal.selectedSubtitleTracks != null)
-                                      ? const Color(0xFFB900FF)
-                                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                                  size: 20,
-                                ),
-                                onPressed: () => _showTrackSelectionDialog(context, proposal),
-                                tooltip: 'Configure Tracks & Quality',
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                controller.useSmartNaming ? proposal.outputFilename : proposal.originalFilename,
-                                style: const TextStyle(
-                                  color: Color(0xFFB900FF),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
                 ),
               ),
             ),
-          ),
           ),
         ),
         const SizedBox(height: 24),
