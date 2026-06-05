@@ -177,7 +177,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                           : const Icon(Icons.save_rounded),
                       label: const Text('Save Settings'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00D2FF),
+                        backgroundColor: const Color(0xFFB900FF),
                         foregroundColor: Colors.black,
                         minimumSize: const Size(200, 56),
                         shape: RoundedRectangleBorder(
@@ -200,7 +200,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       child: Text(
         title.toUpperCase(),
         style: const TextStyle(
-          color: Color(0xFF00D2FF),
+          color: Color(0xFFB900FF),
           fontWeight: FontWeight.bold,
           fontSize: 12,
           letterSpacing: 1.2,
@@ -309,7 +309,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
         ),
         value: value,
         onChanged: onChanged,
-        activeThumbColor: const Color(0xFF00D2FF),
+        activeThumbColor: const Color(0xFFB900FF),
       ),
     );
   }

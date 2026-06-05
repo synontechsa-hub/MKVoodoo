@@ -93,7 +93,7 @@ class _ProposalTableState extends State<ProposalTable> {
       children: [
         Row(
           children: [
-            const Icon(Icons.check_circle_outline, color: Color(0xFF00D2FF)),
+            const Icon(Icons.check_circle_outline, color: Color(0xFFB900FF)),
             const SizedBox(width: 12),
             Text(
               'Discovered ${proposals.length} files. Review the naming below.',
@@ -115,9 +115,9 @@ class _ProposalTableState extends State<ProposalTable> {
               icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
               label: const Text('Bulk Edit All'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00D2FF).withValues(alpha: 0.1),
-                foregroundColor: const Color(0xFF00D2FF),
-                side: const BorderSide(color: Color(0xFF00D2FF), width: 1),
+                backgroundColor: const Color(0xFFB900FF).withValues(alpha: 0.1),
+                foregroundColor: const Color(0xFFB900FF),
+                side: const BorderSide(color: Color(0xFFB900FF), width: 1),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
@@ -131,14 +131,14 @@ class _ProposalTableState extends State<ProposalTable> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.psychology_rounded, size: 20, color: Color(0xFF00D2FF)),
+                  const Icon(Icons.psychology_rounded, size: 20, color: Color(0xFFB900FF)),
                   const SizedBox(width: 12),
                   const Text('Smart Naming', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
                   const SizedBox(width: 8),
                   Switch(
                     value: controller.useSmartNaming,
                     onChanged: (val) => controller.useSmartNaming = val,
-                    activeThumbColor: const Color(0xFF00D2FF),
+                    activeThumbColor: const Color(0xFFB900FF),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ],
@@ -154,7 +154,7 @@ class _ProposalTableState extends State<ProposalTable> {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: controller.outputPath != null
-                  ? const Color(0xFF00D2FF).withValues(alpha: 0.4)
+                  ? const Color(0xFFB900FF).withValues(alpha: 0.4)
                   : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             ),
           ),
@@ -163,7 +163,7 @@ class _ProposalTableState extends State<ProposalTable> {
               Icon(
                 Icons.drive_folder_upload_rounded,
                 color: controller.outputPath != null
-                    ? const Color(0xFF00D2FF)
+                    ? const Color(0xFFB900FF)
                     : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
               ),
               const SizedBox(width: 12),
@@ -183,7 +183,7 @@ class _ProposalTableState extends State<ProposalTable> {
                 onPressed: () => controller.pickOutputFolder(),
                 child: Text(
                   controller.outputPath != null ? 'Change' : 'Select Output',
-                  style: const TextStyle(color: Color(0xFF00D2FF)),
+                  style: const TextStyle(color: Color(0xFFB900FF)),
                 ),
               ),
             ],
@@ -232,7 +232,7 @@ class _ProposalTableState extends State<ProposalTable> {
                                 icon: Icon(
                                   Icons.tune_rounded,
                                   color: (proposal.selectedAudioTracks != null || proposal.selectedSubtitleTracks != null)
-                                      ? const Color(0xFF00D2FF)
+                                      ? const Color(0xFFB900FF)
                                       : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                                   size: 20,
                                 ),
@@ -244,7 +244,7 @@ class _ProposalTableState extends State<ProposalTable> {
                               Text(
                                 controller.useSmartNaming ? proposal.outputFilename : proposal.originalFilename,
                                 style: const TextStyle(
-                                  color: Color(0xFF00D2FF),
+                                  color: Color(0xFFB900FF),
                                 ),
                               ),
                             ),
@@ -264,10 +264,10 @@ class _ProposalTableState extends State<ProposalTable> {
             ElevatedButton(
               onPressed: controller.outputPath != null ? () => controller.startConversion() : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00D2FF),
+                backgroundColor: const Color(0xFFB900FF),
                 foregroundColor: Colors.black,
                 disabledBackgroundColor: const Color(
-                  0xFF00D2FF,
+                  0xFFB900FF,
                 ).withValues(alpha: 0.3),
                 minimumSize: const Size(200, 56),
                 shape: RoundedRectangleBorder(

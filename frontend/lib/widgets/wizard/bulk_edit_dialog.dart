@@ -25,7 +25,7 @@ class _BulkEditDialogState extends State<BulkEditDialog> {
     return AlertDialog(
       title: const Row(
         children: [
-          Icon(Icons.auto_fix_high_rounded, color: Color(0xFF00D2FF)),
+          Icon(Icons.auto_fix_high_rounded, color: Color(0xFFB900FF)),
           SizedBox(width: 12),
           Text('Bulk Settings'),
         ],
@@ -102,7 +102,7 @@ class _BulkEditDialogState extends State<BulkEditDialog> {
             'sub_strategy': _subStrategy,
           }),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00D2FF),
+            backgroundColor: const Color(0xFFB900FF),
             foregroundColor: Colors.black,
           ),
           child: const Text('Apply to All'),

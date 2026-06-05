@@ -42,7 +42,7 @@ class _ConsoleOverlayState extends State<ConsoleOverlay> {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF00D2FF).withValues(alpha: 0.3)),
+        border: Border.all(color: const Color(0xFFB900FF).withValues(alpha: 0.3)),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -53,10 +53,10 @@ class _ConsoleOverlayState extends State<ConsoleOverlay> {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.terminal_rounded, color: Color(0xFF00D2FF), size: 16),
+                  Icon(Icons.terminal_rounded, color: Color(0xFFB900FF), size: 16),
                   SizedBox(width: 8),
                   Text('Processing Queue...',
-                      style: TextStyle(color: Color(0xFF00D2FF), fontWeight: FontWeight.bold)),
+                      style: TextStyle(color: Color(0xFFB900FF), fontWeight: FontWeight.bold)),
                 ],
               ),
               Row(
@@ -73,7 +73,7 @@ class _ConsoleOverlayState extends State<ConsoleOverlay> {
                   const SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00D2FF)),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFB900FF)),
                   ),
                 ],
               ),

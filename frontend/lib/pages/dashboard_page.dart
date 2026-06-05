@@ -34,7 +34,7 @@ class DashboardPage extends StatelessWidget {
                           value: controller.activeJobs > 0 ? 'Processing' : 'Idle',
                           subtitle: '${controller.activeJobs} active jobs',
                           icon: Icons.loop_rounded,
-                          color: controller.activeJobs > 0 ? Colors.orangeAccent : const Color(0xFF00D2FF),
+                          color: controller.activeJobs > 0 ? Colors.orangeAccent : const Color(0xFFB900FF),
                         ),
                         const SizedBox(width: 24),
                         StatusCard(
@@ -114,7 +114,7 @@ class DashboardPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF00D2FF).withValues(alpha: 0.1),
+              color: const Color(0xFFB900FF).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Row(
@@ -122,10 +122,10 @@ class DashboardPage extends StatelessWidget {
                 SizedBox(
                   width: 8,
                   height: 8,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00D2FF)),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFB900FF)),
                 ),
                 SizedBox(width: 8),
-                Text('LIVE', style: TextStyle(color: Color(0xFF00D2FF), fontWeight: FontWeight.bold, fontSize: 10)),
+                Text('LIVE', style: TextStyle(color: Color(0xFFB900FF), fontWeight: FontWeight.bold, fontSize: 10)),
               ],
             ),
           ),

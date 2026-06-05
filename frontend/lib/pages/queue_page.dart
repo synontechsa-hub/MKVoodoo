@@ -105,7 +105,7 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                           _buildActionButton(
                             icon: Icons.play_arrow_rounded,
                             label: 'Resume Queue',
-                            color: const Color(0xFF00D2FF),
+                            color: const Color(0xFFB900FF),
                             onPressed: controller.jobs != null &&
                                     controller.jobs!.any((j) => j['status'] == 'pending')
                                 ? () => controller.resumeQueue()
@@ -274,7 +274,7 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: controller.isSelected(id)
-                                      ? const Color(0xFF00D2FF).withValues(alpha: 0.4)
+                                      ? const Color(0xFFB900FF).withValues(alpha: 0.4)
                                       : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                                   width: controller.isSelected(id) ? 1.5 : 1,
                                 ),

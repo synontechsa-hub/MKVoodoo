@@ -139,12 +139,12 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00D2FF).withValues(alpha: 0.1),
+                  color: const Color(0xFFB900FF).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.folder_open_rounded,
-                  color: Color(0xFF00D2FF),
+                  color: Color(0xFFB900FF),
                   size: 48,
                 ),
               ),
@@ -195,7 +195,7 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
               ElevatedButton(
                 onPressed: () => controller.pickInputFolder(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00D2FF),
+                  backgroundColor: const Color(0xFFB900FF),
                   foregroundColor: Colors.black,
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
@@ -212,8 +212,8 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
               OutlinedButton(
                 onPressed: () => controller.pickInputFiles(),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF00D2FF),
-                  side: const BorderSide(color: Color(0xFF00D2FF)),
+                  foregroundColor: const Color(0xFFB900FF),
+                  side: const BorderSide(color: Color(0xFFB900FF)),
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -289,7 +289,7 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Start New Job'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00D2FF),
+                  backgroundColor: const Color(0xFFB900FF),
                   foregroundColor: Colors.black,
                 ),
               ),
