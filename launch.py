@@ -9,7 +9,7 @@ def main():
     frontend_dir = root / "frontend"
     venv_python = root / ".venv" / "Scripts" / "python.exe"
 
-    print("🚀 MKVoodoo v1.0.6 Launcher")
+    print("🚀 MKVoodoo v1.0.0 Launcher")
     print("━" * 30)
 
     # 1. Check Environment

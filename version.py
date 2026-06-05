@@ -1,3 +1,3 @@
-VERSION = "1.0.7"
+VERSION = "1.0.0"
 RELEASE_DATE = "2026-05-01"
-CODENAME = "Quartz"
+CODENAME = "Magician"

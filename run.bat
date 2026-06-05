@@ -1,5 +1,5 @@
 @echo off
-TITLE MKVoodoo v1.0.1 Launcher
+TITLE MKVoodoo v1.0.0 Launcher
 echo Checking environment...
 if exist .venv\Scripts\python.exe (
     .venv\Scripts\python.exe launch.py
