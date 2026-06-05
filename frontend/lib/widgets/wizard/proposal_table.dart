@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/scan_proposal.dart';
@@ -148,16 +149,23 @@ class _ProposalTableState extends State<ProposalTable> {
         ),
 
         const SizedBox(height: 16),
+        const SizedBox(height: 16),
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: SingleChildScrollView(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withValues(alpha: 0.03)
+                      : Colors.black.withValues(alpha: 0.03),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: SingleChildScrollView(
                 child: DataTable(
                   headingRowColor: WidgetStateProperty.all(
                     Theme.of(context).dividerColor.withValues(alpha: 0.05),
@@ -214,24 +222,43 @@ class _ProposalTableState extends State<ProposalTable> {
               ),
             ),
           ),
+          ),
         ),
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            ElevatedButton(
-              onPressed: () => controller.startConversion(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB900FF),
-                foregroundColor: Colors.black,
-                minimumSize: const Size(200, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFB900FF), Color(0xFF7000FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFB900FF).withValues(alpha: 0.3),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
-              child: const Text(
-                'Start Conversion',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              child: ElevatedButton(
+                onPressed: () => controller.startConversion(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  minimumSize: const Size(200, 56),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Text(
+                  'Start Conversion',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ),
             ),
           ],

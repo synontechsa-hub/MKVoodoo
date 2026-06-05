@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -267,18 +268,33 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                               statusLabel = '${progress.toStringAsFixed(1)}%';
                             }
 
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: controller.isSelected(id)
-                                      ? const Color(0xFFB900FF).withValues(alpha: 0.4)
-                                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                                  width: controller.isSelected(id) ? 1.5 : 1,
-                                ),
-                              ),
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? Colors.white.withValues(alpha: 0.03)
+                                        : Colors.black.withValues(alpha: 0.03),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: controller.isSelected(id)
+                                          ? const Color(0xFFB900FF).withValues(alpha: 0.5)
+                                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                                      width: controller.isSelected(id) ? 1.5 : 1,
+                                    ),
+                                    boxShadow: controller.isSelected(id)
+                                        ? [
+                                            BoxShadow(
+                                              color: const Color(0xFFB900FF).withValues(alpha: 0.15),
+                                              blurRadius: 15,
+                                              spreadRadius: -2,
+                                            )
+                                          ]
+                                        : null,
+                                  ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -371,20 +387,47 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                                   ),
                                   if (status == 'in_progress') ...[
                                     const SizedBox(height: 12),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: LinearProgressIndicator(
-                                        value: progress / 100,
-                                        minHeight: 6,
-                                        backgroundColor: statusColor.withValues(alpha: 0.1),
-                                        color: statusColor,
-                                      ),
+                                    LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return Container(
+                                          height: 6,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            color: statusColor.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              AnimatedContainer(
+                                                duration: const Duration(milliseconds: 300),
+                                                width: constraints.maxWidth * (progress / 100),
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  gradient: const LinearGradient(
+                                                    colors: [Color(0xFFB900FF), Color(0xFF39FF14)],
+                                                    begin: Alignment.centerLeft,
+                                                    end: Alignment.centerRight,
+                                                  ),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: const Color(0xFF39FF14).withValues(alpha: 0.4),
+                                                      blurRadius: 8,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ],
                               ),
-                            );
-                          },
+                            ),
+                          ),
+                        );
+                      },
                         ),
                       ),
                     ],

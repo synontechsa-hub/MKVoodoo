@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -122,17 +123,32 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
 
   Widget _buildFolderPicker(BuildContext context, WizardController controller) {
     return Expanded(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Expanded(
       child: Center(
-        child: Container(
-          width: 500,
-          padding: const EdgeInsets.all(48),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(32),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-            ),
-          ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              width: 500,
+              padding: const EdgeInsets.all(48),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                ),
+                boxShadow: [
+                  if (isDark)
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 20,
+                      spreadRadius: -5,
+                    ),
+                ],
+              ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -227,6 +243,8 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
             ],
           ),
         ),
+        ),
+      ),
       ),
     );
   }
@@ -297,15 +315,21 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-              ),
-            ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.dark 
+                      ? Colors.white.withValues(alpha: 0.02) 
+                      : Colors.black.withValues(alpha: 0.02),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                  ),
+                ),
             child: ListView.builder(
               controller: _logScrollController,
               itemCount: controller.conversionLog.length,
@@ -334,6 +358,7 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                 );
               },
             ),
+          ),
           ),
         ),
       ],

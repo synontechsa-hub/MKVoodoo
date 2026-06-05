@@ -49,26 +49,30 @@ class MKVoodooApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF39FF14),
         brightness: Brightness.dark,
-        surface: const Color(0xFF0E0E0E),
+        surface: Colors.transparent, // We use custom glass surfaces
         primary: const Color(0xFF39FF14),
         secondary: const Color(0xFFB900FF),
       ),
       textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-      scaffoldBackgroundColor: const Color(0xFF0A0A0A),
+      scaffoldBackgroundColor: Colors.transparent,
       cardTheme: CardThemeData(
-        color: const Color(0xFF161616),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: Colors.white.withValues(alpha: 0.03),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+        ),
         elevation: 0,
       ),
       navigationRailTheme: NavigationRailThemeData(
-        backgroundColor: const Color(0xFF0E0E0E),
-        indicatorColor: const Color(0xFF39FF14).withValues(alpha: 0.2),
-        selectedIconTheme: const IconThemeData(color: Color(0xFF39FF14)),
-        unselectedIconTheme: IconThemeData(color: Colors.white.withValues(alpha: 0.4)),
-        selectedLabelTextStyle: const TextStyle(color: Color(0xFF39FF14), fontWeight: FontWeight.bold),
-        unselectedLabelTextStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
+        backgroundColor: Colors.transparent,
+        indicatorColor: const Color(0xFF39FF14).withValues(alpha: 0.15),
+        indicatorShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        selectedIconTheme: const IconThemeData(color: Color(0xFF39FF14), size: 28),
+        unselectedIconTheme: IconThemeData(color: Colors.white.withValues(alpha: 0.4), size: 24),
+        selectedLabelTextStyle: const TextStyle(color: Color(0xFF39FF14), fontWeight: FontWeight.bold, fontSize: 13),
+        unselectedLabelTextStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
       ),
-      dividerTheme: const DividerThemeData(color: Color(0xFF222222), thickness: 1),
+      dividerTheme: DividerThemeData(color: Colors.white.withValues(alpha: 0.05), thickness: 1),
     );
 
     final lightTheme = ThemeData(
@@ -77,26 +81,30 @@ class MKVoodooApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF39FF14),
         brightness: Brightness.light,
-        surface: const Color(0xFFF0F0F0),
+        surface: Colors.transparent,
         primary: const Color(0xFF39FF14),
         secondary: const Color(0xFFB900FF),
       ),
       textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
-      scaffoldBackgroundColor: const Color(0xFFF9F9F9),
+      scaffoldBackgroundColor: Colors.transparent,
       cardTheme: CardThemeData(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 1,
+        color: Colors.black.withValues(alpha: 0.03),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
+        ),
+        elevation: 0,
       ),
       navigationRailTheme: NavigationRailThemeData(
-        backgroundColor: const Color(0xFFF0F0F0),
-        indicatorColor: const Color(0xFF39FF14).withValues(alpha: 0.2),
-        selectedIconTheme: const IconThemeData(color: Color(0xFF39FF14)),
-        unselectedIconTheme: IconThemeData(color: Colors.black.withValues(alpha: 0.4)),
-        selectedLabelTextStyle: const TextStyle(color: Color(0xFF39FF14), fontWeight: FontWeight.bold),
-        unselectedLabelTextStyle: TextStyle(color: Colors.black.withValues(alpha: 0.4)),
+        backgroundColor: Colors.transparent,
+        indicatorColor: const Color(0xFF39FF14).withValues(alpha: 0.15),
+        indicatorShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        selectedIconTheme: const IconThemeData(color: Color(0xFF39FF14), size: 28),
+        unselectedIconTheme: IconThemeData(color: Colors.black.withValues(alpha: 0.4), size: 24),
+        selectedLabelTextStyle: const TextStyle(color: Color(0xFF39FF14), fontWeight: FontWeight.bold, fontSize: 13),
+        unselectedLabelTextStyle: TextStyle(color: Colors.black.withValues(alpha: 0.4), fontSize: 12),
       ),
-      dividerTheme: const DividerThemeData(color: Color(0xFFE0E0E0), thickness: 1),
+      dividerTheme: DividerThemeData(color: Colors.black.withValues(alpha: 0.05), thickness: 1),
     );
 
     return MaterialApp(
@@ -122,56 +130,107 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      body: Row(
-        children: [
-          NavigationRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (int index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            labelType: NavigationRailLabelType.all,
-            leading: Column(
-              children: [
-                const SizedBox(height: 16),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    'assets/logo.png',
-                    width: 48,
-                    height: 48,
-                    fit: BoxFit.contain,
-                  ),
+      backgroundColor: isDark ? const Color(0xFF030305) : const Color(0xFFF9F9F9),
+      body: Container(
+        decoration: isDark
+            ? const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(-0.8, -0.8),
+                  radius: 1.5,
+                  colors: [
+                    Color(0xFF1A0A2E), // Subtle mystic purple tint
+                    Color(0xFF050508), // Deep dark
+                  ],
                 ),
-                const SizedBox(height: 32),
-              ],
+              )
+            : null,
+        child: Row(
+          children: [
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 16, 8, 16),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.02),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                ),
+                boxShadow: [
+                  if (isDark)
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: NavigationRail(
+                backgroundColor: Colors.transparent,
+                selectedIndex: _selectedIndex,
+                onDestinationSelected: (int index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                labelType: NavigationRailLabelType.all,
+                groupAlignment: -0.9,
+                leading: Column(
+                  children: [
+                    const SizedBox(height: 24),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF39FF14).withValues(alpha: 0.25),
+                            blurRadius: 24,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          isDark
+                              ? 'assets/MKVoodoo logo - Final - Dark Background.png'
+                              : 'assets/MKVoodoo logo - Final - Light Background.png',
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+                destinations: const [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.dashboard_rounded),
+                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('Dashboard')),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.add_to_photos_rounded),
+                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('New Job')),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.queue_play_next_rounded),
+                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('Queue')),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.settings_rounded),
+                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('Settings')),
+                  ),
+                ],
+              ),
             ),
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.dashboard_rounded),
-                label: Text('Dashboard'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.add_to_photos_rounded),
-                label: Text('New Job'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.queue_play_next_rounded),
-                label: Text('Queue'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.settings_rounded),
-                label: Text('Settings'),
-              ),
-            ],
-          ),
-          const VerticalDivider(width: 1),
-          Expanded(
-            child: _buildBody(),
-          ),
-        ],
+            Expanded(
+              child: _buildBody(),
+            ),
+          ],
+        ),
       ),
     );
   }

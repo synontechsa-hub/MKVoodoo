@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/settings_controller.dart';
@@ -61,128 +62,177 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionHeader('General'),
-                    _buildThemeDropdown(),
-                    _buildExplorableField(
-                      'Output Directory',
-                      controller.outputDirController,
-                      'Default folder for converted videos.',
-                      () => controller.pickOutputFolder(),
-                    ),
-                    const SizedBox(height: 24),
-                    _buildTextField(
-                      'Naming Template',
-                      controller.namingTemplateController,
-                      'e.g. S{S:02d}E{E:02d} - {title}',
-                    ),
-                    const SizedBox(height: 32),
-                    _buildSectionHeader('Conversion'),
-                    _buildSwitchTile(
-                      'Review before conversion',
-                      'Show a mapping of files before starting the process.',
-                      controller.config!['review_before_convert'] as bool,
-                      (val) => controller.setConfigValue('review_before_convert', val),
-                    ),
-                    _buildSwitchTile(
-                      'Skip existing files',
-                      'Do not re-convert files that already exist in the output folder.',
-                      controller.config!['skip_existing'] as bool,
-                      (val) => controller.setConfigValue('skip_existing', val),
-                    ),
-                    _buildSwitchTile(
-                      'System Notifications',
-                      'Show a Windows notification when a batch finishes.',
-                      controller.config!['show_notifications'] as bool? ?? true,
-                      (val) => controller.setConfigValue('show_notifications', val),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      'Max Retries',
-                      controller.maxRetriesController,
-                      'Number of attempts per file if FFmpeg fails.',
-                      width: 150,
-                    ),
-                    _buildTextField(
-                      'Parallel Jobs',
-                      controller.parallelJobsController,
-                      'Number of files to convert simultaneously (1-4).',
-                      width: 150,
-                    ),
-                    _buildDropdown(
-                      'Default Resolution',
-                      controller.selectedRes,
-                      const {
-                        '1080p': '1080p (Full HD)',
-                        '720p': '720p (HD)',
-                        '480p': '480p (SD)',
-                      },
-                      (val) => controller.setSelectedRes(val),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildDropdown(
-                      'Default Quality',
-                      controller.selectedQuality,
-                      const {
-                        'high': 'High (Best Quality)',
-                        'medium': 'Medium (Balanced)',
-                        'low': 'Low (Smallest Size)',
-                      },
-                      (val) => controller.setSelectedQuality(val),
-                    ),
-                    _buildDropdown(
-                      'Default Audio Quality',
-                      controller.selectedAudioBitrate,
-                      const {
-                        '96k': '96k (Low)',
-                        '128k': '128k (Standard)',
-                        '192k': '192k (High)',
-                        '256k': '256k (Pro)',
-                        '320k': '320k (Maximum)',
-                        'copy': 'Passthrough (Copy Original)',
-                      },
-                      (val) => controller.setSelectedAudioBitrate(val),
+                    _buildGlassPanel(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader('General'),
+                          _buildThemeDropdown(),
+                          _buildExplorableField(
+                            'Output Directory',
+                            controller.outputDirController,
+                            'Default folder for converted videos.',
+                            () => controller.pickOutputFolder(),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildTextField(
+                            'Naming Template',
+                            controller.namingTemplateController,
+                            'e.g. S{S:02d}E{E:02d} - {title}',
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 32),
-                    _buildSectionHeader('Hardware'),
-                    _buildDropdown(
-                      'Preferred GPU / Encoder',
-                      controller.config!['force_encoder'] ?? '',
-                      {
-                        '': 'Auto-Detect (Best Available)',
-                        for (var e in controller.availableEncoders)
-                          e['video_encoder'] as String: e['label'] as String,
-                      },
-                      (val) => controller.setConfigValue('force_encoder', val == '' ? null : val),
+                    _buildGlassPanel(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader('Conversion'),
+                          _buildSwitchTile(
+                            'Review before conversion',
+                            'Show a mapping of files before starting the process.',
+                            controller.config!['review_before_convert'] as bool,
+                            (val) => controller.setConfigValue('review_before_convert', val),
+                          ),
+                          _buildSwitchTile(
+                            'Skip existing files',
+                            'Do not re-convert files that already exist in the output folder.',
+                            controller.config!['skip_existing'] as bool,
+                            (val) => controller.setConfigValue('skip_existing', val),
+                          ),
+                          _buildSwitchTile(
+                            'System Notifications',
+                            'Show a Windows notification when a batch finishes.',
+                            controller.config!['show_notifications'] as bool? ?? true,
+                            (val) => controller.setConfigValue('show_notifications', val),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildTextField(
+                                  'Max Retries',
+                                  controller.maxRetriesController,
+                                  'Number of attempts.',
+                                  width: double.infinity,
+                                ),
+                              ),
+                              const SizedBox(width: 24),
+                              Expanded(
+                                child: _buildTextField(
+                                  'Parallel Jobs',
+                                  controller.parallelJobsController,
+                                  'Files to convert simultaneously.',
+                                  width: double.infinity,
+                                ),
+                              ),
+                            ],
+                          ),
+                          _buildDropdown(
+                            'Default Resolution',
+                            controller.selectedRes,
+                            const {
+                              '1080p': '1080p (Full HD)',
+                              '720p': '720p (HD)',
+                              '480p': '480p (SD)',
+                            },
+                            (val) => controller.setSelectedRes(val),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildDropdown(
+                            'Default Quality',
+                            controller.selectedQuality,
+                            const {
+                              'high': 'High (Best Quality)',
+                              'medium': 'Medium (Balanced)',
+                              'low': 'Low (Smallest Size)',
+                            },
+                            (val) => controller.setSelectedQuality(val),
+                          ),
+                          _buildDropdown(
+                            'Default Audio Quality',
+                            controller.selectedAudioBitrate,
+                            const {
+                              '96k': '96k (Low)',
+                              '128k': '128k (Standard)',
+                              '192k': '192k (High)',
+                              '256k': '256k (Pro)',
+                              '320k': '320k (Maximum)',
+                              'copy': 'Passthrough (Copy Original)',
+                            },
+                            (val) => controller.setSelectedAudioBitrate(val),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildGlassPanel(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader('Hardware'),
+                          _buildDropdown(
+                            'Preferred GPU / Encoder',
+                            controller.config!['force_encoder'] ?? '',
+                            {
+                              '': 'Auto-Detect (Best Available)',
+                              for (var e in controller.availableEncoders)
+                                e['video_encoder'] as String: e['label'] as String,
+                            },
+                            (val) => controller.setConfigValue('force_encoder', val == '' ? null : val),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 40),
-                    ElevatedButton.icon(
-                      onPressed: controller.isSaving
-                          ? null
-                          : () async {
-                              final success = await controller.saveSettings();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(success ? 'Settings saved successfully' : 'Failed to save settings'),
-                                    backgroundColor: success ? const Color(0xFF2ECC71) : Colors.redAccent,
-                                  ),
-                                );
-                              }
-                            },
-                      icon: controller.isSaving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.save_rounded),
-                      label: const Text('Save Settings'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFB900FF),
-                        foregroundColor: Colors.black,
-                        minimumSize: const Size(200, 56),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 64),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFB900FF), Color(0xFF7000FF)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFB900FF).withValues(alpha: 0.3),
+                            blurRadius: 15,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton.icon(
+                        onPressed: controller.isSaving
+                            ? null
+                            : () async {
+                                final success = await controller.saveSettings();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(success ? 'Settings saved successfully' : 'Failed to save settings'),
+                                      backgroundColor: success ? const Color(0xFF2ECC71) : Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              },
+                        icon: controller.isSaving
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Icon(Icons.save_rounded),
+                        label: const Text('Save Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          shadowColor: Colors.transparent,
+                          minimumSize: const Size(200, 56),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     ),
@@ -195,16 +245,45 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 24.0),
       child: Text(
         title.toUpperCase(),
         style: const TextStyle(
           color: Color(0xFFB900FF),
           fontWeight: FontWeight.bold,
-          fontSize: 12,
+          fontSize: 14,
           letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlassPanel({required Widget child}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
+          width: 700,
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.02),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+            ),
+            boxShadow: [
+              if (isDark)
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  spreadRadius: -5,
+                ),
+            ],
+          ),
+          child: child,
         ),
       ),
     );
@@ -212,7 +291,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
   Widget _buildTextField(String label, TextEditingController textController, String hint, {double? width}) {
     return Container(
-      width: width ?? 600,
+      width: width ?? double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +325,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
   Widget _buildExplorableField(String label, TextEditingController textController, String hint, VoidCallback onBrowse) {
     return Container(
-      width: 600,
+      width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,7 +386,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
   Widget _buildDropdown(String label, String value, Map<String, String> options, Function(String) onChanged) {
     return Container(
-      width: 600,
+      width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,7 +430,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
   Widget _buildSwitchTile(String title, String subtitle, bool value, Function(bool) onChanged) {
     return Container(
-      width: 600,
+      width: double.infinity,
       margin: const EdgeInsets.only(bottom: 8),
       child: Material(
         color: Theme.of(context).cardColor,
