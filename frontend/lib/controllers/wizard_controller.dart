@@ -156,9 +156,9 @@ class WizardController extends ChangeNotifier {
     }
   }
 
-  String _buildOutputPath(String globalOutput, ScanProposal p_scan, String outName) {
-    final src = p_scan.source.replaceAll('\\', '/');
-    final rel = p_scan.relative.replaceAll('\\', '/');
+  String _buildOutputPath(String globalOutput, ScanProposal pScan, String outName) {
+    final src = pScan.source.replaceAll('\\', '/');
+    final rel = pScan.relative.replaceAll('\\', '/');
     
     String rootDir = src;
     if (src.endsWith(rel)) {
@@ -170,7 +170,7 @@ class WizardController extends ChangeNotifier {
     }
     
     final rootFolderName = rootDir.split('/').last;
-    final relativeDir = p.dirname(p_scan.relative);
+    final relativeDir = p.dirname(pScan.relative);
     
     if (rootFolderName.isEmpty || rootFolderName.contains(':')) {
       return p.join(globalOutput, relativeDir, outName);
@@ -197,19 +197,19 @@ class WizardController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final jobs = _proposals!.map((p_scan) {
-        final outName = _useSmartNaming ? p_scan.outputFilename : p_scan.originalFilename;
-        final finalOutput = _buildOutputPath(globalOutput, p_scan, outName);
+      final jobs = _proposals!.map((pScan) {
+        final outName = _useSmartNaming ? pScan.outputFilename : pScan.originalFilename;
+        final finalOutput = _buildOutputPath(globalOutput, pScan, outName);
         return {
-          'source': p_scan.source,
+          'source': pScan.source,
           'output': finalOutput,
           'smart_name': _useSmartNaming,
           'output_filename': outName,
-          'audio_tracks': p_scan.selectedAudioTracks,
-          'subtitle_tracks': p_scan.selectedSubtitleTracks,
-          'audio_bitrate': p_scan.audioBitrate,
-          'keep_all_audio': p_scan.selectedAudioTracks == null,
-          'keep_all_subtitles': p_scan.selectedSubtitleTracks == null,
+          'audio_tracks': pScan.selectedAudioTracks,
+          'subtitle_tracks': pScan.selectedSubtitleTracks,
+          'audio_bitrate': pScan.audioBitrate,
+          'keep_all_audio': pScan.selectedAudioTracks == null,
+          'keep_all_subtitles': pScan.selectedSubtitleTracks == null,
         };
       }).toList();
 
