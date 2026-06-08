@@ -259,19 +259,19 @@ def _process_queue(q_svc: QueueService, cfg) -> int:
     engines_lock = threading.Lock()
     
     # Watchdog to kill FFmpeg if parent (Flutter) dies and closes stdin
-    def _watchdog():
-        try:
-            sys.stdin.read()
-        except Exception:
-            pass
-        logger.error("Parent process died! Terminating FFmpeg...")
-        with engines_lock:
-            for eng in active_engines:
-                eng.stop()
-        os._exit(1)
+    # def _watchdog():
+    #     try:
+    #         sys.stdin.read()
+    #     except Exception:
+    #         pass
+    #     logger.error("Parent process died! Terminating FFmpeg...")
+    #     with engines_lock:
+    #         for eng in active_engines:
+    #             eng.stop()
+    #     os._exit(1)
         
-    if not sys.stdin.isatty():
-        threading.Thread(target=_watchdog, daemon=True).start()
+    # if not sys.stdin.isatty():
+    #     threading.Thread(target=_watchdog, daemon=True).start()
     
     from concurrent.futures import ThreadPoolExecutor
     
@@ -322,7 +322,8 @@ def _process_queue(q_svc: QueueService, cfg) -> int:
             logger.error(f"Worker failed: {exc}", job_id=job_id)
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        executor.map(worker, enumerate(pending, start=1))
+        # Use list() to consume the iterator and ensure we block here until all are done
+        list(executor.map(worker, enumerate(pending, start=1)))
             
     logger.session_end(show_notification=cfg.show_notifications)
     return 0

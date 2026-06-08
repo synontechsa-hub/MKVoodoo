@@ -47,13 +47,13 @@ class SynLogger:
 
     def session_start(self, total_files: int, encoder_label: str):
         with self._lock:
-            print()
-            print(_fmt("━" * 60, _BOLD))
-            print(_fmt("  MKVoodoo v1.0.0", _BOLD, _CYAN))
-            print(f"  Encoder  : {_fmt(encoder_label, _BOLD)}")
-            print(f"  Files    : {_fmt(str(total_files), _BOLD)}")
-            print(_fmt("━" * 60, _BOLD))
-            print()
+            print(flush=True)
+            print(_fmt("━" * 60, _BOLD), flush=True)
+            print(_fmt("  MKVoodoo v1.0.0", _BOLD, _CYAN), flush=True)
+            print(f"  Encoder  : {_fmt(encoder_label, _BOLD)}", flush=True)
+            print(f"  Files    : {_fmt(str(total_files), _BOLD)}", flush=True)
+            print(_fmt("━" * 60, _BOLD), flush=True)
+            print(flush=True)
 
     def session_end(self, show_notification: bool = False):
         success = sum(1 for r in self._records if r.status == "success")
@@ -61,14 +61,14 @@ class SynLogger:
         total_time = sum(r.duration_seconds for r in self._records)
 
         with self._lock:
-            print()
-            print(_fmt("━" * 60, _BOLD))
-            print(_fmt("  Session Complete", _BOLD))
+            print(flush=True)
+            print(_fmt("━" * 60, _BOLD), flush=True)
+            print(_fmt("  Session Complete", _BOLD), flush=True)
             print(f"  {_fmt(str(success), _GREEN, _BOLD)} succeeded  "
-                  f"{_fmt(str(failed), _RED, _BOLD)} failed")
-            print(f"  Total time : {_fmt(self._format_duration(total_time), _BOLD)}")
-            print(_fmt("━" * 60, _BOLD))
-            print()
+                  f"{_fmt(str(failed), _RED, _BOLD)} failed", flush=True)
+            print(f"  Total time : {_fmt(self._format_duration(total_time), _BOLD)}", flush=True)
+            print(_fmt("━" * 60, _BOLD), flush=True)
+            print(flush=True)
         self._flush()
 
         if show_notification:
@@ -94,14 +94,14 @@ class SynLogger:
         prefix = f"[{job_id}] " if job_id else ""
         label = _fmt(f"{prefix}[{index}/{total}]", _DIM)
         with self._lock:
-            print(f"{label} {_fmt('Converting', _CYAN)} {self._truncate(source, 55)}")
+            print(f"{label} {_fmt('Converting', _CYAN)} {self._truncate(source, 55)}", flush=True)
         return time.monotonic()
 
     def file_success(self, source: str, output: str, preset: str, encoder: str, start_time: float, job_id: str = ""):
         elapsed = time.monotonic() - start_time
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
-            print(f"        {prefix}{_fmt('✓', _GREEN)} Done in {self._format_duration(elapsed)}")
+            print(f"        {prefix}{_fmt('✓', _GREEN)} Done in {self._format_duration(elapsed)}", flush=True)
         self._records.append(ConversionRecord(
             source=source, output=output, preset=preset,
             encoder=encoder, status="success", duration_seconds=elapsed
@@ -112,7 +112,7 @@ class SynLogger:
         elapsed = time.monotonic() - start_time
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
-            print(f"        {prefix}{_fmt('✗', _RED)} FAILED: {error}")
+            print(f"        {prefix}{_fmt('✗', _RED)} FAILED: {error}", flush=True)
         self._records.append(ConversionRecord(
             source=source, output=output, preset=preset,
             encoder=encoder, status="failed", duration_seconds=elapsed, error=error
@@ -122,22 +122,22 @@ class SynLogger:
     def progress(self, job_id: str, pct: float):
         """Log progress in a machine-readable format for the frontend."""
         with self._lock:
-            print(f"[{job_id}] ⏱ Progress: {pct:.1f}%")
+            print(f"[{job_id}] ⏱ Progress: {pct:.1f}%", flush=True)
 
     def info(self, msg: str, job_id: str = ""): 
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
-            print(f"  {prefix}{_fmt('ℹ', _CYAN)} {msg}")
+            print(f"  {prefix}{_fmt('ℹ', _CYAN)} {msg}", flush=True)
         
     def warning(self, msg: str, job_id: str = ""): 
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
-            print(f"  {prefix}{_fmt('⚠', _YELLOW)} {msg}")
+            print(f"  {prefix}{_fmt('⚠', _YELLOW)} {msg}", flush=True)
         
     def error(self, msg: str, job_id: str = ""): 
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
-            print(f"  {prefix}{_fmt('✗', _RED)} {msg}")
+            print(f"  {prefix}{_fmt('✗', _RED)} {msg}", flush=True)
 
     def _flush(self):
         data = {
