@@ -53,10 +53,10 @@ class ConverterService:
                 self.logger.info(f"Retrying ({attempts}/{max_retries})...", job_id=job_id)
 
             try:
-                def progress_cb(pct: float):
-                    print(f"[{job_id}] ⏱ Progress: {pct:.1f}%")
-
-                success = self.engine.run(args, on_progress=progress_cb)
+                success = self.engine.run(
+                    args, 
+                    on_progress=lambda pct: self.logger.progress(job_id, pct)
+                )
 
                 if success:
                     self.logger.file_success(

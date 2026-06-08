@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/backend_bridge.dart';
+import '../models/job.dart';
 
 class QueueController extends ChangeNotifier {
   final BackendBridge _bridge;
   StreamSubscription<String>? _queueSubscription;
 
-  List<Map<String, dynamic>>? _jobs;
+  List<Job>? _jobs;
   bool _isLoading = true;
   bool _isProcessing = false;
   final List<String> _consoleLogs = [];
@@ -19,7 +20,7 @@ class QueueController extends ChangeNotifier {
   }
 
   // Getters
-  List<Map<String, dynamic>>? get jobs => _jobs;
+  List<Job>? get jobs => _jobs;
   bool get isLoading => _isLoading;
   bool get isProcessing => _isProcessing;
   List<String> get consoleLogs => _consoleLogs;
@@ -40,7 +41,7 @@ class QueueController extends ChangeNotifier {
 
   void toggleSelectAll(bool selectAll) {
     if (selectAll && _jobs != null) {
-      _selectedIds.addAll(_jobs!.map((j) => j['id'] as String));
+      _selectedIds.addAll(_jobs!.map((j) => j.id));
     } else {
       _selectedIds.clear();
     }
@@ -57,7 +58,12 @@ class QueueController extends ChangeNotifier {
     notifyListeners();
     try {
       final data = await _bridge.getQueueStatus();
-      _jobs = (data['jobs'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+      final List? rawJobs = data['jobs'] as List?;
+      if (rawJobs != null) {
+        _jobs = rawJobs.map((j) => Job.fromJson(j as Map<String, dynamic>)).toList();
+      } else {
+        _jobs = [];
+      }
     } catch (e) {
       _jobs = [];
     } finally {

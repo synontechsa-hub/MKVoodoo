@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import '../controllers/queue_controller.dart';
+import '../models/job.dart';
 import '../widgets/queue/console_overlay.dart';
 
 class QueuePage extends StatefulWidget {
@@ -108,7 +109,7 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                             label: 'Resume Queue',
                             color: const Color(0xFFB900FF),
                             onPressed: controller.jobs != null &&
-                                    controller.jobs!.any((j) => j['status'] == 'pending')
+                                    controller.jobs!.any((j) => j.status == JobStatus.pending)
                                 ? () => controller.resumeQueue()
                                 : null,
                           ),
@@ -118,7 +119,7 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                           label: 'Reset Failed',
                           color: Colors.orangeAccent,
                           onPressed: controller.jobs != null &&
-                                  controller.jobs!.any((j) => j['status'] == 'failed')
+                                  controller.jobs!.any((j) => j.status == JobStatus.failed)
                               ? () async {
                                   try {
                                     await controller.resetFailed();
@@ -136,8 +137,8 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                         onPressed: controller.jobs != null &&
                                 controller.jobs!.any((j) =>
-                                    j['status'] == 'done' ||
-                                    j['status'] == 'skipped')
+                                    j.status == JobStatus.done ||
+                                    j.status == JobStatus.skipped)
                             ? () async {
                                 try {
                                   await controller.clearCompleted();
@@ -154,8 +155,8 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                         color: Colors.redAccent.withValues(alpha: 0.5),
                         onPressed: controller.jobs != null &&
                                 controller.jobs!.any((j) =>
-                                    j['status'] != 'pending' &&
-                                    j['status'] != 'in_progress')
+                                    j.status != JobStatus.pending &&
+                                    j.status != JobStatus.inProgress)
                             ? () => _confirmClearAllHistory(context, controller)
                             : null,
                       ),
@@ -228,11 +229,11 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                           separatorBuilder: (context, index) => const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             final job = controller.jobs![index];
-                            final id = job['id'] as String;
-                            final status = job['status'] as String;
-                            final source = job['source'] as String;
-                            final attempts = job['attempts'] ?? 0;
-                            final output = job['output'] as String;
+                            final id = job.id;
+                            final status = job.status;
+                            final source = job.source;
+                            final attempts = job.attempts;
+                            final output = job.output;
                             final filename = source.split('\\').last.split('/').last;
                             final outFilename = output.split('\\').last.split('/').last;
 
@@ -240,31 +241,31 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                             IconData statusIcon = Icons.help_outline;
 
                             switch (status) {
-                              case 'pending':
+                              case JobStatus.pending:
                                 statusColor = Colors.blueAccent;
                                 statusIcon = Icons.hourglass_empty_rounded;
                                 break;
-                              case 'in_progress':
+                              case JobStatus.inProgress:
                                 statusColor = Colors.orangeAccent;
                                 statusIcon = Icons.sync_rounded;
                                 break;
-                              case 'done':
+                              case JobStatus.done:
                                 statusColor = const Color(0xFF2ECC71);
                                 statusIcon = Icons.check_circle_rounded;
                                 break;
-                              case 'failed':
+                              case JobStatus.failed:
                                 statusColor = Colors.redAccent;
                                 statusIcon = Icons.error_rounded;
                                 break;
-                              case 'skipped':
+                              case JobStatus.skipped:
                                 statusColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3);
                                 statusIcon = Icons.skip_next_rounded;
                                 break;
                             }
 
                             final progress = controller.jobProgress[id] ?? 0.0;
-                            String statusLabel = status.toUpperCase();
-                            if (status == 'in_progress') {
+                            String statusLabel = status.name.toUpperCase();
+                            if (status == JobStatus.inProgress) {
                               statusLabel = '${progress.toStringAsFixed(1)}%';
                             }
 
@@ -385,7 +386,7 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                                       ),
                                     ],
                                   ),
-                                  if (status == 'in_progress') ...[
+                                  if (status == JobStatus.inProgress) ...[
                                     const SizedBox(height: 12),
                                     LayoutBuilder(
                                       builder: (context, constraints) {
