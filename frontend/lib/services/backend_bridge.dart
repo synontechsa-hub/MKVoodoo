@@ -34,23 +34,37 @@ class BackendBridge {
 
   String get _pythonPath {
     final root = _backendRoot;
+    
+    // 1. Check for compiled backend executable first (Release Mode)
+    final compiledPath = p.join(root, 'mkvoodoo_backend.exe');
+    if (File(compiledPath).existsSync()) {
+      return compiledPath;
+    }
+
+    // 2. Fallback to Python venv (Dev Mode)
     if (Platform.isWindows) {
       return p.join(root, '.venv', 'Scripts', 'python.exe');
     }
     return p.join(root, '.venv', 'bin', 'python');
   }
 
-  Map<String, String> get _pythonEnv => {
-        ...Platform.environment,
-        'PYTHONIOENCODING': 'utf-8',
-        'PYTHONUTF8': '1',
-      };
+  /// Helper to determine if we are running the compiled backend
+  bool get _isCompiled => _pythonPath.endsWith('.exe') && !_pythonPath.contains('python');
+
+  List<String> _buildArgs(List<String> args) {
+    if (_isCompiled) {
+      // If compiled, we don't need "-u -m backend.main"
+      // We just pass the command and its arguments directly
+      return args;
+    }
+    return ['-u', '-m', 'backend.main', ...args];
+  }
 
   Future<BackendStatus> checkStatus() async {
     try {
       final result = await Process.run(
         _pythonPath,
-        ['-u', '-m', 'backend.main', '--help'],
+        _isCompiled ? ['--help'] : ['-u', '-m', 'backend.main', '--help'],
         workingDirectory: _backendRoot,
         environment: _pythonEnv,
         stdoutEncoding: utf8,
@@ -70,7 +84,7 @@ class BackendBridge {
   Future<Map<String, dynamic>> getConfig() async {
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'config', '--get'],
+      _buildArgs(['config', '--get']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
       stdoutEncoding: utf8,
@@ -86,7 +100,7 @@ class BackendBridge {
   Future<List<Map<String, dynamic>>> getAvailableEncoders() async {
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'encoders'],
+      _buildArgs(['encoders']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
       stdoutEncoding: utf8,
@@ -104,7 +118,7 @@ class BackendBridge {
     final configJson = jsonEncode(config);
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'config', '--set', configJson],
+      _buildArgs(['config', '--set', configJson]),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
       stdoutEncoding: utf8,
@@ -127,7 +141,7 @@ class BackendBridge {
   Future<void> clearCompletedJobs() async {
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'queue', '--clear-done'],
+      _buildArgs(['queue', '--clear-done']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
@@ -139,7 +153,7 @@ class BackendBridge {
   Future<void> resetFailedJobs() async {
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'queue', '--reset-failed'],
+      _buildArgs(['queue', '--reset-failed']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
@@ -153,7 +167,7 @@ class BackendBridge {
     final idsParam = jobIds.join(',');
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'queue', '--remove', idsParam],
+      _buildArgs(['queue', '--remove', idsParam]),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
@@ -166,7 +180,7 @@ class BackendBridge {
     if (filePaths.isEmpty) return;
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'queue', '--add', ...filePaths],
+      _buildArgs(['queue', '--add', ...filePaths]),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
@@ -181,7 +195,7 @@ class BackendBridge {
     final jobsJson = jsonEncode(jobs);
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'queue', '--jobs', jobsJson],
+      _buildArgs(['queue', '--jobs', jobsJson]),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
@@ -193,7 +207,7 @@ class BackendBridge {
   Future<void> clearAllHistory() async {
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'queue', '--clear-all'],
+      _buildArgs(['queue', '--clear-all']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
@@ -205,7 +219,7 @@ class BackendBridge {
   Stream<String> resumeQueue() async* {
     _activeProcess = await Process.start(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'queue', '--resume'],
+      _buildArgs(['queue', '--resume']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
@@ -237,7 +251,7 @@ class BackendBridge {
   Future<Map<String, dynamic>> getQueueStatus() async {
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'status', '--json'],
+      _buildArgs(['status', '--json']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
       stdoutEncoding: utf8,
@@ -252,7 +266,7 @@ class BackendBridge {
   Future<Map<String, List<Map<String, dynamic>>>> getTracks(String filePath) async {
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'probe', '--input', filePath],
+      _buildArgs(['probe', '--input', filePath]),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
       stdoutEncoding: utf8,
@@ -272,7 +286,7 @@ class BackendBridge {
   Future<List<ScanProposal>> scanInputs(List<String> inputs) async {
     final result = await Process.run(
       _pythonPath,
-      ['-u', '-m', 'backend.main', 'scan', '--input', ...inputs, '--json'],
+      _buildArgs(['scan', '--input', ...inputs, '--json']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
       stdoutEncoding: utf8,
@@ -295,18 +309,18 @@ class BackendBridge {
     String? preset,
     bool review = false,
   }) async* {
-    final args = [
-      '-u', '-m', 'backend.main', 'convert',
+    final List<String> cmdArgs = [
+      'convert',
       '--input', input,
       '--output', output,
     ];
 
-    if (preset != null) args.addAll(['--preset', preset]);
-    if (!review) args.add('--no-review');
+    if (preset != null) cmdArgs.addAll(['--preset', preset]);
+    if (!review) cmdArgs.add('--no-review');
 
     _activeProcess = await Process.start(
       _pythonPath,
-      args,
+      _buildArgs(cmdArgs),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
