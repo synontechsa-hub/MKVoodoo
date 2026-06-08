@@ -53,21 +53,34 @@ def main():
     print("📡 Launching UI...")
     print("━" * 30)
 
-    # 4. Launch Flutter (Windows Desktop)
-    # FIX: Pass MKVOODOO_ROOT as an environment variable so backend_bridge.dart
-    # can resolve the correct Python path without guessing from the executable location.
+    # 4. Launch UI
+    print("📡 Launching UI...")
+    print("━" * 30)
+
+    # Path to release executable
+    release_exe = frontend_dir / "build" / "windows" / "x64" / "release" / "runner" / "mkvoodoo_ui.exe"
+    
     env = os.environ.copy()
     env["MKVOODOO_ROOT"] = str(root)
 
-    try:
-        subprocess.run(
-            ["flutter", "run", "-d", "windows"],
-            cwd=str(frontend_dir),
-            shell=True,
-            env=env,
-        )
-    except KeyboardInterrupt:
-        print("\n👋 Launcher closed.")
+    if release_exe.exists():
+        print("🚀 Mode: RELEASE (Compiled Binary)")
+        try:
+            subprocess.run([str(release_exe)], cwd=str(root), env=env)
+        except Exception as e:
+            print(f"❌ Failed to launch release binary: {e}")
+    else:
+        print("🛠 Mode: DEV (flutter run)")
+        print("💡 Tip: Run 'flutter build windows --release' to compile for distribution.")
+        try:
+            subprocess.run(
+                ["flutter", "run", "-d", "windows"],
+                cwd=str(frontend_dir),
+                shell=True,
+                env=env,
+            )
+        except KeyboardInterrupt:
+            print("\n👋 Launcher closed.")
 
 
 if __name__ == "__main__":
