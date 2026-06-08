@@ -49,7 +49,7 @@ class MKVoodooApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF39FF14),
         brightness: Brightness.dark,
-        surface: Colors.transparent, // We use custom glass surfaces
+        surface: const Color(0xFF0A0A0E), // Solid surface for overlays
         primary: const Color(0xFF39FF14),
         secondary: const Color(0xFFB900FF),
       ),
@@ -81,7 +81,7 @@ class MKVoodooApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF39FF14),
         brightness: Brightness.light,
-        surface: Colors.transparent,
+        surface: const Color(0xFFF0F0F0), // Solid surface for overlays
         primary: const Color(0xFF39FF14),
         secondary: const Color(0xFFB900FF),
       ),

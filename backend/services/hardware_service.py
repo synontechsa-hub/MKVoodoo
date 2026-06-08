@@ -7,12 +7,17 @@ from backend.models.hardware import EncoderInfo, EncoderBackend
 from backend.core.exceptions import HardwareError, GPUInitError
 
 def _ffmpeg_bin() -> str:
-    """Resolve the FFmpeg binary path."""
+    """Resolve the FFmpeg binary path. 
+    In Release mode, we MUST use the bundled binary to guarantee GPU support.
+    """
+    path = get_ffmpeg_path()
+    if path.exists():
+        return str(path)
+    
+    # Fallback only if bundled is missing (dev safety)
     import shutil
     sys_ffmpeg = shutil.which("ffmpeg")
-    if sys_ffmpeg:
-        return sys_ffmpeg
-    return str(get_ffmpeg_path())
+    return sys_ffmpeg or str(path)
 
 class HardwareService:
     """Service for hardware encoder discovery and selection."""
