@@ -19,6 +19,12 @@ OutputBaseFilename=MKVoodoo_v1.0.0_Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+
+; --- Professional Additions ---
+LicenseFile=LICENSE.txt
+InfoBeforeFile=INSTALL_INFO.txt
+; ------------------------------
+
 ; Icon for the installer itself (using your app icon)
 SetupIconFile=frontend\windows\runner\resources\app_icon.ico
 

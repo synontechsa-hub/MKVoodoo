@@ -55,4 +55,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_probe = sub.add_parser("probe", help="Probe a media file for streams")
     p_probe.add_argument("--input", "-i", required=True, help="Input file to probe")
 
+    # -- debug --
+    sub.add_parser("debug", help="Print system debug information for bug reports")
+
     return parser

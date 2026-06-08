@@ -141,6 +141,11 @@ def handle_probe(args: argparse.Namespace) -> int:
     print(json.dumps(tracks, indent=2))
     return 0
 
+def handle_debug(_args: argparse.Namespace) -> int:
+    from backend.utils.debug import get_debug_info
+    print(get_debug_info())
+    return 0
+
 def handle_queue(args: argparse.Namespace) -> int:
     cfg = ConfigService().load()
     svc = QueueService(cfg.queue_file)

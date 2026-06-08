@@ -20,6 +20,7 @@ def main():
         "queue":    handlers.handle_queue,
         "presets":  handlers.handle_presets,
         "probe":    handlers.handle_probe,
+        "debug":    handlers.handle_debug,
     }
 
     handler = command_map.get(args.command)

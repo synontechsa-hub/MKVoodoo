@@ -1,0 +1,19 @@
+IMPORTANT: Please Read Before Installing
+
+Security & Windows SmartScreen
+------------------------------
+MKVoodoo is a specialized tool for media enthusiasts. Because this is an independently developed open-source project, the installer is currently unsigned.
+
+When you run the app for the first time, Windows or your Antivirus may show a warning like "Windows protected your PC" or "Unknown Publisher."
+
+To proceed:
+1. Click "More Info" on the blue Windows popup.
+2. Click "Run Anyway."
+
+Rest assured, MKVoodoo is completely offline, contains no malware, and does not track your data. You can verify the source code at any time on our GitHub repository.
+
+System Requirements
+-------------------
+- Windows 10 or 11 (64-bit)
+- NVIDIA GPU (for NVENC) or Intel CPU (for QSV) recommended for best performance.
+- At least 2GB of free disk space for temporary conversion files.

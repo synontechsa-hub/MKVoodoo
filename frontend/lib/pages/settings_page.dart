@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controllers/settings_controller.dart';
 import '../services/theme_provider.dart';
 
@@ -181,6 +182,47 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                                 e['video_encoder'] as String: e['label'] as String,
                             },
                             (val) => controller.setConfigValue('force_encoder', val == '' ? null : val),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildGlassPanel(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader('Support the Project'),
+                          Text(
+                            'If you find MKVoodoo useful, please consider supporting development! Your donations help keep the magic alive. ✨',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 16,
+                            children: [
+                              _buildSupportButton(
+                                'Buy me a Ko-fi',
+                                'https://ko-fi.com/synonimity',
+                                const Color(0xFF29ABE2),
+                                Icons.coffee_rounded,
+                              ),
+                              _buildSupportButton(
+                                'PayPal',
+                                'https://www.paypal.com/donate/?business=synontech.sa@gmail.com&no_recurring=0&currency_code=USD',
+                                const Color(0xFF003087),
+                                Icons.payment_rounded,
+                              ),
+                              _buildSupportButton(
+                                'Patreon',
+                                'https://patreon.com/SoulLink',
+                                const Color(0xFFF96854),
+                                Icons.favorite_rounded,
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -478,6 +520,29 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
         }
         themeProvider.setTheme(mode);
       },
+    );
+  }
+
+  Widget _buildSupportButton(String label, String url, Color color, IconData icon) {
+    return ElevatedButton.icon(
+      onPressed: () async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
+        }
+      },
+      icon: Icon(icon, size: 20),
+      label: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color.withValues(alpha: 0.1),
+        foregroundColor: color,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: color.withValues(alpha: 0.3)),
+        ),
+      ),
     );
   }
 }
