@@ -60,6 +60,12 @@ class BackendBridge {
     return ['-u', '-m', 'backend.main', ...args];
   }
 
+  Map<String, String> get _pythonEnv => {
+        ...Platform.environment,
+        'PYTHONIOENCODING': 'utf-8',
+        'PYTHONUTF8': '1',
+      };
+
   Future<BackendStatus> checkStatus() async {
     try {
       final result = await Process.run(
