@@ -15,6 +15,7 @@ class NamingService:
             re.compile(r"season\s*(\d+)", re.IGNORECASE),
             re.compile(r"\bS(\d+)\b", re.IGNORECASE),
             re.compile(r"\bser(?:ies)?\s*(\d+)\b", re.IGNORECASE),
+            re.compile(r"(\d+)(?:st|nd|rd|th)\s*season", re.IGNORECASE),
         ]
         self._episode_patterns = [
             re.compile(r"[Ss]\d+[Ee](\d+)"),
@@ -30,6 +31,7 @@ class NamingService:
     ) -> List[NameProposal]:
         """Convert scan results into named proposals."""
         proposals: List[NameProposal] = []
+        taken_paths: set[Path] = set()
         
         for result in results:
             stem = result.source_path.stem
@@ -45,18 +47,37 @@ class NamingService:
                 ep_num = episode
 
             filename = self.render(season, ep_num, title, container)
-            output_path = output_root / result.relative_path.parent / filename
+            base_output_path = (output_root / result.relative_path.parent / filename).resolve()
+            
+            # Collision Protection
+            final_output_path = self._ensure_unique(base_output_path, taken_paths)
+            taken_paths.add(final_output_path)
+            
+            final_filename = final_output_path.name
 
             proposals.append(NameProposal(
                 scan_result=result,
                 season=season,
                 episode=ep_num,
                 title=title,
-                output_filename=filename,
-                output_path=output_path
+                output_filename=final_filename,
+                output_path=final_output_path
             ))
             
         return proposals
+
+    def _ensure_unique(self, path: Path, taken: set[Path]) -> Path:
+        """Ensure the output path doesn't collide with others in this batch."""
+        if path not in taken:
+            return path
+            
+        counter = 1
+        while True:
+            new_name = f"{path.stem}-{counter}{path.suffix}"
+            new_path = path.parent / new_name
+            if new_path not in taken:
+                return new_path
+            counter += 1
 
     def render(self, season: int, episode: int, title: str, container: str = "mkv") -> str:
         """Render a single filename using the current template."""

@@ -8,8 +8,8 @@ import pytest
 def test_get_preset_720p() -> None:
     from backend.presets import get_preset
 
-    p = get_preset("720p_mobile")
-    assert p.name == "720p_mobile"
+    p = get_preset("720p_medium")
+    assert p.name == "720p_medium"
     assert p.width == 1280
     assert p.height == 720
     assert p.audio_codec == "aac"
@@ -19,11 +19,11 @@ def test_get_preset_720p() -> None:
 def test_get_preset_480p() -> None:
     from backend.presets import get_preset
 
-    p = get_preset("480p_saver")
-    assert p.name == "480p_saver"
+    p = get_preset("480p_low")
+    assert p.name == "480p_low"
     assert p.width == 854
     assert p.height == 480
-    assert p.cpu_crf == 26
+    assert p.cpu_crf == 28
 
 
 def test_get_preset_invalid_raises() -> None:
@@ -38,14 +38,14 @@ def test_list_presets_returns_all() -> None:
 
     presets = list_presets()
     names = {p.name for p in presets}
-    assert "720p_mobile" in names
-    assert "480p_saver" in names
+    assert "720p_medium" in names
+    assert "480p_low" in names
 
 
 def test_presets_are_immutable() -> None:
     from backend.presets import get_preset
 
-    p = get_preset("720p_mobile")
+    p = get_preset("720p_medium")
     with pytest.raises((AttributeError, TypeError)):
         p.width = 999  # type: ignore[misc]
 

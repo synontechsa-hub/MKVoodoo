@@ -41,6 +41,25 @@ class MockBackendBridge extends BackendBridge {
 
   @override
   Future<List<Map<String, dynamic>>> getAvailableEncoders() async => [];
+
+  @override
+  Future<Map<String, dynamic>> getYoutubeInfo(String url) async => {
+        'title': 'Mock Video',
+        'thumbnail': 'https://mock.com/thumb.jpg',
+        'uploader': 'Mock Channel',
+      };
+
+  @override
+  Stream<String> downloadYoutube(String url, {bool audioOnly = false, String format = 'mp3'}) async* {
+    yield '🚀 Starting download...';
+    yield '⏱ Progress: 50.0%';
+    yield '✓ Downloaded to: C:/Downloads/mock.mp4';
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> searchMetadata(String query, {bool isTv = false}) async => [
+        {'id': 1, 'title': 'Mock Movie', 'date': '2024-01-01', 'poster_url': 'https://mock.com/poster.jpg', 'overview': 'Mock overview'}
+      ];
 }
 
 void main() {
@@ -82,5 +101,58 @@ void main() {
 
     // Verify Wizard page content
     expect(find.text('New Conversion Job'), findsOneWidget);
+  });
+
+  testWidgets('YouTube Tab integration test', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1920, 1080);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    final bridge = MockBackendBridge();
+    
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider<BackendBridge>.value(value: bridge),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (context) => DashboardController(bridge)),
+          ChangeNotifierProvider(create: (context) => WizardController(bridge)),
+          ChangeNotifierProvider(create: (context) => QueueController(bridge)),
+          ChangeNotifierProvider(create: (context) => SettingsController(bridge)),
+          ChangeNotifierProvider(create: (context) => YoutubeController(bridge)),
+        ],
+        child: const MKVoodooApp(),
+      ),
+    );
+
+    // Navigate to YouTube Tab (Icon at index 2 or using find.byIcon)
+    await tester.tap(find.byIcon(Icons.smart_display_rounded));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('YouTube Downloader'), findsOneWidget);
+
+    // Test URL Fetching
+    final textField = find.byType(TextField);
+    await tester.enterText(textField, 'https://youtube.com/watch?v=mock');
+    await tester.pump();
+    
+    // Tap the 'Fetch' text inside the ElevatedButton
+    await tester.tap(find.text('Fetch'));
+    
+    // Wait for mock fetch (it's async in the controller)
+    for (int i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    expect(find.text('Mock Video'), findsOneWidget);
+    expect(find.text('Uploader: Mock Channel'), findsOneWidget);
+
+    // Test Music Mode toggle
+    expect(find.text('Audio Only (Music Mode)'), findsOneWidget);
+    await tester.tap(find.byType(Switch));
+    await tester.pump(const Duration(milliseconds: 500));
+    
+    expect(find.text('Format'), findsOneWidget);
+    expect(find.text('MP3'), findsOneWidget);
   });
 }

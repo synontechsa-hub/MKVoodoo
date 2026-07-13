@@ -52,3 +52,22 @@ def test_download_video_parsing(mock_popen, download_service):
         assert "Test Video.mp4" in str(path)
         assert 5.0 in progress_calls
         assert 10.0 in progress_calls
+
+@patch("subprocess.Popen")
+def test_download_audio_only_flags(mock_popen, download_service):
+    process_mock = MagicMock()
+    process_mock.stdout = iter(["[download] Destination: test.mp3\n"])
+    process_mock.returncode = 0
+    mock_popen.return_value = process_mock
+    
+    with patch("pathlib.Path.exists", return_value=True):
+        download_service.download_video("url", audio_only=True, audio_format="flac")
+        
+        # Check if correct flags were passed to Popen
+        args, kwargs = mock_popen.call_args
+        cmd = args[0]
+        assert "--extract-audio" in cmd
+        assert "--audio-format" in cmd
+        assert "flac" in cmd
+        assert "--embed-thumbnail" in cmd
+        assert "--add-metadata" in cmd

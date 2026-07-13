@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'backend_bridge.dart';
-import 'services/theme_provider.dart';
-import 'controllers/dashboard_controller.dart';
-import 'controllers/wizard_controller.dart';
-import 'controllers/queue_controller.dart';
-import 'controllers/settings_controller.dart';
-import 'pages/dashboard_page.dart';
-import 'pages/wizard_page.dart';
-import 'pages/queue_page.dart';
-import 'pages/settings_page.dart';
+import 'package:mkvoodoo_ui/services/backend_bridge.dart';
+import 'package:mkvoodoo_ui/services/theme_provider.dart';
+import 'package:mkvoodoo_ui/controllers/dashboard_controller.dart';
+import 'package:mkvoodoo_ui/controllers/wizard_controller.dart';
+import 'package:mkvoodoo_ui/controllers/queue_controller.dart';
+import 'package:mkvoodoo_ui/controllers/settings_controller.dart';
+import 'package:mkvoodoo_ui/controllers/youtube_controller.dart';
+import 'package:mkvoodoo_ui/pages/dashboard_page.dart';
+import 'package:mkvoodoo_ui/pages/wizard_page.dart';
+import 'package:mkvoodoo_ui/pages/queue_page.dart';
+import 'package:mkvoodoo_ui/pages/settings_page.dart';
+import 'package:mkvoodoo_ui/pages/youtube_page.dart';
 
 void main() {
   runApp(
@@ -29,6 +31,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => SettingsController(context.read<BackendBridge>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => YoutubeController(context.read<BackendBridge>()),
         ),
       ],
       child: const MKVoodooApp(),
@@ -216,6 +221,10 @@ class _MainLayoutState extends State<MainLayout> {
                     label: Padding(padding: EdgeInsets.only(top: 4), child: Text('New Job')),
                   ),
                   NavigationRailDestination(
+                    icon: Icon(Icons.smart_display_rounded),
+                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('YouTube')),
+                  ),
+                  NavigationRailDestination(
                     icon: Icon(Icons.queue_play_next_rounded),
                     label: Padding(padding: EdgeInsets.only(top: 4), child: Text('Queue')),
                   ),
@@ -241,6 +250,7 @@ class _MainLayoutState extends State<MainLayout> {
       children: const [
         DashboardPage(),
         WizardPage(),
+        YoutubePage(),
         QueuePage(),
         SettingsPage(),
       ],
