@@ -1,11 +1,14 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import List, Dict, Any
 
 @dataclass(frozen=True)
 class ScanResult:
     """A single discovered video file."""
     source_path: Path
     relative_path: Path
+    # Optional metadata if probed during scan
+    tracks: Dict[str, List[Dict[str, Any]]] = field(default_factory=lambda: {"audio": [], "subtitles": []})
 
     @property
     def filename(self) -> str:

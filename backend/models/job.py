@@ -30,3 +30,4 @@ class Job:
     # Extra flags
     keep_all_audio: bool = True
     keep_all_subtitles: bool = True
+    delete_source_after_done: bool = False

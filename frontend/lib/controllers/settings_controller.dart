@@ -18,6 +18,7 @@ class SettingsController extends ChangeNotifier {
   final TextEditingController namingTemplateController = TextEditingController();
   final TextEditingController maxRetriesController = TextEditingController();
   final TextEditingController parallelJobsController = TextEditingController();
+  final TextEditingController tmdbApiKeyController = TextEditingController();
 
   SettingsController(this._bridge) {
     loadSettings();
@@ -68,7 +69,8 @@ class SettingsController extends ChangeNotifier {
       outputDirController.text = loadedConfig['output_dir'] ?? '';
       namingTemplateController.text = loadedConfig['naming_template'] ?? '';
       maxRetriesController.text = (loadedConfig['max_retries'] ?? 1).toString();
-      parallelJobsController.text = (loadedConfig['parallel_jobs'] ?? 1).toString();
+      parallelJobsController.text = (loadedConfig['parallel_jobs'] ?? 2).toString();
+      tmdbApiKeyController.text = loadedConfig['tmdb_api_key'] ?? '';
       _selectedAudioBitrate = loadedConfig['default_audio_bitrate'] ?? '128k';
 
       final preset = loadedConfig['default_preset'] as String? ?? '720p_medium';
@@ -116,8 +118,11 @@ class SettingsController extends ChangeNotifier {
         'output_dir': outputDirController.text,
         'naming_template': namingTemplateController.text,
         'max_retries': int.tryParse(maxRetriesController.text) ?? 1,
-        'parallel_jobs': int.tryParse(parallelJobsController.text) ?? 1,
+        'parallel_jobs': int.tryParse(parallelJobsController.text) ?? 2,
+        'tmdb_api_key': tmdbApiKeyController.text,
         'show_notifications': _config!['show_notifications'] ?? true,
+        'update_check_enabled': _config!['update_check_enabled'] ?? true,
+        'auto_update_downloader': _config!['auto_update_downloader'] ?? false,
         'default_preset': '${_selectedRes}_$_selectedQuality',
         'default_audio_bitrate': _selectedAudioBitrate,
         'review_before_convert': _config!['review_before_convert'],
@@ -141,6 +146,7 @@ class SettingsController extends ChangeNotifier {
     namingTemplateController.dispose();
     maxRetriesController.dispose();
     parallelJobsController.dispose();
+    tmdbApiKeyController.dispose();
     super.dispose();
   }
 }

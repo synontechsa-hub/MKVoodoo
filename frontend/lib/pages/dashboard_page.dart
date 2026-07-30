@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/backend_status.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/dashboard/stats_cards.dart';
@@ -78,12 +79,25 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 32),
+                    const Divider(),
+                    const SizedBox(height: 32),
+                    _buildFeaturePromo(context),
+                    const SizedBox(height: 32),
+                    _buildSupportSection(context),
                     const SizedBox(height: 64),
-                    Opacity(
-                      opacity: 0.4,
-                      child: Image.asset(
-                        'assets/Powered_by_dark_background.png',
-                        height: 32,
+                    InkWell(
+                      onTap: () => launchUrl(Uri.parse('https://synontech.vercel.app/')),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Opacity(
+                        opacity: 0.4,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Image.asset(
+                            'assets/Powered_by_dark_background.png',
+                            height: 32,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -91,6 +105,71 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSupportSection(BuildContext context) {
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: () => launchUrl(Uri.parse('https://ko-fi.com/synonimity#')),
+        icon: const Icon(Icons.coffee_rounded, size: 20),
+        label: const Text('Buy me a Ko-fi'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF29ABE2),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturePromo(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFFB900FF).withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFB900FF).withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFB900FF).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.smart_display_rounded, color: Color(0xFFB900FF), size: 32),
+          ),
+          const SizedBox(width: 24),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'YouTube Integration - Coming Soon!',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Download videos directly from YouTube and convert them for mobile playback.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 24),
+          TextButton(
+            onPressed: () {}, // Future: Link to roadmap or info
+            style: TextButton.styleFrom(foregroundColor: const Color(0xFFB900FF)),
+            child: const Text('v1.1.0 ROADMAP'),
+          ),
         ],
       ),
     );

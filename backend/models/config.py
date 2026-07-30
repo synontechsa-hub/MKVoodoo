@@ -7,6 +7,7 @@ PresetName = Literal["720p_mobile", "480p_saver"]
 @dataclass
 class MKVoodooConfig:
     """User-editable global configuration."""
+    version: int = 1
 
     # --- Output ---
     output_dir: str = field(default_factory=lambda: str(_default_output_dir()))
@@ -22,11 +23,16 @@ class MKVoodooConfig:
     review_before_convert: bool = True
     skip_existing: bool = True
     max_retries: int = 1
-    parallel_jobs: int = 1
+    parallel_jobs: int = 2
     show_notifications: bool = True
+    update_check_enabled: bool = True
+    auto_update_downloader: bool = False
 
     # --- Hardware ---
     force_encoder: str | None = None
+
+    # --- Web Services ---
+    tmdb_api_key: str = ""
 
     # --- Logging & Queue ---
     log_dir: str = field(default_factory=lambda: str(_default_log_dir()))

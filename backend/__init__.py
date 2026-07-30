@@ -1,4 +1,4 @@
 """MKVoodoo — Offline-first batch video transcoder."""
 
-__version__ = "1.0.0"
+from .version import VERSION as __version__
 __author__ = "SynonTech"

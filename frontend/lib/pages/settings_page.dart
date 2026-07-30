@@ -2,8 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../controllers/settings_controller.dart';
-import '../services/theme_provider.dart';
+import 'package:mkvoodoo_ui/controllers/settings_controller.dart';
+import 'package:mkvoodoo_ui/services/theme_provider.dart';
+import 'package:mkvoodoo_ui/services/backend_bridge.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -191,6 +192,65 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _buildSectionHeader('Web Services'),
+                          _buildTextField(
+                            'TMDB API Key',
+                            controller.tmdbApiKeyController,
+                            'Required for smart metadata fetching.',
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4, bottom: 16),
+                            child: TextButton.icon(
+                              onPressed: () => launchUrl(Uri.parse('https://www.themoviedb.org/settings/api')),
+                              icon: const Icon(Icons.open_in_new_rounded, size: 14, color: Color(0xFFB900FF)),
+                              label: const Text('Get your own API key here (Free)', 
+                                style: TextStyle(fontSize: 12, color: Color(0xFFB900FF))),
+                            ),
+                          ),
+                          _buildSwitchTile(
+                            'Automatic Update Checks',
+                            'Check for MKVoodoo updates on startup.',
+                            controller.config!['update_check_enabled'] as bool? ?? true,
+                            (val) => controller.setConfigValue('update_check_enabled', val),
+                          ),
+                          _buildSwitchTile(
+                            'Auto-update Downloader',
+                            'Automatically keep yt-dlp up to date.',
+                            controller.config!['auto_update_downloader'] as bool? ?? false,
+                            (val) => controller.setConfigValue('auto_update_downloader', val),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildGlassPanel(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader('Update & Maintenance'),
+                          _buildMaintenanceRow(
+                            'Application Updates',
+                            'Check for new versions of MKVoodoo.',
+                            'Check now',
+                            Icons.system_update_rounded,
+                            () => _checkAppUpdate(context),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildMaintenanceRow(
+                            'Downloader Component',
+                            'Keep the YouTube engine (yt-dlp) fresh.',
+                            'Update engine',
+                            Icons.download_for_offline_rounded,
+                            () => _updateDownloader(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildGlassPanel(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           _buildSectionHeader('Support the Project'),
                           Text(
                             'If you find MKVoodoo useful, please consider supporting development! Your donations help keep the magic alive. ✨',
@@ -284,6 +344,123 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
             ),
         ],
       ),
+    );
+  }
+
+  Future<void> _checkAppUpdate(BuildContext context) async {
+    final bridge = context.read<BackendBridge>();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final res = await bridge.checkUpdate();
+      if (context.mounted) Navigator.pop(context); // Dismiss loader
+
+      if (context.mounted) {
+        if (res['update_available'] == true) {
+          _showUpdateFoundDialog(context, res);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('MKVoodoo is up to date!'), backgroundColor: Color(0xFF2ECC71)),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Update check failed: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
+    }
+  }
+
+  void _showUpdateFoundDialog(BuildContext context, Map<String, dynamic> updateInfo) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('New Version Available: v${updateInfo['version']}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('A newer version of MKVoodoo has been released.', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            if (updateInfo['notes'] != null)
+              Text(updateInfo['notes'], style: const TextStyle(fontSize: 12)),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Later')),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (updateInfo['url'] != null) launchUrl(Uri.parse(updateInfo['url']));
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFB900FF), foregroundColor: Colors.black),
+            child: const Text('Download Installer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updateDownloader(BuildContext context) async {
+    final bridge = context.read<BackendBridge>();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final res = await bridge.updateDownloader();
+      if (context.mounted) Navigator.pop(context);
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res.contains('up to date') ? 'Engine is up to date!' : 'Engine updated successfully!'), 
+          backgroundColor: const Color(0xFF2ECC71)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Engine update failed: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
+    }
+  }
+
+  Widget _buildMaintenanceRow(String title, String subtitle, String buttonLabel, IconData icon, VoidCallback onPressed) {
+    return Row(
+      children: [
+        Icon(icon, color: const Color(0xFFB900FF).withValues(alpha: 0.5)),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(subtitle, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))),
+            ],
+          ),
+        ),
+        ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).cardColor,
+            foregroundColor: const Color(0xFFB900FF),
+            side: const BorderSide(color: Color(0xFFB900FF), width: 0.5),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: Text(buttonLabel),
+        ),
+      ],
     );
   }
 

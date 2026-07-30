@@ -2,10 +2,21 @@ import pytest
 import json
 from unittest.mock import MagicMock, patch
 from backend.services.metadata_service import MetadataService
+from backend.core.exceptions import MKVoodooError
 
 @pytest.fixture
 def metadata_service():
-    return MetadataService(api_key="test-key")
+    # Key must be > 10 chars to pass is_authenticated check
+    return MetadataService(api_key="test-api-key-valid-length")
+
+def test_is_authenticated(metadata_service):
+    assert metadata_service.is_authenticated is True
+    
+    empty_svc = MetadataService(api_key="")
+    assert empty_svc.is_authenticated is False
+    
+    short_svc = MetadataService(api_key="short")
+    assert short_svc.is_authenticated is False
 
 @patch("urllib.request.urlopen")
 def test_search_content_success(mock_urlopen, metadata_service):
@@ -25,6 +36,11 @@ def test_search_content_success(mock_urlopen, metadata_service):
     assert results[0]["id"] == 1
     mock_urlopen.assert_called_once()
     assert "query=Inception" in mock_urlopen.call_args[0][0]
+
+def test_search_content_unauthenticated():
+    svc = MetadataService(api_key="")
+    with pytest.raises(MKVoodooError, match="TMDB API Key is missing"):
+        svc.search_content("test")
 
 def test_get_poster_url(metadata_service):
     path = "/test.jpg"

@@ -3,11 +3,15 @@ from pathlib import Path
 from typing import List, Optional
 from backend.models.scan import ScanResult
 from backend.core.exceptions import ScannerError
+from backend.services.probe_service import ProbeService
 
 SUPPORTED_EXTENSIONS = frozenset({".mkv", ".mp4", ".webm"})
 
 class ScannerService:
     """Service for discovering video files in the filesystem."""
+
+    def __init__(self, probe_service: Optional[ProbeService] = None):
+        self.probe_service = probe_service
 
     def scan(self, root: str | Path, output_dir: Optional[str | Path] = None) -> List[ScanResult]:
         """Recursively scan root for supported video files."""
@@ -15,7 +19,7 @@ class ScannerService:
         
         if root_path.is_file():
             if root_path.suffix.lower() in SUPPORTED_EXTENSIONS:
-                return [ScanResult(source_path=root_path, relative_path=Path(root_path.name))]
+                return [self._build_result(root_path, Path(root_path.name))]
             return []
 
         self._validate(root_path, output_dir)
@@ -28,12 +32,21 @@ class ScannerService:
                     if ext in SUPPORTED_EXTENSIONS:
                         abs_path = Path(dirpath) / filename
                         rel_path = abs_path.relative_to(root_path)
-                        results.append(ScanResult(source_path=abs_path, relative_path=rel_path))
+                        results.append(self._build_result(abs_path, rel_path))
         except Exception as exc:
             raise ScannerError(f"Directory scan failed: {exc}")
 
         results.sort(key=lambda r: str(r.relative_path))
         return results
+
+    def _build_result(self, abs_path: Path, rel_path: Path) -> ScanResult:
+        tracks = {"audio": [], "subtitles": []}
+        if self.probe_service:
+            try:
+                tracks = self.probe_service.get_tracks(abs_path)
+            except Exception:
+                pass # Silently fail probing during scan
+        return ScanResult(source_path=abs_path, relative_path=rel_path, tracks=tracks)
 
     def scan_multiple(self, roots: List[str | Path], output_dir: Optional[str | Path] = None) -> List[ScanResult]:
         """Scan multiple roots and merge results."""

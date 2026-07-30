@@ -63,16 +63,33 @@ class ConverterService:
                         job.source, job.output, preset.name,
                         encoder.video_encoder, start_time, job_id=job_id
                     )
+                    
+                    # Post-processing: Auto-Cleanup
+                    if job.delete_source_after_done:
+                        try:
+                            source_path = Path(job.source)
+                            if source_path.exists():
+                                self.logger.info(f"Auto-cleanup: Deleting source {source_path.name}", job_id=job_id)
+                                source_path.unlink()
+                        except Exception as e:
+                            self.logger.warning(f"Failed to delete source: {e}", job_id=job_id)
+
                     return True
 
-            except DiskFullError:
-                # Clean up partial output
-                if output_path.exists():
-                    output_path.unlink()
-                raise
-
             except Exception as exc:
-                self.logger.error(f"Engine error: {exc}", job_id=job_id)
+                self.logger.error(f"Conversion error: {exc}", job_id=job_id)
+                # Cleanup partial file on ANY error during the run
+                if output_path.exists():
+                    try:
+                        output_path.unlink()
+                    except Exception:
+                        pass
+                
+                if isinstance(exc, DiskFullError):
+                    raise
+                
+                # Update job with the specific error from FFmpeg if available
+                job.error = str(exc)
 
             attempts += 1
 
@@ -80,12 +97,9 @@ class ConverterService:
         self.logger.file_failed(
             job.source, job.output, preset.name,
             encoder.video_encoder, start_time,
-            "FFmpeg conversion failed after all retries",
+            job.error or "FFmpeg conversion failed after all retries",
             job_id=job_id
         )
-        # Remove partial output on failure
-        if output_path.exists():
-            output_path.unlink()
         return False
 
     def _build_ffmpeg_args(

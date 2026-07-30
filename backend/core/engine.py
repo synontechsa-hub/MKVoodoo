@@ -12,6 +12,10 @@ class FFmpegEngine:
         self.ffmpeg_path = ffmpeg_path
         self._process: Optional[subprocess.Popen] = None
 
+    def __del__(self):
+        """Ensure process is stopped when engine is garbage collected."""
+        self.stop()
+
     def run(
         self, 
         args: list[str], 
@@ -19,6 +23,7 @@ class FFmpegEngine:
     ) -> bool:
         """Run FFmpeg with provided arguments and parse progress."""
         cmd = [self.ffmpeg_path] + args
+        last_lines = []
         
         try:
             self._process = subprocess.Popen(
@@ -28,11 +33,20 @@ class FFmpegEngine:
                 universal_newlines=True,
                 encoding="utf-8",
                 errors="replace",
+                bufsize=1, # Line buffered
                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
             )
 
             duration = 1.0
             for line in self._process.stdout:
+                line = line.strip()
+                if not line: continue
+                
+                # Keep track of last lines for error reporting
+                last_lines.append(line)
+                if len(last_lines) > 10:
+                    last_lines.pop(0)
+
                 # Parse duration
                 if "Duration:" in line:
                     m = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", line)
@@ -55,11 +69,20 @@ class FFmpegEngine:
                     raise DiskFullError("Target disk is full.")
 
             self._process.wait()
-            return self._process.returncode == 0
+            if self._process.returncode != 0:
+                # Find most relevant error line
+                error_msg = "Unknown error"
+                for line in reversed(last_lines):
+                    if "Error" in line or "fail" in line or "Invalid" in line:
+                        error_msg = line
+                        break
+                raise FFmpegError(f"FFmpeg failed: {error_msg}")
+            
+            return True
 
         except Exception as exc:
             self.stop()
-            if isinstance(exc, DiskFullError): raise
+            if isinstance(exc, (DiskFullError, FFmpegError)): raise
             raise FFmpegError(f"FFmpeg execution failed: {exc}")
         finally:
             self._process = None

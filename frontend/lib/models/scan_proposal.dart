@@ -6,11 +6,14 @@ class ScanProposal {
   final int season;
   final int episode;
   final String title;
+  final Map<String, List<Map<String, dynamic>>> tracks;
 
-  // Track selection
+  // Metadata selection
   List<int>? selectedAudioTracks;
   List<int>? selectedSubtitleTracks;
   String? audioBitrate;
+  String? posterUrl;
+  String? description;
 
   ScanProposal({
     required this.source,
@@ -20,6 +23,7 @@ class ScanProposal {
     required this.season,
     required this.episode,
     required this.title,
+    required this.tracks,
     this.selectedAudioTracks,
     this.selectedSubtitleTracks,
     this.audioBitrate,
@@ -34,6 +38,10 @@ class ScanProposal {
       season: json['season'] as int,
       episode: json['episode'] as int,
       title: json['title'] as String,
+      tracks: {
+        'audio': (json['tracks']['audio'] as List).cast<Map<String, dynamic>>(),
+        'subtitles': (json['tracks']['subtitles'] as List).cast<Map<String, dynamic>>(),
+      },
     );
   }
 }

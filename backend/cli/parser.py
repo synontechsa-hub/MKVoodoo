@@ -55,6 +55,22 @@ def build_parser() -> argparse.ArgumentParser:
     p_probe = sub.add_parser("probe", help="Probe a media file for streams")
     p_probe.add_argument("--input", "-i", required=True, help="Input file to probe")
 
+    # -- youtube --
+    p_yt = sub.add_parser("youtube", help="YouTube download tools")
+    p_yt.add_argument("--info", help="Fetch video metadata from URL")
+    p_yt.add_argument("--download", help="Download video from URL")
+    p_yt.add_argument("--audio-only", action="store_true", help="Extract audio only")
+    p_yt.add_argument("--format", default="mp3", help="Audio format (mp3, flac, m4a)")
+
+    # -- metadata --
+    p_meta = sub.add_parser("metadata", help="Fetch movie/TV show metadata")
+    p_meta.add_argument("--search", help="Search for content title")
+    p_meta.add_argument("--tv", action="store_true", help="Search for TV show instead of movie")
+
+    # -- updates --
+    sub.add_parser("check-update", help="Check for application updates")
+    sub.add_parser("update-downloader", help="Update the yt-dlp binary")
+
     # -- debug --
     sub.add_parser("debug", help="Print system debug information for bug reports")
 

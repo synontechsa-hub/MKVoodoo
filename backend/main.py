@@ -21,6 +21,10 @@ def main():
         "presets":  handlers.handle_presets,
         "probe":    handlers.handle_probe,
         "debug":    handlers.handle_debug,
+        "youtube":  handlers.handle_youtube,
+        "check-update": handlers.handle_check_update,
+        "update-downloader": handlers.handle_update_downloader,
+        "metadata": handlers.handle_metadata,
     }
 
     handler = command_map.get(args.command)

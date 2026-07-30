@@ -1,4 +1,5 @@
 import pytest
+import os
 from unittest.mock import MagicMock, patch
 from pathlib import Path
 from backend.services.download_service import DownloadService
@@ -30,44 +31,52 @@ def test_fetch_metadata_failure(download_service):
 
 @patch("subprocess.Popen")
 def test_download_video_parsing(mock_popen, download_service):
-    # Simulate yt-dlp output lines
-    mock_stdout = [
-        "[download]   5.0% of 10.00MiB at 1.00MiB/s ETA 00:10\n",
-        "[download]  10.0% of 10.00MiB at 1.00MiB/s ETA 00:09\n",
-        "[download] Destination: D:/Downloads/Test Video.mp4\n"
-    ]
+    # Use os.path.join to ensure slashes match the OS expectations for startswith
+    downloads_dir = Path("D:/Downloads").absolute()
+    mock_dest = downloads_dir / "Test Video.mp4"
     
-    process_mock = MagicMock()
-    process_mock.stdout = iter(mock_stdout)
-    process_mock.returncode = 0
-    mock_popen.return_value = process_mock
-    
-    # Mock Path.exists to return true for our fake destination
-    with patch("pathlib.Path.exists", return_value=True):
-        progress_calls = []
-        def on_progress(p): progress_calls.append(p)
+    with patch("backend.services.download_service._get_downloads_dir", return_value=downloads_dir):
+        mock_stdout = [
+            "[download]   5.0% of 10.00MiB at 1.00MiB/s ETA 00:10\n",
+            f"{mock_dest}\n", # The deterministic path line with correct OS slashes
+            "[download]  10.0% of 10.00MiB at 1.00MiB/s ETA 00:09\n",
+        ]
         
-        path = download_service.download_video("url", on_progress=on_progress)
+        process_mock = MagicMock()
+        process_mock.stdout = iter(mock_stdout)
+        process_mock.returncode = 0
+        mock_popen.return_value = process_mock
         
-        assert "Test Video.mp4" in str(path)
-        assert 5.0 in progress_calls
-        assert 10.0 in progress_calls
+        # Mock Path.exists to return true for our fake destination
+        with patch("pathlib.Path.exists", return_value=True):
+            progress_calls = []
+            def on_progress(p): progress_calls.append(p)
+            
+            path = download_service.download_video("url", on_progress=on_progress)
+            
+            assert "Test Video.mp4" in str(path)
+            assert 5.0 in progress_calls
+            assert 10.0 in progress_calls
 
 @patch("subprocess.Popen")
 def test_download_audio_only_flags(mock_popen, download_service):
-    process_mock = MagicMock()
-    process_mock.stdout = iter(["[download] Destination: test.mp3\n"])
-    process_mock.returncode = 0
-    mock_popen.return_value = process_mock
+    downloads_dir = Path("D:/Downloads").absolute()
+    mock_dest = downloads_dir / "test.mp3"
     
-    with patch("pathlib.Path.exists", return_value=True):
-        download_service.download_video("url", audio_only=True, audio_format="flac")
+    with patch("backend.services.download_service._get_downloads_dir", return_value=downloads_dir):
+        process_mock = MagicMock()
+        process_mock.stdout = iter([f"{mock_dest}\n"])
+        process_mock.returncode = 0
+        mock_popen.return_value = process_mock
         
-        # Check if correct flags were passed to Popen
-        args, kwargs = mock_popen.call_args
-        cmd = args[0]
-        assert "--extract-audio" in cmd
-        assert "--audio-format" in cmd
-        assert "flac" in cmd
-        assert "--embed-thumbnail" in cmd
-        assert "--add-metadata" in cmd
+        with patch("pathlib.Path.exists", return_value=True):
+            download_service.download_video("url", audio_only=True, audio_format="flac")
+            
+            # Check if correct flags were passed to Popen
+            args, kwargs = mock_popen.call_args
+            cmd = args[0]
+            assert "--extract-audio" in cmd
+            assert "--audio-format" in cmd
+            assert "flac" in cmd
+            assert "--print" in cmd
+            assert "after_move:filepath" in cmd

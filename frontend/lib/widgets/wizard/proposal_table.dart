@@ -6,6 +6,7 @@ import '../../controllers/wizard_controller.dart';
 import '../../services/backend_bridge.dart';
 import 'track_selection_dialog.dart';
 import 'bulk_edit_dialog.dart';
+import 'poster_search_dialog.dart';
 
 class ProposalTable extends StatefulWidget {
   const ProposalTable({super.key});
@@ -82,6 +83,21 @@ class _ProposalTableState extends State<ProposalTable> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _fetchPoster(BuildContext context, ScanProposal proposal) async {
+    final controller = context.read<WizardController>();
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => PosterSearchDialog(
+        initialQuery: proposal.title,
+        isTv: proposal.season > 0,
+      ),
+    );
+
+    if (result != null) {
+      controller.updateProposalMetadata(proposal, result['poster_url'], result['overview']);
     }
   }
 
@@ -173,6 +189,7 @@ class _ProposalTableState extends State<ProposalTable> {
                         DataColumn(label: Text('Source')),
                         DataColumn(label: Text('Season')),
                         DataColumn(label: Text('Episode')),
+                        DataColumn(label: Text('Poster')),
                         DataColumn(label: Text('Options')),
                         DataColumn(label: Text('Output Name')),
                       ],
@@ -191,6 +208,19 @@ class _ProposalTableState extends State<ProposalTable> {
                                 ),
                                 DataCell(
                                   Text('E${proposal.episode.toString().padLeft(2, '0')}'),
+                                ),
+                                DataCell(
+                                  IconButton(
+                                    icon: proposal.posterUrl != null
+                                        ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: Image.network(proposal.posterUrl!, width: 24, height: 36, fit: BoxFit.cover),
+                                          )
+                                        : Icon(Icons.add_photo_alternate_rounded,
+                                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), size: 20),
+                                    onPressed: () => _fetchPoster(context, proposal),
+                                    tooltip: 'Fetch Official Poster',
+                                  ),
                                 ),
                                 DataCell(
                                   IconButton(

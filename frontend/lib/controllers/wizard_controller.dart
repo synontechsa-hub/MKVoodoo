@@ -94,6 +94,12 @@ class WizardController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateProposalMetadata(ScanProposal proposal, String? posterUrl, String? description) {
+    proposal.posterUrl = posterUrl;
+    proposal.description = description;
+    notifyListeners();
+  }
+
   Future<void> runScan() async {
     if (_inputPaths.isEmpty) return;
     _isScanning = true;
@@ -115,15 +121,41 @@ class WizardController extends ChangeNotifier {
       if (settings['bitrate'] != null) {
         p.audioBitrate = settings['bitrate'];
       }
+
+      final List<String>? targetLangs = (settings['languages'] as List?)?.cast<String>();
+
+      // Audio Strategy
       if (settings['audio_strategy'] == 'all') {
         p.selectedAudioTracks = null;
       } else if (settings['audio_strategy'] == 'first') {
         p.selectedAudioTracks = [1];
+      } else if (settings['audio_strategy'] == 'lang' && targetLangs != null) {
+        final audioTracks = p.tracks['audio']!;
+        final toKeep = audioTracks
+            .where((t) {
+              final lang = (t['language'] as String?)?.toLowerCase() ?? 'und';
+              return targetLangs.contains(lang) || lang == 'und';
+            })
+            .map((t) => t['index'] as int)
+            .toList();
+        p.selectedAudioTracks = toKeep;
       }
+
+      // Subtitle Strategy
       if (settings['sub_strategy'] == 'all') {
         p.selectedSubtitleTracks = null;
       } else if (settings['sub_strategy'] == 'none') {
         p.selectedSubtitleTracks = [];
+      } else if (settings['sub_strategy'] == 'lang' && targetLangs != null) {
+        final subTracks = p.tracks['subtitles']!;
+        final toKeep = subTracks
+            .where((t) {
+              final lang = (t['language'] as String?)?.toLowerCase() ?? 'und';
+              return targetLangs.contains(lang) || lang == 'und';
+            })
+            .map((t) => t['index'] as int)
+            .toList();
+        p.selectedSubtitleTracks = toKeep;
       }
     }
     notifyListeners();

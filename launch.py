@@ -3,13 +3,18 @@ import sys
 import os
 from pathlib import Path
 
+try:
+    from backend.version import VERSION as APP_VERSION
+except ImportError:
+    APP_VERSION = "Unknown"
+
 
 def main():
     root = Path(__file__).parent.resolve()
     frontend_dir = root / "frontend"
     venv_python = root / ".venv" / "Scripts" / "python.exe"
 
-    print("🚀 MKVoodoo v1.0.0 Launcher")
+    print(f"🚀 MKVoodoo v{APP_VERSION} Launcher")
     print("━" * 30)
 
     # 1. Check Environment

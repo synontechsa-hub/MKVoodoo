@@ -422,6 +422,35 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                                         );
                                       },
                                     ),
+                                  ] else if (status == JobStatus.failed && job.error != null) ...[
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: Colors.redAccent.withValues(alpha: 0.05),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.1)),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.error_outline_rounded, size: 14, color: Colors.redAccent),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              job.error!,
+                                              style: const TextStyle(
+                                                color: Colors.redAccent,
+                                                fontSize: 11,
+                                                fontFamily: 'monospace',
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ],
                               ),

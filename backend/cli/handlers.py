@@ -4,18 +4,10 @@ import argparse
 from pathlib import Path
 from dataclasses import asdict
 
-from backend.services.config_service import ConfigService
-from backend.services.hardware_service import HardwareService
-from backend.services.scanner_service import ScannerService
-from backend.services.naming_service import NamingService
-from backend.services.queue_service import QueueService
-from backend.services.converter_service import ConverterService
-from backend.core.engine import FFmpegEngine
+from backend.core.container import container
 from backend.core.exceptions import MKVoodooError
-from backend.utils.logger import SynLogger
 from backend.presets import get_preset, list_presets
-
-from backend.models.job import Job, JobStatus
+from backend.models.job import JobStatus
 
 def handle_presets(_args: argparse.Namespace) -> int:
     print("\nAvailable presets:\n")
@@ -24,7 +16,7 @@ def handle_presets(_args: argparse.Namespace) -> int:
     return 0
 
 def handle_config(args: argparse.Namespace) -> int:
-    svc = ConfigService()
+    svc = container.get_config_service()
     if args.get:
         print(json.dumps(asdict(svc.load()), indent=2))
     elif args.set:
@@ -33,7 +25,7 @@ def handle_config(args: argparse.Namespace) -> int:
     return 0
 
 def handle_encoders(_args: argparse.Namespace) -> int:
-    svc = HardwareService()
+    svc = container.get_hardware_service()
     backends = svc.get_available_backends()
     output = []
     for b in backends:
@@ -44,11 +36,11 @@ def handle_encoders(_args: argparse.Namespace) -> int:
     return 0
 
 def handle_scan(args: argparse.Namespace) -> int:
-    cfg = ConfigService().load()
+    cfg = container.get_config_service().load()
     output_dir = args.output or cfg.output_dir
     
-    scanner = ScannerService()
-    naming = NamingService(template=cfg.naming_template)
+    scanner = container.get_scanner_service()
+    naming = container.get_naming_service() # Need to add this to container
     
     results = scanner.scan_multiple(args.input, output_dir=output_dir)
     proposals = naming.build_proposals(results, Path(output_dir))
@@ -61,7 +53,8 @@ def handle_scan(args: argparse.Namespace) -> int:
             "original_filename": str(p.scan_result.source_path.with_suffix(".mkv").name),
             "season": p.season,
             "episode": p.episode,
-            "title": p.title
+            "title": p.title,
+            "tracks": p.scan_result.tracks
         } for p in proposals]
         print(json.dumps(out, indent=2))
     else:
@@ -70,10 +63,9 @@ def handle_scan(args: argparse.Namespace) -> int:
 
 def handle_status(args: argparse.Namespace) -> int:
     import shutil
-    cfg = ConfigService().load()
-    q_file = args.queue or cfg.queue_file
-    svc = QueueService(q_file)
-    hw_svc = HardwareService()
+    cfg = container.get_config_service().load()
+    svc = container.get_queue_service()
+    hw_svc = container.get_hardware_service()
 
     if args.json:
         all_jobs = svc.get_all()
@@ -85,15 +77,17 @@ def handle_status(args: argparse.Namespace) -> int:
         processed_bytes = 0
         
         for j in jobs:
-            status_str = j["status"].value
-            j["status"] = status_str
+            status_str = j["status"]
             if status_str in ("pending", "in_progress"):
                 active_jobs += 1
             elif status_str == "done":
                 done_jobs += 1
-                out_path = Path(j["output"])
-                if out_path.exists():
-                    processed_bytes += out_path.stat().st_size
+                try:
+                    out_path = Path(j["output"])
+                    if out_path.exists():
+                        processed_bytes += out_path.stat().st_size
+                except Exception:
+                    pass
             elif status_str == "failed":
                 failed_jobs += 1
 
@@ -101,7 +95,6 @@ def handle_status(args: argparse.Namespace) -> int:
         output_path = Path(cfg.output_dir)
         storage = {"total_gb": 0, "free_gb": 0, "used_percent": 0}
         if output_path.exists() or output_path.parent.exists():
-            # Check the parent if the output dir doesn't exist yet
             check_path = output_path if output_path.exists() else output_path.parent
             try:
                 usage = shutil.disk_usage(check_path)
@@ -128,15 +121,13 @@ def handle_status(args: argparse.Namespace) -> int:
         print(json.dumps(payload, indent=2))
     else:
         summary = svc.get_summary()
-        print(f"Queue Status ({q_file}):")
+        print(f"Queue Status ({cfg.queue_file}):")
         for k, v in summary.items():
             print(f"  {k:12}: {v}")
     return 0
 
-from backend.services.probe_service import ProbeService
-
 def handle_probe(args: argparse.Namespace) -> int:
-    svc = ProbeService()
+    svc = container.get_probe_service()
     tracks = svc.get_tracks(args.input)
     print(json.dumps(tracks, indent=2))
     return 0
@@ -146,9 +137,64 @@ def handle_debug(_args: argparse.Namespace) -> int:
     print(get_debug_info())
     return 0
 
+def handle_youtube(args: argparse.Namespace) -> int:
+    svc = container.get_download_service()
+    if args.info:
+        data = svc.fetch_metadata(args.info)
+        out = {
+            "title": data.get("title"),
+            "thumbnail": data.get("thumbnail"),
+            "duration": data.get("duration"),
+            "uploader": data.get("uploader"),
+            "description": data.get("description", "")[:200] + "...",
+            "url": args.info
+        }
+        print(json.dumps(out, indent=2))
+    elif args.download:
+        def on_progress(pct):
+            print(f"⏱ Progress: {pct:.1f}%", flush=True)
+        
+        path = svc.download_video(
+            args.download, 
+            on_progress=on_progress,
+            audio_only=args.audio_only,
+            audio_format=args.format
+        )
+        print(f"✓ Downloaded to: {path}")
+    return 0
+
+def handle_metadata(args: argparse.Namespace) -> int:
+    svc = container.get_metadata_service()
+    if args.search:
+        results = svc.search_content(args.search, is_tv=args.tv)
+        out = []
+        for r in results[:5]:
+            poster_path = r.get("poster_path")
+            out.append({
+                "id": r.get("id"),
+                "title": r.get("title") or r.get("name"),
+                "date": r.get("release_date") or r.get("first_air_date"),
+                "poster_url": svc.get_poster_url(poster_path) if poster_path else None,
+                "overview": r.get("overview")
+            })
+        print(json.dumps(out, indent=2))
+    return 0
+
+def handle_check_update(_args: argparse.Namespace) -> int:
+    svc = container.get_update_service()
+    res = svc.check_for_update()
+    print(json.dumps(res, indent=2))
+    return 0
+
+def handle_update_downloader(_args: argparse.Namespace) -> int:
+    svc = container.get_download_service()
+    res = svc.update_downloader()
+    print(res)
+    return 0
+
 def handle_queue(args: argparse.Namespace) -> int:
-    cfg = ConfigService().load()
-    svc = QueueService(cfg.queue_file)
+    cfg = container.get_config_service().load()
+    svc = container.get_queue_service()
     
     if args.clear_done:
         n = svc.clear_completed()
@@ -167,8 +213,7 @@ def handle_queue(args: argparse.Namespace) -> int:
         out_dir = Path(args.to or cfg.output_dir)
         preset_name = cfg.default_preset
         count = 0
-
-        scanner = ScannerService()
+        scanner = container.get_scanner_service()
 
         for path_str in args.add:
             p = Path(path_str)
@@ -177,18 +222,13 @@ def handle_queue(args: argparse.Namespace) -> int:
                 continue
 
             if p.is_file():
-                # Add single file
                 out_dir.mkdir(parents=True, exist_ok=True)
                 out_path = out_dir / f"{p.stem}_converted.mkv"
                 svc.add(source=str(p.absolute()), output=str(out_path.absolute()), preset=preset_name)
                 count += 1
             elif p.is_dir():
-                # Scan directory recursively
                 scan_results = scanner.scan(p, output_dir=out_dir)
                 for res in scan_results:
-                    # For folder drops, we might want to preserve structure in out_dir
-                    # The naming service usually handles this if called correctly.
-                    # Simple version for now:
                     out_path = out_dir / res.relative_path.parent / f"{res.source_path.stem}_converted.mkv"
                     svc.add(source=str(res.source_path.absolute()), output=str(out_path.absolute()), preset=preset_name)
                     count += 1
@@ -216,18 +256,18 @@ def handle_queue(args: argparse.Namespace) -> int:
 
 
 def handle_convert(args: argparse.Namespace) -> int:
-    cfg = ConfigService().load()
+    cfg = container.get_config_service().load()
     output_dir = Path(args.output or cfg.output_dir)
     preset_name = args.preset or cfg.default_preset
     template = args.template or cfg.naming_template
     
     # 1. Hardware
-    hw_svc = HardwareService()
+    hw_svc = container.get_hardware_service()
     encoder = hw_svc.detect_best_encoder(force=args.encoder or cfg.force_encoder)
     
     # 2. Scan & Name
-    scanner = ScannerService()
-    naming = NamingService(template=template)
+    scanner = container.get_scanner_service()
+    naming = container.get_naming_service()
     
     results = scanner.scan(args.input, output_dir=output_dir)
     proposals = naming.build_proposals(results, output_dir)
@@ -239,7 +279,7 @@ def handle_convert(args: argparse.Namespace) -> int:
         return 0
         
     # 4. Queue
-    q_svc = QueueService(cfg.queue_file)
+    q_svc = container.get_queue_service()
     for p in active:
         q_svc.add(
             source=str(p.scan_result.source_path),
@@ -250,35 +290,37 @@ def handle_convert(args: argparse.Namespace) -> int:
     # 5. Process
     return _process_queue(q_svc, cfg)
 
-def _process_queue(q_svc: QueueService, cfg) -> int:
+def _process_queue(q_svc, cfg) -> int:
     import sys
     import threading
     import os
+    from concurrent.futures import ThreadPoolExecutor
     
-    hw_svc = HardwareService()
+    hw_svc = container.get_hardware_service()
     encoder = hw_svc.detect_best_encoder(force=cfg.force_encoder)
     
-    logger = SynLogger(cfg.log_dir)
+    logger = container.get_logger()
     
     active_engines = []
     engines_lock = threading.Lock()
     
-    # Watchdog to kill FFmpeg if parent (Flutter) dies and closes stdin
-    # def _watchdog():
-    #     try:
-    #         sys.stdin.read()
-    #     except Exception:
-    #         pass
-    #     logger.error("Parent process died! Terminating FFmpeg...")
-    #     with engines_lock:
-    #         for eng in active_engines:
-    #             eng.stop()
-    #     os._exit(1)
+    def _watchdog():
+        try:
+            sys.stdin.read()
+        except Exception:
+            pass
         
-    # if not sys.stdin.isatty():
-    #     threading.Thread(target=_watchdog, daemon=True).start()
-    
-    from concurrent.futures import ThreadPoolExecutor
+        logger.error("Parent process disconnected! Emergency termination of FFmpeg...")
+        with engines_lock:
+            for eng in active_engines:
+                try:
+                    eng.stop()
+                except Exception:
+                    pass
+        os._exit(1)
+        
+    if not sys.stdin.isatty():
+        threading.Thread(target=_watchdog, name="SynWatchdog", daemon=True).start()
     
     pending = q_svc.get_pending()
     if not pending:
@@ -287,9 +329,7 @@ def _process_queue(q_svc: QueueService, cfg) -> int:
         
     logger.session_start(len(pending), encoder.label)
     
-    # We use a ThreadPoolExecutor to run multiple FFmpeg processes in parallel.
-    # FFmpeg is a subprocess, so threads are perfect for waiting on I/O without blocking.
-    max_workers = max(1, min(cfg.parallel_jobs, 4)) # Limit to 4 to avoid system choke
+    max_workers = max(1, min(cfg.parallel_jobs, 8))
     
     def worker(job_tuple):
         index, job = job_tuple
@@ -299,11 +339,12 @@ def _process_queue(q_svc: QueueService, cfg) -> int:
         
         try:
             preset = get_preset(job.preset)
-            # Create a dedicated engine per thread to avoid state conflicts
+            from backend.core.engine import FFmpegEngine
             thread_engine = FFmpegEngine(hw_svc._ffmpeg)
             with engines_lock:
                 active_engines.append(thread_engine)
                 
+            from backend.services.converter_service import ConverterService
             thread_converter = ConverterService(thread_engine, logger)
             
             try:
@@ -327,7 +368,6 @@ def _process_queue(q_svc: QueueService, cfg) -> int:
             logger.error(f"Worker failed: {exc}", job_id=job_id)
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Use list() to consume the iterator and ensure we block here until all are done
         list(executor.map(worker, enumerate(pending, start=1)))
             
     logger.session_end(show_notification=cfg.show_notifications)

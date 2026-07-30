@@ -6,6 +6,8 @@ import '../models/job.dart';
 class QueueController extends ChangeNotifier {
   final BackendBridge _bridge;
   StreamSubscription<String>? _queueSubscription;
+  Timer? _refreshDebounce;
+  DateTime? _lastNotifyTime;
 
   List<Job>? _jobs;
   bool _isLoading = true;
@@ -54,22 +56,26 @@ class QueueController extends ChangeNotifier {
   }
 
   Future<void> refreshQueue() async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      final data = await _bridge.getQueueStatus();
-      final List? rawJobs = data['jobs'] as List?;
-      if (rawJobs != null) {
-        _jobs = rawJobs.map((j) => Job.fromJson(j as Map<String, dynamic>)).toList();
-      } else {
-        _jobs = [];
-      }
-    } catch (e) {
-      _jobs = [];
-    } finally {
-      _isLoading = false;
+    if (_refreshDebounce?.isActive ?? false) _refreshDebounce!.cancel();
+    
+    _refreshDebounce = Timer(const Duration(milliseconds: 300), () async {
+      _isLoading = true;
       notifyListeners();
-    }
+      try {
+        final data = await _bridge.getQueueStatus();
+        final List? rawJobs = data['jobs'] as List?;
+        if (rawJobs != null) {
+          _jobs = rawJobs.map((j) => Job.fromJson(j as Map<String, dynamic>)).toList();
+        } else {
+          _jobs = [];
+        }
+      } catch (e) {
+        _jobs = [];
+      } finally {
+        _isLoading = false;
+        notifyListeners();
+      }
+    });
   }
 
   Future<void> addToQueue(List<String> paths) async {
@@ -170,7 +176,14 @@ class QueueController extends ChangeNotifier {
         } else {
           _consoleLogs.add(trimmed);
         }
-        notifyListeners();
+
+        // Throttle UI updates to 10 FPS to save CPU
+        final now = DateTime.now();
+        if (_lastNotifyTime == null || 
+            now.difference(_lastNotifyTime!) > const Duration(milliseconds: 100)) {
+          _lastNotifyTime = now;
+          notifyListeners();
+        }
       },
       onDone: () async {
         _isProcessing = false;

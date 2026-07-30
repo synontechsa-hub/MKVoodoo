@@ -23,95 +23,104 @@ class QueueService:
             keep_all_audio: bool = True,
             keep_all_subtitles: bool = True) -> Job:
         """Add or update a job in the queue."""
-        existing = next((j for j in self._jobs if j.source == source), None)
-        if existing:
-            if existing.status in (JobStatus.FAILED, JobStatus.SKIPPED, JobStatus.PENDING):
-                existing.status = JobStatus.PENDING
-                existing.error = None
-                existing.output = output
-                existing.preset = preset
-                existing.audio_tracks = audio_tracks
-                existing.subtitle_tracks = subtitle_tracks
-                existing.audio_bitrate = audio_bitrate
-                existing.keep_all_audio = keep_all_audio
-                existing.keep_all_subtitles = keep_all_subtitles
-                self._save()
-            return existing
+        # Use a consistent ID length for cleaner logging/UI
+        with self._lock:
+            existing = next((j for j in self._jobs if j.source == source and j.output == output), None)
+            if existing:
+                if existing.status in (JobStatus.FAILED, JobStatus.SKIPPED, JobStatus.PENDING):
+                    existing.status = JobStatus.PENDING
+                    existing.error = None
+                    existing.preset = preset
+                    existing.audio_tracks = audio_tracks
+                    existing.subtitle_tracks = subtitle_tracks
+                    existing.audio_bitrate = audio_bitrate
+                    existing.keep_all_audio = keep_all_audio
+                    existing.keep_all_subtitles = keep_all_subtitles
+                    self._save()
+                return existing
 
-        job = Job(
-            id=str(uuid.uuid4()),
-            source=source,
-            output=output,
-            preset=preset,
-            audio_tracks=audio_tracks,
-            subtitle_tracks=subtitle_tracks,
-            audio_bitrate=audio_bitrate,
-            keep_all_audio=keep_all_audio,
-            keep_all_subtitles=keep_all_subtitles
-        )
-        self._jobs.append(job)
-        self._save()
-        return job
+            job_id = str(uuid.uuid4())[:8]
+            job = Job(
+                id=job_id,
+                source=source,
+                output=output,
+                preset=preset,
+                audio_tracks=audio_tracks,
+                subtitle_tracks=subtitle_tracks,
+                audio_bitrate=audio_bitrate,
+                keep_all_audio=keep_all_audio,
+                keep_all_subtitles=keep_all_subtitles
+            )
+            self._jobs.append(job)
+            self._save()
+            return job
 
     def get_pending(self) -> List[Job]:
-        return [j for j in self._jobs if j.status == JobStatus.PENDING]
+        with self._lock:
+            return [j for j in self._jobs if j.status == JobStatus.PENDING]
 
     def get_all(self) -> List[Job]:
-        return list(self._jobs)
+        with self._lock:
+            return list(self._jobs)
 
     def update_status(self, job_id: str, status: JobStatus, error: Optional[str] = None):
-        job = next((j for j in self._jobs if j.id == job_id), None)
-        if job:
-            job.status = status
-            job.error = error
-            if status == JobStatus.IN_PROGRESS:
-                job.attempts += 1
-            self._save()
+        with self._lock:
+            job = next((j for j in self._jobs if j.id == job_id), None)
+            if job:
+                job.status = status
+                job.error = error
+                if status == JobStatus.IN_PROGRESS:
+                    job.attempts += 1
+                self._save()
 
     def clear_completed(self) -> int:
-        before = len(self._jobs)
-        self._jobs = [j for j in self._jobs if j.status not in (JobStatus.DONE, JobStatus.SKIPPED)]
-        self._save()
-        return before - len(self._jobs)
+        with self._lock:
+            before = len(self._jobs)
+            self._jobs = [j for j in self._jobs if j.status not in (JobStatus.DONE, JobStatus.SKIPPED)]
+            self._save()
+            return before - len(self._jobs)
 
     def reset_failed(self) -> int:
-        count = 0
-        for j in self._jobs:
-            if j.status == JobStatus.FAILED:
-                j.status = JobStatus.PENDING
-                j.error = None
-                count += 1
-        if count: self._save()
-        return count
+        with self._lock:
+            count = 0
+            for j in self._jobs:
+                if j.status == JobStatus.FAILED:
+                    j.status = JobStatus.PENDING
+                    j.error = None
+                    count += 1
+            if count: self._save()
+            return count
 
     def remove_by_ids(self, ids: List[str]) -> int:
         """Remove specific jobs by their IDs. Returns count removed."""
-        before = len(self._jobs)
-        id_set = set(ids)
-        self._jobs = [j for j in self._jobs if j.id not in id_set]
-        self._save()
-        return before - len(self._jobs)
+        with self._lock:
+            before = len(self._jobs)
+            id_set = set(ids)
+            self._jobs = [j for j in self._jobs if j.id not in id_set]
+            self._save()
+            return before - len(self._jobs)
 
     def clear_all_history(self) -> int:
         """Remove all non-pending jobs (done, failed, skipped). Returns count removed."""
-        before = len(self._jobs)
-        self._jobs = [j for j in self._jobs if j.status in (JobStatus.PENDING, JobStatus.IN_PROGRESS)]
-        self._save()
-        return before - len(self._jobs)
+        with self._lock:
+            before = len(self._jobs)
+            self._jobs = [j for j in self._jobs if j.status in (JobStatus.PENDING, JobStatus.IN_PROGRESS)]
+            self._save()
+            return before - len(self._jobs)
 
     def get_summary(self) -> Dict[str, int]:
-        counts = {s.value: 0 for s in JobStatus}
-        for j in self._jobs:
-            counts[j.status.value] += 1
-        return counts
+        with self._lock:
+            counts = {s.value: 0 for s in JobStatus}
+            for j in self._jobs:
+                counts[j.status.value] += 1
+            return counts
 
     def _save(self):
         try:
             self._path.parent.mkdir(parents=True, exist_ok=True)
             data = [asdict(j) for j in self._jobs]
-            with self._lock:
-                with open(self._path, "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=2)
+            with open(self._path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
         except Exception as exc:
             raise MKVoodooError(f"Failed to save queue: {exc}")
 

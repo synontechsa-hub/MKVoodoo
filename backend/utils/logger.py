@@ -6,6 +6,7 @@ from dataclasses import dataclass, asdict, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
+from backend.version import VERSION
 
 def _supports_color() -> bool:
     return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
@@ -49,7 +50,7 @@ class SynLogger:
         with self._lock:
             print(flush=True)
             print(_fmt("━" * 60, _BOLD), flush=True)
-            print(_fmt("  MKVoodoo v1.0.0", _BOLD, _CYAN), flush=True)
+            print(_fmt(f"  MKVoodoo v{VERSION}", _BOLD, _CYAN), flush=True)
             print(f"  Encoder  : {_fmt(encoder_label, _BOLD)}", flush=True)
             print(f"  Files    : {_fmt(str(total_files), _BOLD)}", flush=True)
             print(_fmt("━" * 60, _BOLD), flush=True)
@@ -121,8 +122,10 @@ class SynLogger:
 
     def progress(self, job_id: str, pct: float):
         """Log progress in a machine-readable format for the frontend."""
-        with self._lock:
-            print(f"[{job_id}] ⏱ Progress: {pct:.1f}%", flush=True)
+        # Note: We don't use the lock for progress updates to keep the stdout stream
+        # high-frequency and avoid blocking the worker thread for minor UI updates.
+        # Python's print() is thread-safe for single strings in most environments.
+        print(f"[{job_id}] ⏱ Progress: {pct:.1f}%", flush=True)
 
     def info(self, msg: str, job_id: str = ""): 
         prefix = f"[{job_id}] " if job_id else ""

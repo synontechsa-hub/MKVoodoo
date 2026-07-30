@@ -7,9 +7,9 @@ import '../models/scan_proposal.dart';
 
 /// The bridge between Flutter and the Python MKVoodoo backend.
 class BackendBridge {
-  static final BackendBridge _instance = BackendBridge._internal();
+  static final BackendBridge _instance = BackendBridge.internal();
   factory BackendBridge() => _instance;
-  BackendBridge._internal();
+  BackendBridge.internal();
 
   Process? _activeProcess;
 
@@ -353,5 +353,110 @@ class BackendBridge {
     });
 
     yield* controller.stream;
+  }
+
+  Future<Map<String, dynamic>> getYoutubeInfo(String url) async {
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs(['youtube', '--info', url]),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+    );
+
+    if (result.exitCode != 0) {
+      throw Exception('Failed to fetch YouTube info: ${result.stderr}');
+    }
+
+    return jsonDecode(result.stdout as String) as Map<String, dynamic>;
+  }
+
+  Stream<String> downloadYoutube(String url, {bool audioOnly = false, String format = 'mp3'}) async* {
+    final List<String> args = ['youtube', '--download', url];
+    if (audioOnly) {
+      args.addAll(['--audio-only', '--format', format]);
+    }
+
+    _activeProcess = await Process.start(
+      _pythonPath,
+      _buildArgs(args),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+    );
+
+    final process = _activeProcess;
+    if (process == null) {
+      throw Exception('Failed to start download process.');
+    }
+
+    final controller = StreamController<String>();
+
+    process.stdout
+        .transform(Utf8Decoder(allowMalformed: true))
+        .transform(const LineSplitter())
+        .listen((line) => controller.add(line));
+
+    process.stderr
+        .transform(Utf8Decoder(allowMalformed: true))
+        .transform(const LineSplitter())
+        .listen((line) => controller.add(line));
+
+    process.exitCode.then((_) {
+      if (!controller.isClosed) controller.close();
+    });
+
+    yield* controller.stream;
+  }
+
+  Future<Map<String, dynamic>> checkUpdate() async {
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs(['check-update']),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+    );
+
+    if (result.exitCode != 0) {
+      throw Exception('Failed to check for updates: ${result.stderr}');
+    }
+
+    return jsonDecode(result.stdout as String) as Map<String, dynamic>;
+  }
+
+  Future<String> updateDownloader() async {
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs(['update-downloader']),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+    );
+
+    if (result.exitCode != 0) {
+      throw Exception('Failed to update downloader: ${result.stderr}');
+    }
+
+    return result.stdout as String;
+  }
+
+  Future<List<Map<String, dynamic>>> searchMetadata(String query, {bool isTv = false}) async {
+    final args = ['metadata', '--search', query];
+    if (isTv) args.add('--tv');
+
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs(args),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+    );
+
+    if (result.exitCode != 0) {
+      throw Exception('Metadata search failed: ${result.stderr}');
+    }
+
+    final List<dynamic> data = jsonDecode(result.stdout as String);
+    return data.map((e) => e as Map<String, dynamic>).toList();
   }
 }
