@@ -1,6 +1,6 @@
 ; MKVoodoo Installer Script
 #define MyAppName "MKVoodoo"
-#define MyAppVersion "1.0.3"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Synontech"
 #define MyAppExeName "mkvoodoo_ui.exe"
 #define BackendExeName "mkvoodoo_backend.exe"
@@ -15,7 +15,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=.
-OutputBaseFilename=MKVoodoo_v1.0.3_Setup
+OutputBaseFilename=MKVoodoo_v1.0.1_Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
