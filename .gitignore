@@ -1,0 +1,36 @@
+# Environments & Virtual Envs
+.venv/
+env/
+venv/
+ENV/
+
+# Python Build & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+main.build/
+main.dist/
+
+# Flutter & Dart Build Output
+frontend/build/
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/flutter_*.log
+*.log
+
+# IDE & Editor Settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local Configuration & Queues
+mkvoodoo_config.json
+mkvoodoo_queue.json
+
+# Binary Release Setups (Optional tracking, usually excluded or tagged)
+# *.exe
