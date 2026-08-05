@@ -3,6 +3,7 @@ import json
 import argparse
 from pathlib import Path
 from dataclasses import asdict
+from typing import Any
 
 from backend.core.container import container
 from backend.core.exceptions import MKVoodooError
@@ -93,7 +94,7 @@ def handle_status(args: argparse.Namespace) -> int:
 
         # Disk Space info
         output_path = Path(cfg.output_dir)
-        storage = {"total_gb": 0, "free_gb": 0, "used_percent": 0}
+        storage: dict[str, float] = {"total_gb": 0.0, "free_gb": 0.0, "used_percent": 0.0}
         if output_path.exists() or output_path.parent.exists():
             check_path = output_path if output_path.exists() else output_path.parent
             try:
@@ -151,7 +152,7 @@ def handle_youtube(args: argparse.Namespace) -> int:
         }
         print(json.dumps(out, indent=2))
     elif args.download:
-        def on_progress(pct):
+        def on_progress(pct: float) -> None:
             print(f"⏱ Progress: {pct:.1f}%", flush=True)
         
         path = svc.download_video(
@@ -290,7 +291,7 @@ def handle_convert(args: argparse.Namespace) -> int:
     # 5. Process
     return _process_queue(q_svc, cfg)
 
-def _process_queue(q_svc, cfg) -> int:
+def _process_queue(q_svc: Any, cfg: Any) -> int:
     import sys
     import threading
     import os
@@ -301,10 +302,10 @@ def _process_queue(q_svc, cfg) -> int:
     
     logger = container.get_logger()
     
-    active_engines = []
+    active_engines: list[Any] = []
     engines_lock = threading.Lock()
     
-    def _watchdog():
+    def _watchdog() -> None:
         try:
             sys.stdin.read()
         except Exception:
@@ -331,7 +332,7 @@ def _process_queue(q_svc, cfg) -> int:
     
     max_workers = max(1, min(cfg.parallel_jobs, 8))
     
-    def worker(job_tuple):
+    def worker(job_tuple: tuple[int, Any]) -> None:
         index, job = job_tuple
         job_id = job.id
         logger.file_start(index, len(pending), job.source, job_id=job_id)

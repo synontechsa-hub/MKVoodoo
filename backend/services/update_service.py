@@ -10,7 +10,7 @@ UPDATE_URL = "https://api.github.com/repos/synontech/mkvoodoo/releases/latest" #
 class UpdateService:
     """Service for checking and applying application updates."""
 
-    def __init__(self, current_version: str = VERSION):
+    def __init__(self, current_version: str = VERSION) -> None:
         self.current_version = current_version
 
     def check_for_update(self) -> dict:
@@ -53,5 +53,6 @@ class UpdateService:
         assets = release_data.get("assets", [])
         for asset in assets:
             if asset.get("name", "").endswith(".exe"):
-                return asset.get("browser_download_url")
+                download_url: Optional[str] = asset.get("browser_download_url")
+                return download_url
         return None

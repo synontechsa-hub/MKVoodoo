@@ -63,7 +63,7 @@ class QueueService:
         with self._lock:
             return list(self._jobs)
 
-    def update_status(self, job_id: str, status: JobStatus, error: Optional[str] = None):
+    def update_status(self, job_id: str, status: JobStatus, error: Optional[str] = None) -> None:
         with self._lock:
             job = next((j for j in self._jobs if j.id == job_id), None)
             if job:
@@ -115,7 +115,7 @@ class QueueService:
                 counts[j.status.value] += 1
             return counts
 
-    def _save(self):
+    def _save(self) -> None:
         try:
             self._path.parent.mkdir(parents=True, exist_ok=True)
             data = [asdict(j) for j in self._jobs]
@@ -124,7 +124,7 @@ class QueueService:
         except Exception as exc:
             raise MKVoodooError(f"Failed to save queue: {exc}")
 
-    def _load(self):
+    def _load(self) -> None:
         if not self._path.exists():
             return
         try:

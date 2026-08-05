@@ -9,7 +9,7 @@ TMDB_API_BASE = "https://api.themoviedb.org/3"
 class MetadataService:
     """Service for fetching movie and TV show metadata from TMDB."""
 
-    def __init__(self, api_key: str = ""):
+    def __init__(self, api_key: str = "") -> None:
         self.api_key = api_key
 
     @property
@@ -29,7 +29,8 @@ class MetadataService:
         try:
             with urllib.request.urlopen(url, timeout=10) as response:
                 data = json.loads(response.read().decode("utf-8"))
-                return data.get("results", [])
+                results: List[Dict[str, Any]] = data.get("results", [])
+                return results
         except Exception as e:
             raise MKVoodooError(f"TMDB Search failed: {e}")
 
@@ -43,7 +44,8 @@ class MetadataService:
         
         try:
             with urllib.request.urlopen(url, timeout=10) as response:
-                return json.loads(response.read().decode("utf-8"))
+                parsed: Dict[str, Any] = json.loads(response.read().decode("utf-8"))
+                return parsed
         except Exception as e:
             raise MKVoodooError(f"TMDB Details fetch failed: {e}")
 

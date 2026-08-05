@@ -12,7 +12,7 @@ class FFmpegEngine:
         self.ffmpeg_path = ffmpeg_path
         self._process: Optional[subprocess.Popen] = None
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Ensure process is stopped when engine is garbage collected."""
         self.stop()
 
@@ -38,35 +38,37 @@ class FFmpegEngine:
             )
 
             duration = 1.0
-            for line in self._process.stdout:
-                line = line.strip()
-                if not line: continue
-                
-                # Keep track of last lines for error reporting
-                last_lines.append(line)
-                if len(last_lines) > 10:
-                    last_lines.pop(0)
+            if self._process.stdout:
+                for line in self._process.stdout:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    # Keep track of last lines for error reporting
+                    last_lines.append(line)
+                    if len(last_lines) > 10:
+                        last_lines.pop(0)
 
-                # Parse duration
-                if "Duration:" in line:
-                    m = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", line)
-                    if m:
-                        h, m_val, s = m.groups()
-                        duration = int(h) * 3600 + int(m_val) * 60 + float(s)
+                    # Parse duration
+                    if "Duration:" in line:
+                        m = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", line)
+                        if m:
+                            h, m_val, s = m.groups()
+                            duration = int(h) * 3600 + int(m_val) * 60 + float(s)
 
-                # Parse time
-                if "time=" in line:
-                    m = re.search(r"time=(\d+):(\d+):(\d+\.\d+)", line)
-                    if m and on_progress:
-                        h, m_val, s = m.groups()
-                        current_time = int(h) * 3600 + int(m_val) * 60 + float(s)
-                        progress = min(100.0, (current_time / duration) * 100)
-                        on_progress(progress)
+                    # Parse time
+                    if "time=" in line:
+                        m = re.search(r"time=(\d+):(\d+):(\d+\.\d+)", line)
+                        if m and on_progress:
+                            h, m_val, s = m.groups()
+                            current_time = int(h) * 3600 + int(m_val) * 60 + float(s)
+                            progress = min(100.0, (current_time / duration) * 100)
+                            on_progress(progress)
 
-                # Check for specific errors
-                if "No space left on device" in line:
-                    self.stop()
-                    raise DiskFullError("Target disk is full.")
+                    # Check for specific errors
+                    if "No space left on device" in line:
+                        self.stop()
+                        raise DiskFullError("Target disk is full.")
 
             self._process.wait()
             if self._process.returncode != 0:
@@ -87,7 +89,7 @@ class FFmpegEngine:
         finally:
             self._process = None
 
-    def stop(self):
+    def stop(self) -> None:
         """Forcefully terminate the running FFmpeg process."""
         if self._process:
             try:
@@ -96,7 +98,8 @@ class FFmpegEngine:
                     subprocess.run(["taskkill", "/F", "/T", "/PID", str(self._process.pid)], 
                                  capture_output=True)
                 else:
-                    os.kill(self._process.pid, signal.SIGKILL)
+                    sig = getattr(signal, "SIGKILL", signal.SIGTERM)
+                    os.kill(self._process.pid, sig)
             except Exception:
                 pass
             self._process = None

@@ -1,3 +1,3 @@
-VERSION = "1.0.1"
-RELEASE_DATE = "2026-07-30"
-CODENAME = "Alchemist"
+VERSION = "1.1.0"
+RELEASE_DATE = "2026-08-05"
+CODENAME = "Voodoo Master"

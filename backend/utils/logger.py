@@ -46,7 +46,7 @@ class SynLogger:
         self._records: List[ConversionRecord] = []
         self._lock = threading.Lock()
 
-    def session_start(self, total_files: int, encoder_label: str):
+    def session_start(self, total_files: int, encoder_label: str) -> None:
         with self._lock:
             print(flush=True)
             print(_fmt("━" * 60, _BOLD), flush=True)
@@ -56,7 +56,7 @@ class SynLogger:
             print(_fmt("━" * 60, _BOLD), flush=True)
             print(flush=True)
 
-    def session_end(self, show_notification: bool = False):
+    def session_end(self, show_notification: bool = False) -> None:
         success = sum(1 for r in self._records if r.status == "success")
         failed  = sum(1 for r in self._records if r.status == "failed")
         total_time = sum(r.duration_seconds for r in self._records)
@@ -78,7 +78,7 @@ class SynLogger:
                 f"Successfully converted {success} files ({failed} failed)."
             )
 
-    def notify(self, title: str, message: str):
+    def notify(self, title: str, message: str) -> None:
         """Send a system notification using plyer."""
         try:
             from plyer import notification
@@ -98,7 +98,7 @@ class SynLogger:
             print(f"{label} {_fmt('Converting', _CYAN)} {self._truncate(source, 55)}", flush=True)
         return time.monotonic()
 
-    def file_success(self, source: str, output: str, preset: str, encoder: str, start_time: float, job_id: str = ""):
+    def file_success(self, source: str, output: str, preset: str, encoder: str, start_time: float, job_id: str = "") -> None:
         elapsed = time.monotonic() - start_time
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
@@ -109,7 +109,7 @@ class SynLogger:
         ))
         self._flush()
 
-    def file_failed(self, source: str, output: str, preset: str, encoder: str, start_time: float, error: str, job_id: str = ""):
+    def file_failed(self, source: str, output: str, preset: str, encoder: str, start_time: float, error: str, job_id: str = "") -> None:
         elapsed = time.monotonic() - start_time
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
@@ -120,29 +120,29 @@ class SynLogger:
         ))
         self._flush()
 
-    def progress(self, job_id: str, pct: float):
+    def progress(self, job_id: str, pct: float) -> None:
         """Log progress in a machine-readable format for the frontend."""
         # Note: We don't use the lock for progress updates to keep the stdout stream
         # high-frequency and avoid blocking the worker thread for minor UI updates.
         # Python's print() is thread-safe for single strings in most environments.
         print(f"[{job_id}] ⏱ Progress: {pct:.1f}%", flush=True)
 
-    def info(self, msg: str, job_id: str = ""): 
+    def info(self, msg: str, job_id: str = "") -> None: 
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
             print(f"  {prefix}{_fmt('ℹ', _CYAN)} {msg}", flush=True)
         
-    def warning(self, msg: str, job_id: str = ""): 
+    def warning(self, msg: str, job_id: str = "") -> None: 
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
             print(f"  {prefix}{_fmt('⚠', _YELLOW)} {msg}", flush=True)
         
-    def error(self, msg: str, job_id: str = ""): 
+    def error(self, msg: str, job_id: str = "") -> None: 
         prefix = f"[{job_id}] " if job_id else ""
         with self._lock:
             print(f"  {prefix}{_fmt('✗', _RED)} {msg}", flush=True)
 
-    def _flush(self):
+    def _flush(self) -> None:
         data = {
             "session_start": self._session_start.isoformat(),
             "records": [asdict(r) for r in self._records],

@@ -22,7 +22,7 @@ def _ffmpeg_bin() -> str:
 class HardwareService:
     """Service for hardware encoder discovery and selection."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._ffmpeg = _ffmpeg_bin()
 
     def get_available_backends(self) -> List[EncoderInfo]:

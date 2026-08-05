@@ -67,7 +67,7 @@ class _BulkEditDialogState extends State<BulkEditDialog> {
               const Text('Audio Quality', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _bitrate,
+                initialValue: _bitrate,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -84,7 +84,7 @@ class _BulkEditDialogState extends State<BulkEditDialog> {
               const Text('Audio Track Strategy', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _audioStrategy,
+                initialValue: _audioStrategy,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -100,7 +100,7 @@ class _BulkEditDialogState extends State<BulkEditDialog> {
               const Text('Subtitle Strategy', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _subStrategy,
+                initialValue: _subStrategy,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),

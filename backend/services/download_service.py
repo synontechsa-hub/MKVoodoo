@@ -10,7 +10,7 @@ from backend.core.exceptions import MKVoodooError
 class DownloadService:
     """Service for downloading videos using yt-dlp."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._ytdlp = str(get_ytdlp_path())
 
     def fetch_metadata(self, url: str) -> Dict[str, Any]:
@@ -31,7 +31,8 @@ class DownloadService:
                 encoding="utf-8",
                 errors="replace"
             )
-            return json.loads(result.stdout)
+            parsed: Dict[str, Any] = json.loads(result.stdout)
+            return parsed
         except subprocess.CalledProcessError as e:
             raise MKVoodooError(f"Failed to fetch metadata: {e.stderr}")
         except Exception as e:
@@ -89,21 +90,22 @@ class DownloadService:
             )
 
             final_path = None
-            for line in process.stdout:
-                line = line.strip()
-                if not line:
-                    continue
+            if process.stdout:
+                for line in process.stdout:
+                    line = line.strip()
+                    if not line:
+                        continue
 
-                # 1. Parse deterministic path from --print after_move:filepath
-                # This line will only contain the path because of --print
-                if line.startswith(str(_get_downloads_dir())) or (output_path and line.startswith(str(output_path.parent))):
-                    final_path = Path(line)
-                    continue
+                    # 1. Parse deterministic path from --print after_move:filepath
+                    # This line will only contain the path because of --print
+                    if line.startswith(str(_get_downloads_dir())) or (output_path and line.startswith(str(output_path.parent))):
+                        final_path = Path(line)
+                        continue
 
-                # 2. Parse progress: [download]  10.5% of 100.00MiB at 1.50MiB/s ETA 01:00
-                progress_match = re.search(r"\[download\]\s+(\d+\.\d+)%", line)
-                if progress_match and on_progress:
-                    on_progress(float(progress_match.group(1)))
+                    # 2. Parse progress: [download]  10.5% of 100.00MiB at 1.50MiB/s ETA 01:00
+                    progress_match = re.search(r"\[download\]\s+(\d+\.\d+)%", line)
+                    if progress_match and on_progress:
+                        on_progress(float(progress_match.group(1)))
 
             process.wait()
             

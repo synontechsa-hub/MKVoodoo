@@ -72,7 +72,7 @@ class _PosterSearchDialogState extends State<PosterSearchDialog> {
                       ? const Center(child: Text('No results found.'))
                       : ListView.separated(
                           itemCount: _results.length,
-                          separatorBuilder: (_, __) => const Divider(),
+                          separatorBuilder: (_, _) => const Divider(),
                           itemBuilder: (context, index) {
                             final item = _results[index];
                             return ListTile(

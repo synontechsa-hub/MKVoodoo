@@ -134,7 +134,7 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
                         height: 200,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           height: 200,
                           color: Colors.black12,
                           child: const Icon(Icons.broken_image_rounded),
@@ -193,7 +193,7 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
             Switch(
               value: controller.audioOnly,
               onChanged: controller.setAudioOnly,
-              activeColor: const Color(0xFFB900FF),
+              activeThumbColor: const Color(0xFFB900FF),
             ),
           ],
         ),

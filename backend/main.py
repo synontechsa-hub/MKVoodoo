@@ -4,10 +4,15 @@ from backend.cli import handlers
 
 # Force UTF-8 output and line buffering
 if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+    reconfig_out = getattr(sys.stdout, "reconfigure", None)
+    if callable(reconfig_out):
+        reconfig_out(encoding="utf-8", errors="replace", line_buffering=True)
+if hasattr(sys.stderr, "reconfigure"):
+    reconfig_err = getattr(sys.stderr, "reconfigure", None)
+    if callable(reconfig_err):
+        reconfig_err(encoding="utf-8", errors="replace", line_buffering=True)
 
-def main():
+def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 

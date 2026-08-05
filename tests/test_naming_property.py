@@ -1,4 +1,5 @@
 import pytest
+hypothesis = pytest.importorskip("hypothesis")
 from hypothesis import given, strategies as st
 from backend.services.naming_service import NamingService
 

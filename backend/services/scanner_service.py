@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 from backend.models.scan import ScanResult
 from backend.core.exceptions import ScannerError
 from backend.services.probe_service import ProbeService
@@ -40,7 +40,7 @@ class ScannerService:
         return results
 
     def _build_result(self, abs_path: Path, rel_path: Path) -> ScanResult:
-        tracks = {"audio": [], "subtitles": []}
+        tracks: dict[str, list[dict[str, Any]]] = {"audio": [], "subtitles": []}
         if self.probe_service:
             try:
                 tracks = self.probe_service.get_tracks(abs_path)
@@ -50,20 +50,20 @@ class ScannerService:
 
     def scan_multiple(self, roots: List[str | Path], output_dir: Optional[str | Path] = None) -> List[ScanResult]:
         """Scan multiple roots and merge results."""
-        all_results = []
+        all_results: List[ScanResult] = []
         for r in roots:
             all_results.extend(self.scan(r, output_dir=output_dir))
 
         # Unique by absolute path
         seen = set()
-        unique = []
-        for r in all_results:
-            abs_p = str(r.source_path.resolve())
+        unique: List[ScanResult] = []
+        for res in all_results:
+            abs_p = str(res.source_path.resolve())
             if abs_p not in seen:
                 seen.add(abs_p)
-                unique.append(r)
+                unique.append(res)
 
-        unique.sort(key=lambda r: str(r.relative_path))
+        unique.sort(key=lambda item: str(item.relative_path))
         return unique
 
     def _validate(self, root: Path, output_dir: Optional[str | Path]) -> None:

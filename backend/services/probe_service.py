@@ -7,7 +7,7 @@ from backend.utils.paths import get_ffprobe_path
 class ProbeService:
     """Service for probing media files using ffprobe."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._ffprobe = str(get_ffprobe_path())
 
     def probe_file(self, file_path: str | Path) -> Dict[str, Any]:
@@ -28,7 +28,8 @@ class ProbeService:
                 encoding="utf-8",
                 errors="replace"
             )
-            return json.loads(result.stdout)
+            parsed: Dict[str, Any] = json.loads(result.stdout)
+            return parsed
         except Exception as exc:
             return {"error": str(exc), "streams": []}
 

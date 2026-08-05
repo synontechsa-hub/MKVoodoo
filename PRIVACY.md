@@ -12,7 +12,7 @@ MKVoodoo **does not** collect, transmit, or store any personally identifiable in
 MKVoodoo **does not** include any analytics trackers, telemetry, or crash reporting software that phones home to SynonTech or any third parties.
 
 ## 3. Configuration Data
-Any configurations you set within MKVoodoo (such as presets, paths, or settings) are saved locally on your hard drive (e.g., in `synconvert_config.json` and `synconvert_queue.json`). These files remain solely on your device.
+Any configurations you set within MKVoodoo (such as presets, paths, or settings) are saved locally on your hard drive (e.g., in `mkvoodoo_config.json` and `mkvoodoo_queue.json`). These files remain solely on your device.
 
 ## 4. Changes to This Policy
 We may update our Privacy Policy from time to time. Since the software is open-source and operates offline, any changes to this policy will only apply to future distributed versions of the Software.

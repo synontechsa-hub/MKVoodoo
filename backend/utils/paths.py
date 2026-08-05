@@ -41,22 +41,41 @@ def _get_downloads_dir() -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
+import shutil
+
 def get_ffmpeg_path() -> Path:
     # Always look for the bundled binary in the expected relative location first
     bundled = _get_base_path() / "backend" / "bin" / "ffmpeg.exe"
     if bundled.exists():
         return bundled
-    # Fallback for dev environment structures
-    return _get_base_path().parent / "backend" / "bin" / "ffmpeg.exe"
+    dev_path = _get_base_path().parent / "backend" / "bin" / "ffmpeg.exe"
+    if dev_path.exists():
+        return dev_path
+    sys_path = shutil.which("ffmpeg")
+    if sys_path:
+        return Path(sys_path)
+    return bundled
 
 def get_ffprobe_path() -> Path:
     bundled = _get_base_path() / "backend" / "bin" / "ffprobe.exe"
     if bundled.exists():
         return bundled
-    return _get_base_path().parent / "backend" / "bin" / "ffprobe.exe"
+    dev_path = _get_base_path().parent / "backend" / "bin" / "ffprobe.exe"
+    if dev_path.exists():
+        return dev_path
+    sys_path = shutil.which("ffprobe")
+    if sys_path:
+        return Path(sys_path)
+    return bundled
 
 def get_ytdlp_path() -> Path:
     bundled = _get_base_path() / "backend" / "bin" / "yt-dlp.exe"
     if bundled.exists():
         return bundled
-    return _get_base_path().parent / "backend" / "bin" / "yt-dlp.exe"
+    dev_path = _get_base_path().parent / "backend" / "bin" / "yt-dlp.exe"
+    if dev_path.exists():
+        return dev_path
+    sys_path = shutil.which("yt-dlp")
+    if sys_path:
+        return Path(sys_path)
+    return bundled
