@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] — 2026-08-13 (*Voodoo Master*)
+
+### 🐛 Fixed
+- **YouTube Downloader Packaging**: Bundled the official `yt-dlp.exe` Windows executable (2026.07.04), which was referenced by the application and installer but absent from v1.0.3.
+- **Actionable Downloader Errors**: Missing downloader installations now report the expected path and recommend reinstalling instead of returning a low-level process-launch error.
+- **Download Diagnostics**: Failed downloads now retain the final `yt-dlp` diagnostic line so common YouTube-side failures can be understood from the UI.
+
+### ⚙️ Release Maintenance
+- Synchronized the release version as `1.1.1` across the Python package, backend manifest, Flutter package, README, and Inno Setup installer.
+
+---
+
 ## [1.1.0] — 2026-08-05 (*Voodoo Master*)
 
 ### 🚀 Added

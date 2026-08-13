@@ -34,7 +34,7 @@ class BackendBridge {
 
   String get _pythonPath {
     final root = _backendRoot;
-    
+
     // 1. Check for compiled backend executable first (Release Mode)
     final compiledPath = p.join(root, 'mkvoodoo_backend.exe');
     if (File(compiledPath).existsSync()) {
@@ -49,7 +49,8 @@ class BackendBridge {
   }
 
   /// Helper to determine if we are running the compiled backend
-  bool get _isCompiled => _pythonPath.endsWith('.exe') && !_pythonPath.contains('python');
+  bool get _isCompiled =>
+      _pythonPath.endsWith('.exe') && !_pythonPath.contains('python');
 
   List<String> _buildArgs(List<String> args) {
     if (_isCompiled) {
@@ -61,10 +62,10 @@ class BackendBridge {
   }
 
   Map<String, String> get _pythonEnv => {
-        ...Platform.environment,
-        'PYTHONIOENCODING': 'utf-8',
-        'PYTHONUTF8': '1',
-      };
+    ...Platform.environment,
+    'PYTHONIOENCODING': 'utf-8',
+    'PYTHONUTF8': '1',
+  };
 
   Future<BackendStatus> checkStatus() async {
     try {
@@ -195,7 +196,6 @@ class BackendBridge {
     }
   }
 
-
   Future<void> addJobs(List<Map<String, dynamic>> jobs) async {
     if (jobs.isEmpty) return;
     final jobsJson = jsonEncode(jobs);
@@ -229,12 +229,12 @@ class BackendBridge {
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
-    
+
     final process = _activeProcess;
     if (process == null) {
       throw Exception('Failed to start resume process.');
     }
-    
+
     final controller = StreamController<String>();
 
     process.stdout
@@ -269,7 +269,9 @@ class BackendBridge {
     return data;
   }
 
-  Future<Map<String, List<Map<String, dynamic>>>> getTracks(String filePath) async {
+  Future<Map<String, List<Map<String, dynamic>>>> getTracks(
+    String filePath,
+  ) async {
     final result = await Process.run(
       _pythonPath,
       _buildArgs(['probe', '--input', filePath]),
@@ -317,8 +319,10 @@ class BackendBridge {
   }) async* {
     final List<String> cmdArgs = [
       'convert',
-      '--input', input,
-      '--output', output,
+      '--input',
+      input,
+      '--output',
+      output,
     ];
 
     if (preset != null) cmdArgs.addAll(['--preset', preset]);
@@ -330,12 +334,12 @@ class BackendBridge {
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
-    
+
     final process = _activeProcess;
     if (process == null) {
       throw Exception('Failed to start backend process.');
     }
-    
+
     final controller = StreamController<String>();
 
     process.stdout
@@ -371,7 +375,11 @@ class BackendBridge {
     return jsonDecode(result.stdout as String) as Map<String, dynamic>;
   }
 
-  Stream<String> downloadYoutube(String url, {bool audioOnly = false, String format = 'mp3'}) async* {
+  Stream<String> downloadYoutube(
+    String url, {
+    bool audioOnly = false,
+    String format = 'mp3',
+  }) async* {
     final List<String> args = ['youtube', '--download', url];
     if (audioOnly) {
       args.addAll(['--audio-only', '--format', format]);
@@ -401,11 +409,20 @@ class BackendBridge {
         .transform(const LineSplitter())
         .listen((line) => controller.add(line));
 
-    process.exitCode.then((_) {
+    final exitCodeFuture = process.exitCode;
+    exitCodeFuture.then((_) {
       if (!controller.isClosed) controller.close();
     });
 
     yield* controller.stream;
+
+    final exitCode = await exitCodeFuture;
+    _activeProcess = null;
+    if (exitCode != 0) {
+      throw Exception(
+        'YouTube download failed. See the download log for details.',
+      );
+    }
   }
 
   Future<Map<String, dynamic>> checkUpdate() async {
@@ -440,7 +457,10 @@ class BackendBridge {
     return result.stdout as String;
   }
 
-  Future<List<Map<String, dynamic>>> searchMetadata(String query, {bool isTv = false}) async {
+  Future<List<Map<String, dynamic>>> searchMetadata(
+    String query, {
+    bool isTv = false,
+  }) async {
     final args = ['metadata', '--search', query];
     if (isTv) args.add('--tv');
 

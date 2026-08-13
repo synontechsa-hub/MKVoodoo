@@ -7,11 +7,18 @@ from typing import Dict, Any, Optional, Callable
 from backend.utils.paths import get_ytdlp_path, _get_downloads_dir
 from backend.core.exceptions import MKVoodooError
 
+
 class DownloadService:
     """Service for downloading videos using yt-dlp."""
 
     def __init__(self) -> None:
-        self._ytdlp = str(get_ytdlp_path())
+        ytdlp_path = get_ytdlp_path()
+        if not ytdlp_path.is_file():
+            raise MKVoodooError(
+                "The YouTube downloader is unavailable. Expected yt-dlp.exe at "
+                f"'{ytdlp_path}'. Reinstall MKVoodoo or restore the bundled downloader."
+            )
+        self._ytdlp = str(ytdlp_path)
 
     def fetch_metadata(self, url: str) -> Dict[str, Any]:
         """Fetch video metadata without downloading."""
@@ -34,7 +41,8 @@ class DownloadService:
             parsed: Dict[str, Any] = json.loads(result.stdout)
             return parsed
         except subprocess.CalledProcessError as e:
-            raise MKVoodooError(f"Failed to fetch metadata: {e.stderr}")
+            details = (e.stderr or e.stdout or str(e)).strip()
+            raise MKVoodooError(f"Failed to fetch metadata: {details}")
         except Exception as e:
             raise MKVoodooError(f"Unexpected error fetching metadata: {e}")
 
@@ -68,7 +76,7 @@ class DownloadService:
             cmd += [
                 "--extract-audio",
                 "--audio-format", audio_format,
-                "--audio-quality", "0", # Best
+                "--audio-quality", "0",  # Best
             ]
         else:
             cmd += [
@@ -90,15 +98,24 @@ class DownloadService:
             )
 
             final_path = None
+            recent_output = []
             if process.stdout:
                 for line in process.stdout:
                     line = line.strip()
                     if not line:
                         continue
 
+                    recent_output.append(line)
+                    if len(recent_output) > 10:
+                        recent_output.pop(0)
+
                     # 1. Parse deterministic path from --print after_move:filepath
                     # This line will only contain the path because of --print
-                    if line.startswith(str(_get_downloads_dir())) or (output_path and line.startswith(str(output_path.parent))):
+                    in_downloads_dir = line.startswith(str(_get_downloads_dir()))
+                    in_requested_dir = output_path and line.startswith(
+                        str(output_path.parent)
+                    )
+                    if in_downloads_dir or in_requested_dir:
                         final_path = Path(line)
                         continue
 
@@ -108,15 +125,20 @@ class DownloadService:
                         on_progress(float(progress_match.group(1)))
 
             process.wait()
-            
+
             if process.returncode != 0:
-                raise MKVoodooError(f"Download failed with exit code {process.returncode}")
+                details = recent_output[-1] if recent_output else "No diagnostic output was returned."
+                raise MKVoodooError(
+                    f"Download failed with exit code {process.returncode}: {details}"
+                )
 
             if not final_path or not final_path.exists():
                 raise MKVoodooError("Download finished but could not verify output file path.")
 
             return final_path.absolute()
 
+        except MKVoodooError:
+            raise
         except Exception as e:
             raise MKVoodooError(f"Download error: {e}")
 

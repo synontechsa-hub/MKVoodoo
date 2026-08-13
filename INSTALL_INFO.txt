@@ -10,7 +10,7 @@ To proceed:
 1. Click "More Info" on the blue Windows popup.
 2. Click "Run Anyway."
 
-Rest assured, MKVoodoo is completely offline, contains no malware, and does not track your data. You can verify the source code at any time on our GitHub repository.
+MKVoodoo performs transcoding locally and contains no analytics or tracking. Optional YouTube downloads, metadata searches, and update checks require internet access. You can verify the source code at any time on our GitHub repository.
 
 System Requirements
 -------------------

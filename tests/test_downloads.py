@@ -7,8 +7,17 @@ from backend.core.exceptions import MKVoodooError
 
 @pytest.fixture
 def download_service():
-    with patch("backend.services.download_service.get_ytdlp_path", return_value="yt-dlp"):
+    with patch(
+        "backend.services.download_service.get_ytdlp_path",
+        return_value=Path(__file__),
+    ):
         return DownloadService()
+
+def test_missing_downloader_has_actionable_error():
+    missing = Path("D:/missing/yt-dlp.exe")
+    with patch("backend.services.download_service.get_ytdlp_path", return_value=missing):
+        with pytest.raises(MKVoodooError, match="Reinstall MKVoodoo"):
+            DownloadService()
 
 def test_fetch_metadata_success(download_service):
     mock_json = '{"title": "Test Video", "thumbnail": "url", "duration": 120}'
@@ -80,3 +89,13 @@ def test_download_audio_only_flags(mock_popen, download_service):
             assert "flac" in cmd
             assert "--print" in cmd
             assert "after_move:filepath" in cmd
+
+@patch("subprocess.Popen")
+def test_download_failure_includes_ytdlp_diagnostic(mock_popen, download_service):
+    process_mock = MagicMock()
+    process_mock.stdout = iter(["ERROR: Sign in to confirm you are not a bot\n"])
+    process_mock.returncode = 1
+    mock_popen.return_value = process_mock
+
+    with pytest.raises(MKVoodooError, match="Sign in to confirm"):
+        download_service.download_video("https://youtube.com/watch?v=123")
