@@ -32,5 +32,5 @@ frontend/flutter_*.log
 mkvoodoo_config.json
 mkvoodoo_queue.json
 
-# Binary Release Setups (Optional tracking, usually excluded or tagged)
-# *.exe
+# Binary Release Installers
+MKVoodoo_*_Setup.exe
