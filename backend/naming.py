@@ -11,9 +11,8 @@ Handles:
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
 
 from backend.scanner import ScanResult
 
@@ -99,7 +98,7 @@ _NOISE_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:HEVC|H\.265|H265|x264|x265|AVC)\b", re.IGNORECASE),
     re.compile(r"\b(?:AAC|AC3|DTS|FLAC|MP3)\b", re.IGNORECASE),
     re.compile(r"\bS\d+E\d+\b", re.IGNORECASE),              # S01E05
-    re.compile(r"\bEp(?:isode)?\.?\s*\d+\b", re.IGNORECASE), # Episode 12
+    re.compile(r"\bEp(?:isode)?\.?\s*\d+\b", re.IGNORECASE),  # Episode 12
     re.compile(r"(?:^|[\s_\-])\d{1,3}(?=[\s_\-\.]|$)"),     # bare episode numbers
 ]
 
@@ -267,7 +266,7 @@ def review_proposals(proposals: list[NameProposal]) -> list[NameProposal]:
     print(f"  {'SOURCE FILE':<{_COL_W}}  {'→':<3}  {'PROPOSED OUTPUT':<{_COL_W}}")
     print("━" * 120)
 
-    for i, p in enumerate(proposals):
+    for _i, p in enumerate(proposals):
         src = _truncate(str(p.scan_result.relative_path), _COL_W)
         out = _truncate(p.output_filename, _COL_W)
         print(f"  {src:<{_COL_W}}       {out:<{_COL_W}}")

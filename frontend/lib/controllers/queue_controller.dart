@@ -131,7 +131,7 @@ class QueueController extends ChangeNotifier {
   Future<void> stopProcessing() async {
     _queueSubscription?.cancel();
     _queueSubscription = null;
-    await _bridge.stopActiveProcess();
+    await _bridge.cancelOperation('queue_resume');
     _isProcessing = false;
     _consoleLogs.add("🛑 Processing stopped by user.");
     await refreshQueue();

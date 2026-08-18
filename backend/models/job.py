@@ -2,12 +2,14 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
+
 class JobStatus(str, Enum):
-    PENDING     = "pending"
+    PENDING = "pending"
     IN_PROGRESS = "in_progress"
-    DONE        = "done"
-    FAILED      = "failed"
-    SKIPPED     = "skipped"
+    DONE = "done"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+
 
 @dataclass
 class Job:
@@ -25,7 +27,7 @@ class Job:
     subtitle_tracks: Optional[list[int]] = None
 
     # Quality Overrides
-    audio_bitrate: Optional[str] = None # e.g. "128k", "192k", "256k"
+    audio_bitrate: Optional[str] = None  # e.g. "128k", "192k", "256k"
 
     # Extra flags
     keep_all_audio: bool = True

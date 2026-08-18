@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
+
 class EncoderBackend(Enum):
     NVENC = auto()
     QSV = auto()
     CPU = auto()
+
 
 @dataclass(frozen=True)
 class EncoderInfo:

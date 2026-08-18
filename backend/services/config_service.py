@@ -1,9 +1,11 @@
 import json
-from pathlib import Path
 from dataclasses import asdict
+from pathlib import Path
+
+from backend.core.exceptions import ConfigError
 from backend.models.config import MKVoodooConfig
 from backend.utils.paths import _default_config_file
-from backend.core.exceptions import ConfigError
+
 
 class ConfigService:
     """Service for managing application configuration."""
@@ -17,14 +19,13 @@ class ConfigService:
             try:
                 with open(self._path, encoding="utf-8") as f:
                     data = json.load(f)
-                
+
                 # Filter unknown fields to avoid errors on schema changes
                 known = {k for k in MKVoodooConfig.__dataclass_fields__}
                 filtered = {k: v for k, v in data.items() if k in known}
                 return MKVoodooConfig(**filtered)
-            except (json.JSONDecodeError, TypeError) as exc:
-                # In a real service, we might log this. 
-                # For now, we fall back to defaults but keep the file.
+            except (json.JSONDecodeError, TypeError):
+                # Fall back to defaults but keep the file
                 return MKVoodooConfig()
         return MKVoodooConfig()
 

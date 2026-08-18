@@ -11,7 +11,7 @@ class BackendBridge {
   factory BackendBridge() => _instance;
   BackendBridge.internal();
 
-  Process? _activeProcess;
+  final Map<String, Process> _activeProcesses = {};
 
   String get _backendRoot {
     final envRoot = Platform.environment['MKVOODOO_ROOT'];
@@ -136,12 +136,43 @@ class BackendBridge {
     }
   }
 
-  Future<void> stopActiveProcess() async {
-    _activeProcess?.kill();
-    _activeProcess = null;
+  Future<void> stopActiveProcess({String? operationId}) async {
+    if (operationId != null) {
+      await cancelOperation(operationId);
+      return;
+    }
+    await cancelAllOperations();
+  }
 
-    if (Platform.isWindows) {
-      await Process.run('taskkill', ['/F', '/IM', 'ffmpeg.exe', '/T']);
+  Future<void> cancelOperation(String operationId) async {
+    final process = _activeProcesses.remove(operationId);
+    if (process == null) return;
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('taskkill', ['/F', '/T', '/PID', '${process.pid}']);
+      } else {
+        process.kill(ProcessSignal.sigterm);
+      }
+    } catch (_) {
+      process.kill();
+    }
+  }
+
+  Future<void> cancelAllOperations() async {
+    final entries = List<MapEntry<String, Process>>.from(_activeProcesses.entries);
+    _activeProcesses.clear();
+    for (final entry in entries) {
+      final process = entry.value;
+      try {
+        if (Platform.isWindows) {
+          await Process.run('taskkill', ['/F', '/T', '/PID', '${process.pid}']);
+        } else {
+          process.kill(ProcessSignal.sigterm);
+        }
+      } catch (_) {
+        process.kill();
+      }
     }
   }
 
@@ -223,17 +254,14 @@ class BackendBridge {
   }
 
   Stream<String> resumeQueue() async* {
-    _activeProcess = await Process.start(
+    const operationId = 'queue_resume';
+    final process = await Process.start(
       _pythonPath,
       _buildArgs(['queue', '--resume']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
-
-    final process = _activeProcess;
-    if (process == null) {
-      throw Exception('Failed to start resume process.');
-    }
+    _activeProcesses[operationId] = process;
 
     final controller = StreamController<String>();
 
@@ -248,6 +276,7 @@ class BackendBridge {
         .listen((line) => controller.add(line));
 
     process.exitCode.then((_) {
+      _activeProcesses.remove(operationId);
       if (!controller.isClosed) controller.close();
     });
 
@@ -477,17 +506,14 @@ class BackendBridge {
     if (preset != null) cmdArgs.addAll(['--preset', preset]);
     if (!review) cmdArgs.add('--no-review');
 
-    _activeProcess = await Process.start(
+    const operationId = 'conversion';
+    final process = await Process.start(
       _pythonPath,
       _buildArgs(cmdArgs),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
-
-    final process = _activeProcess;
-    if (process == null) {
-      throw Exception('Failed to start backend process.');
-    }
+    _activeProcesses[operationId] = process;
 
     final controller = StreamController<String>();
 
@@ -502,6 +528,7 @@ class BackendBridge {
         .listen((line) => controller.add(line));
 
     process.exitCode.then((_) {
+      _activeProcesses.remove(operationId);
       if (!controller.isClosed) controller.close();
     });
 
@@ -534,17 +561,14 @@ class BackendBridge {
       args.addAll(['--audio-only', '--format', format]);
     }
 
-    _activeProcess = await Process.start(
+    const operationId = 'youtube_download';
+    final process = await Process.start(
       _pythonPath,
       _buildArgs(args),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
-
-    final process = _activeProcess;
-    if (process == null) {
-      throw Exception('Failed to start download process.');
-    }
+    _activeProcesses[operationId] = process;
 
     final controller = StreamController<String>();
 
@@ -560,13 +584,13 @@ class BackendBridge {
 
     final exitCodeFuture = process.exitCode;
     exitCodeFuture.then((_) {
+      _activeProcesses.remove(operationId);
       if (!controller.isClosed) controller.close();
     });
 
     yield* controller.stream;
 
     final exitCode = await exitCodeFuture;
-    _activeProcess = null;
     if (exitCode != 0) {
       throw Exception(
         'YouTube download failed. See the download log for details.',

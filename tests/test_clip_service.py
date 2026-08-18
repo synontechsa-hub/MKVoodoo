@@ -130,9 +130,67 @@ def test_export_refuses_to_overwrite_existing_output(clip_service: ClipService, 
         clip_service.export(source, output, 0, 250_000, "mp4", CPU_ENCODER)
 
 
+def test_export_single_frame_clip(tmp_path: Path) -> None:
+    source = tmp_path / "source.mp4"
+    output = tmp_path / "single_frame.mp4"
+    _create_cfr_fixture(source)
+
+    class _SingleFrameProbe(_FixtureProbe):
+        def get_nearby_frames(self, _path: Path, _out_us: int, before: int, after: int) -> list[ClipFrame]:
+            return [ClipFrame(pts_us=750_000, duration_us=250_000, key_frame=False)]
+
+    service = ClipService(_DirectEngine(), _SingleFrameProbe())  # type: ignore[arg-type]
+    result = service.export(source, output, 500_000, 500_000, "mp4", CPU_ENCODER)
+
+    assert output.exists()
+    assert result.end_us == 750_000
+    assert len(_frame_hashes(output)) == 1
+
+
+def test_export_final_frame_boundary_uses_source_duration(tmp_path: Path) -> None:
+    source = tmp_path / "source.mp4"
+    output = tmp_path / "final_frame.mp4"
+    _create_cfr_fixture(source)
+
+    class _FinalFrameProbe(_FixtureProbe):
+        def get_nearby_frames(self, _path: Path, _out_us: int, before: int, after: int) -> list[ClipFrame]:
+            # No following frame exists after the last frame
+            return []
+
+    service = ClipService(_DirectEngine(), _FinalFrameProbe())  # type: ignore[arg-type]
+    result = service.export(source, output, 1_750_000, 1_750_000, "mp4", CPU_ENCODER)
+
+    assert output.exists()
+    assert result.end_us == 2_000_000
+    assert len(_frame_hashes(output)) == 1
+
+
+def test_export_cancellation_cleans_partial_output(tmp_path: Path) -> None:
+    source = tmp_path / "source.mp4"
+    output = tmp_path / "cancelled.mp4"
+    _create_cfr_fixture(source)
+
+    class _FailingEngine:
+        def run(self, args: list[str]) -> bool:
+            # Simulate partial write then cancellation/interruption
+            partial = Path(args[-1])
+            partial.write_bytes(b"partial video data in progress")
+            raise RuntimeError("Process cancelled by user")
+
+    service = ClipService(_FailingEngine(), _FixtureProbe())  # type: ignore[arg-type]
+
+    with pytest.raises(RuntimeError, match="cancelled"):
+        service.export(source, output, 0, 500_000, "mp4", CPU_ENCODER)
+
+    partial = output.with_name(f"{output.stem}.partial{output.suffix}")
+    assert not partial.exists()
+    assert not output.exists()
+
+
 def test_export_rejects_reversed_boundaries(clip_service: ClipService, tmp_path: Path) -> None:
     source = tmp_path / "source.mp4"
     _create_cfr_fixture(source)
 
     with pytest.raises(ValueError, match="Out frame"):
         clip_service.export(source, tmp_path / "clip.mp4", 500_000, 250_000, "mp4", CPU_ENCODER)
+

@@ -1,15 +1,16 @@
 import platform
 import sys
-import json
-from pathlib import Path
-from backend.services.hardware_service import HardwareService
+
 from backend.services.config_service import ConfigService
+from backend.services.hardware_service import HardwareService
+from backend.version import VERSION
+
 
 def get_debug_info() -> str:
     """Gather system and app info for bug reporting."""
     hw = HardwareService()
     cfg = ConfigService().load()
-    
+
     # Get best encoder info
     try:
         best = hw.detect_best_encoder(force=cfg.force_encoder)
@@ -19,7 +20,7 @@ def get_debug_info() -> str:
 
     info = [
         "--- MKVoodoo Debug Report ---",
-        f"Version: 1.0.0",
+        f"Version: {VERSION}",
         f"Platform: {platform.system()} {platform.release()} ({platform.architecture()[0]})",
         f"Python: {sys.version.split(' ')[0]}",
         f"Encoder: {gpu_info}",
@@ -28,6 +29,7 @@ def get_debug_info() -> str:
         "----------------------------"
     ]
     return "\n".join(info)
+
 
 if __name__ == "__main__":
     # If run directly, just print the info

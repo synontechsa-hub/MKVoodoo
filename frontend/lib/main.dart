@@ -8,6 +8,7 @@ import 'package:mkvoodoo_ui/controllers/wizard_controller.dart';
 import 'package:mkvoodoo_ui/controllers/queue_controller.dart';
 import 'package:mkvoodoo_ui/controllers/settings_controller.dart';
 import 'package:mkvoodoo_ui/controllers/youtube_controller.dart';
+import 'package:mkvoodoo_ui/controllers/navigation_controller.dart';
 import 'package:mkvoodoo_ui/controllers/clipper_controller.dart';
 import 'package:mkvoodoo_ui/services/backend_clipper_api.dart';
 import 'package:media_kit/media_kit.dart';
@@ -42,6 +43,7 @@ void main() {
         ChangeNotifierProvider(
           create: (context) => YoutubeController(context.read<BackendBridge>()),
         ),
+        ChangeNotifierProvider(create: (_) => NavigationController()),
         ChangeNotifierProvider(
           create: (context) => ClipperController(
             BackendClipperApi(context.read<BackendBridge>()),
@@ -183,10 +185,9 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
+    final nav = context.watch<NavigationController>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -232,11 +233,9 @@ class _MainLayoutState extends State<MainLayout> {
               clipBehavior: Clip.antiAlias,
               child: NavigationRail(
                 backgroundColor: Colors.transparent,
-                selectedIndex: _selectedIndex,
+                selectedIndex: nav.selectedIndex,
                 onDestinationSelected: (int index) {
-                  setState(() {
-                    _selectedIndex = index;
-                  });
+                  nav.navigateTo(index);
                 },
                 labelType: NavigationRailLabelType.all,
                 groupAlignment: -0.9,
@@ -317,16 +316,16 @@ class _MainLayoutState extends State<MainLayout> {
                 ],
               ),
             ),
-            Expanded(child: _buildBody()),
+            Expanded(child: _buildBody(nav.selectedIndex)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(int selectedIndex) {
     return IndexedStack(
-      index: _selectedIndex,
+      index: selectedIndex,
       children: [
         const DashboardPage(),
         const WizardPage(),

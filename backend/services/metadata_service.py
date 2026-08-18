@@ -1,10 +1,12 @@
-import urllib.request
-import urllib.parse
 import json
-from typing import Dict, Any, List, Optional
+import urllib.parse
+import urllib.request
+from typing import Any, Dict, List
+
 from backend.core.exceptions import MKVoodooError
 
 TMDB_API_BASE = "https://api.themoviedb.org/3"
+
 
 class MetadataService:
     """Service for fetching movie and TV show metadata from TMDB."""
@@ -25,7 +27,7 @@ class MetadataService:
         search_type = "tv" if is_tv else "movie"
         encoded_query = urllib.parse.quote(query)
         url = f"{TMDB_API_BASE}/search/{search_type}?api_key={self.api_key}&query={encoded_query}"
-        
+
         try:
             with urllib.request.urlopen(url, timeout=10) as response:
                 data = json.loads(response.read().decode("utf-8"))
@@ -41,7 +43,7 @@ class MetadataService:
 
         search_type = "tv" if is_tv else "movie"
         url = f"{TMDB_API_BASE}/{search_type}/{content_id}?api_key={self.api_key}"
-        
+
         try:
             with urllib.request.urlopen(url, timeout=10) as response:
                 parsed: Dict[str, Any] = json.loads(response.read().decode("utf-8"))

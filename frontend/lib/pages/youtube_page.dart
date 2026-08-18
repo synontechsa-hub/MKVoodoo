@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/youtube_controller.dart';
+import '../controllers/navigation_controller.dart';
+import '../controllers/clipper_controller.dart';
 
 class YoutubePage extends StatefulWidget {
   const YoutubePage({super.key});
@@ -184,7 +186,14 @@ class _YoutubePageState extends State<YoutubePage>
                   _buildDownloadOptions(context, controller),
                   const SizedBox(height: 32),
                   ElevatedButton.icon(
-                    onPressed: () => controller.startDownload(context),
+                    onPressed: () {
+                      final nav = context.read<NavigationController>();
+                      final clipper = context.read<ClipperController>();
+                      controller.startDownload(
+                        onVideoDownloaded: (path) =>
+                            nav.navigateToClipper(path, clipper),
+                      );
+                    },
                     icon: Icon(
                       controller.audioOnly
                           ? Icons.audiotrack_rounded
@@ -193,7 +202,7 @@ class _YoutubePageState extends State<YoutubePage>
                     label: Text(
                       controller.audioOnly
                           ? 'Download MP3'
-                          : 'Download & Add to Workflow',
+                          : 'Download & Open in Clipper',
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB900FF),

@@ -1,20 +1,22 @@
 from __future__ import annotations
-from typing import Dict, Any, cast, TYPE_CHECKING
+
+from typing import TYPE_CHECKING, Any, Dict, cast
 
 if TYPE_CHECKING:
-    from backend.services.config_service import ConfigService
-    from backend.services.hardware_service import HardwareService
-    from backend.services.probe_service import ProbeService
-    from backend.services.scanner_service import ScannerService
-    from backend.services.naming_service import NamingService
-    from backend.services.metadata_service import MetadataService
-    from backend.services.download_service import DownloadService
-    from backend.services.queue_service import QueueService
-    from backend.utils.logger import SynLogger
-    from backend.services.converter_service import ConverterService
     from backend.services.clip_service import ClipService
+    from backend.services.config_service import ConfigService
+    from backend.services.converter_service import ConverterService
+    from backend.services.download_service import DownloadService
+    from backend.services.hardware_service import HardwareService
+    from backend.services.metadata_service import MetadataService
+    from backend.services.naming_service import NamingService
+    from backend.services.probe_service import ProbeService
+    from backend.services.queue_service import QueueService
+    from backend.services.scanner_service import ScannerService
     from backend.services.thumbnail_service import ThumbnailService
     from backend.services.update_service import UpdateService
+    from backend.utils.logger import SynLogger
+
 
 class ServiceContainer:
     """Registry for backend services to ensure singletons and clean ownership."""
@@ -85,8 +87,8 @@ class ServiceContainer:
         return cast("SynLogger", self._instances["logger"])
 
     def get_converter_service(self) -> ConverterService:
-        from backend.services.converter_service import ConverterService
         from backend.core.engine import FFmpegEngine
+        from backend.services.converter_service import ConverterService
         if "converter" not in self._instances:
             hw = self.get_hardware_service()
             engine = FFmpegEngine(hw._ffmpeg)
@@ -112,6 +114,7 @@ class ServiceContainer:
         if "update" not in self._instances:
             self._instances["update"] = UpdateService()
         return cast("UpdateService", self._instances["update"])
+
 
 # Global singleton instance
 container = ServiceContainer()

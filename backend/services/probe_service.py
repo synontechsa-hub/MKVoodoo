@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 from backend.models.clip import ClipFrame, ClipMediaInfo
 from backend.utils.paths import get_ffprobe_path
 
+
 class ProbeService:
     """Service for probing media files using ffprobe."""
 
@@ -125,7 +126,7 @@ class ProbeService:
         if before < 0 or after < 0:
             raise ValueError("Frame window sizes cannot be negative.")
 
-        info = self.get_clip_media_info(file_path)
+        self.get_clip_media_info(file_path)
         window_us = max(1_000_000, (before + after + 2) * 250_000)
         start_us = max(0, around_us - window_us)
         interval_seconds = (window_us * 2) / 1_000_000

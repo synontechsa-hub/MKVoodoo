@@ -1,6 +1,6 @@
 import sys
-from backend.cli.parser import build_parser
 from backend.cli import handlers
+from backend.cli.parser import build_parser
 
 # Force UTF-8 output and line buffering
 if hasattr(sys.stdout, "reconfigure"):
@@ -12,23 +12,24 @@ if hasattr(sys.stderr, "reconfigure"):
     if callable(reconfig_err):
         reconfig_err(encoding="utf-8", errors="replace", line_buffering=True)
 
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
     command_map = {
-        "config":   handlers.handle_config,
+        "config": handlers.handle_config,
         "encoders": handlers.handle_encoders,
-        "scan":     handlers.handle_scan,
-        "convert":  handlers.handle_convert,
-        "status":   handlers.handle_status,
-        "queue":    handlers.handle_queue,
-        "presets":  handlers.handle_presets,
-        "probe":    handlers.handle_probe,
-        "clip":     handlers.handle_clip,
+        "scan": handlers.handle_scan,
+        "convert": handlers.handle_convert,
+        "status": handlers.handle_status,
+        "queue": handlers.handle_queue,
+        "presets": handlers.handle_presets,
+        "probe": handlers.handle_probe,
+        "clip": handlers.handle_clip,
         "thumbnail": handlers.handle_thumbnail,
-        "debug":    handlers.handle_debug,
-        "youtube":  handlers.handle_youtube,
+        "debug": handlers.handle_debug,
+        "youtube": handlers.handle_youtube,
         "check-update": handlers.handle_check_update,
         "update-downloader": handlers.handle_update_downloader,
         "metadata": handlers.handle_metadata,
@@ -44,6 +45,7 @@ def main() -> None:
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

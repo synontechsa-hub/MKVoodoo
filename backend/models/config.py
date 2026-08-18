@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Literal
-from backend.utils.paths import _default_output_dir, _default_log_dir, _default_queue_file
+
+from backend.utils.paths import _default_log_dir, _default_output_dir, _default_queue_file
 
 PresetName = Literal["720p_mobile", "480p_saver"]
+
 
 @dataclass
 class MKVoodooConfig:

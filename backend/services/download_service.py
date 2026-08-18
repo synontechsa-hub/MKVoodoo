@@ -30,13 +30,15 @@ class DownloadService:
                     "--print-json",
                     "--skip-download",
                     "--no-playlist",
+                    "--",
                     url
                 ],
                 capture_output=True,
                 text=True,
                 check=True,
                 encoding="utf-8",
-                errors="replace"
+                errors="replace",
+                stdin=subprocess.DEVNULL,
             )
             parsed: Dict[str, Any] = json.loads(result.stdout)
             return parsed
@@ -84,13 +86,14 @@ class DownloadService:
                 "--merge-output-format", "mp4",
             ]
 
-        cmd += ["--output", output_template, url]
+        cmd += ["--output", output_template, "--", url]
 
         try:
             process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
+                stdin=subprocess.DEVNULL,
                 universal_newlines=True,
                 encoding="utf-8",
                 errors="replace",

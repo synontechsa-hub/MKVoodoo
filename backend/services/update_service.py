@@ -1,11 +1,12 @@
-import urllib.request
 import json
-import os
+import urllib.request
 from typing import Optional
+
 from backend.core.exceptions import MKVoodooError
 from backend.version import VERSION
 
-UPDATE_URL = "https://api.github.com/repos/synontech/mkvoodoo/releases/latest" # Placeholder
+UPDATE_URL = "https://api.github.com/repos/synontechsa-hub/mkvoodoo/releases/latest"
+
 
 class UpdateService:
     """Service for checking and applying application updates."""
@@ -17,15 +18,15 @@ class UpdateService:
         """Check if a new version is available."""
         headers = {"User-Agent": "MKVoodoo-App"}
         req = urllib.request.Request(UPDATE_URL, headers=headers)
-        
+
         try:
             with urllib.request.urlopen(req, timeout=10) as response:
                 if response.status != 200:
                     raise MKVoodooError(f"Update server returned status {response.status}")
-                
+
                 data = json.loads(response.read().decode("utf-8"))
                 latest_version = data.get("tag_name", "").replace("v", "")
-                
+
                 if self._is_newer(latest_version, self.current_version):
                     return {
                         "update_available": True,
@@ -34,7 +35,7 @@ class UpdateService:
                         "notes": data.get("body"),
                         "installer_url": self._get_installer_url(data)
                     }
-                
+
                 return {"update_available": False}
         except Exception as e:
             raise MKVoodooError(f"Failed to check for updates: {e}")

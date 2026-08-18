@@ -1,10 +1,11 @@
 import re
 from pathlib import Path
 from typing import List, Optional
-from backend.models.scan import ScanResult, NameProposal
-from backend.core.exceptions import NamingError
+
+from backend.models.scan import NameProposal, ScanResult
 
 DEFAULT_TEMPLATE = "S{S:02d}E{E:02d} - {title}"
+
 
 class NamingService:
     """Service for generating and reviewing output filenames."""
@@ -24,15 +25,15 @@ class NamingService:
         ]
 
     def build_proposals(
-        self, 
-        results: List[ScanResult], 
-        output_root: Path, 
+        self,
+        results: List[ScanResult],
+        output_root: Path,
         container: str = "mkv"
     ) -> List[NameProposal]:
         """Convert scan results into named proposals."""
         proposals: List[NameProposal] = []
         taken_paths: set[Path] = set()
-        
+
         for result in results:
             stem = result.source_path.stem
             season = self._infer_season(result)
@@ -48,11 +49,11 @@ class NamingService:
 
             filename = self.render(season, ep_num, title, container)
             base_output_path = (output_root / result.relative_path.parent / filename).resolve()
-            
+
             # Collision Protection
             final_output_path = self._ensure_unique(base_output_path, taken_paths)
             taken_paths.add(final_output_path)
-            
+
             final_filename = final_output_path.name
 
             proposals.append(NameProposal(
@@ -63,14 +64,14 @@ class NamingService:
                 output_filename=final_filename,
                 output_path=final_output_path
             ))
-            
+
         return proposals
 
     def _ensure_unique(self, path: Path, taken: set[Path]) -> Path:
         """Ensure the output path doesn't collide with others in this batch."""
         if path not in taken:
             return path
-            
+
         counter = 1
         while True:
             new_name = f"{path.stem}-{counter}{path.suffix}"
@@ -85,7 +86,7 @@ class NamingService:
             name = self.template.format(S=season, E=episode, title=title)
         except (KeyError, ValueError):
             name = DEFAULT_TEMPLATE.format(S=season, E=episode, title=title)
-            
+
         name = re.sub(r'[<>:"/\\|?*]', "_", name)
         return f"{name}.{container}"
 

@@ -1,20 +1,28 @@
-import sys
-import json
 import argparse
-from pathlib import Path
+import json
+import os
+import shutil
+import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
+from pathlib import Path
 from typing import Any
 
 from backend.core.container import container
-from backend.core.exceptions import MKVoodooError
-from backend.presets import get_preset, list_presets
+from backend.core.engine import FFmpegEngine
 from backend.models.job import JobStatus
+from backend.presets import get_preset, list_presets
+from backend.services.converter_service import ConverterService
+from backend.utils.debug import get_debug_info
+
 
 def handle_presets(_args: argparse.Namespace) -> int:
     print("\nAvailable presets:\n")
     for p in list_presets():
         print(f"  {p.name:<16}  {p.label}")
     return 0
+
 
 def handle_config(args: argparse.Namespace) -> int:
     svc = container.get_config_service()
@@ -24,6 +32,7 @@ def handle_config(args: argparse.Namespace) -> int:
         svc.update_from_json(args.set)
         print("Configuration updated.")
     return 0
+
 
 def handle_encoders(_args: argparse.Namespace) -> int:
     svc = container.get_hardware_service()
@@ -36,16 +45,17 @@ def handle_encoders(_args: argparse.Namespace) -> int:
     print(json.dumps(output, indent=2))
     return 0
 
+
 def handle_scan(args: argparse.Namespace) -> int:
     cfg = container.get_config_service().load()
     output_dir = args.output or cfg.output_dir
-    
+
     scanner = container.get_scanner_service()
-    naming = container.get_naming_service() # Need to add this to container
-    
+    naming = container.get_naming_service()
+
     results = scanner.scan_multiple(args.input, output_dir=output_dir)
     proposals = naming.build_proposals(results, Path(output_dir))
-    
+
     if args.json:
         out = [{
             "source": str(p.scan_result.source_path),
@@ -62,8 +72,8 @@ def handle_scan(args: argparse.Namespace) -> int:
         print(f"Found {len(results)} files.")
     return 0
 
+
 def handle_status(args: argparse.Namespace) -> int:
-    import shutil
     cfg = container.get_config_service().load()
     svc = container.get_queue_service()
     hw_svc = container.get_hardware_service()
@@ -71,12 +81,12 @@ def handle_status(args: argparse.Namespace) -> int:
     if args.json:
         all_jobs = svc.get_all()
         jobs = [asdict(j) for j in all_jobs]
-        
+
         active_jobs = 0
         done_jobs = 0
         failed_jobs = 0
         processed_bytes = 0
-        
+
         for j in jobs:
             status_str = j["status"]
             if status_str in ("pending", "in_progress"):
@@ -107,7 +117,7 @@ def handle_status(args: argparse.Namespace) -> int:
 
         hw_dict = asdict(hw_svc.detect_best_encoder(force=cfg.force_encoder))
         hw_dict["backend"] = hw_dict["backend"].name
-        
+
         payload = {
             "jobs": jobs,
             "stats": {
@@ -127,6 +137,7 @@ def handle_status(args: argparse.Namespace) -> int:
             print(f"  {k:12}: {v}")
     return 0
 
+
 def handle_probe(args: argparse.Namespace) -> int:
     svc = container.get_probe_service()
     if args.clip_info:
@@ -139,6 +150,7 @@ def handle_probe(args: argparse.Namespace) -> int:
     tracks = svc.get_tracks(args.input)
     print(json.dumps(tracks, indent=2))
     return 0
+
 
 def handle_clip(args: argparse.Namespace) -> int:
     service = container.get_clip_service()
@@ -162,10 +174,11 @@ def handle_thumbnail(args: argparse.Namespace) -> int:
     print(json.dumps([candidate.to_dict() for candidate in candidates], indent=2))
     return 0
 
+
 def handle_debug(_args: argparse.Namespace) -> int:
-    from backend.utils.debug import get_debug_info
     print(get_debug_info())
     return 0
+
 
 def handle_youtube(args: argparse.Namespace) -> int:
     svc = container.get_download_service()
@@ -183,15 +196,16 @@ def handle_youtube(args: argparse.Namespace) -> int:
     elif args.download:
         def on_progress(pct: float) -> None:
             print(f"⏱ Progress: {pct:.1f}%", flush=True)
-        
+
         path = svc.download_video(
-            args.download, 
+            args.download,
             on_progress=on_progress,
             audio_only=args.audio_only,
             audio_format=args.format
         )
         print(f"✓ Downloaded to: {path}")
     return 0
+
 
 def handle_metadata(args: argparse.Namespace) -> int:
     svc = container.get_metadata_service()
@@ -210,11 +224,13 @@ def handle_metadata(args: argparse.Namespace) -> int:
         print(json.dumps(out, indent=2))
     return 0
 
+
 def handle_check_update(_args: argparse.Namespace) -> int:
     svc = container.get_update_service()
     res = svc.check_for_update()
     print(json.dumps(res, indent=2))
     return 0
+
 
 def handle_update_downloader(_args: argparse.Namespace) -> int:
     svc = container.get_download_service()
@@ -222,10 +238,11 @@ def handle_update_downloader(_args: argparse.Namespace) -> int:
     print(res)
     return 0
 
+
 def handle_queue(args: argparse.Namespace) -> int:
     cfg = container.get_config_service().load()
     svc = container.get_queue_service()
-    
+
     if args.clear_done:
         n = svc.clear_completed()
         print(f"Cleared {n} jobs.")
@@ -276,7 +293,8 @@ def handle_queue(args: argparse.Namespace) -> int:
                 subtitle_tracks=j.get('subtitle_tracks'),
                 audio_bitrate=j.get('audio_bitrate'),
                 keep_all_audio=j.get('keep_all_audio', True),
-                keep_all_subtitles=j.get('keep_all_subtitles', True)
+                keep_all_subtitles=j.get('keep_all_subtitles', True),
+                delete_source_after_done=j.get('delete_source_after_done', False),
             )
             count += 1
         print(f"Added {count} job(s) from JSON.")
@@ -289,26 +307,21 @@ def handle_convert(args: argparse.Namespace) -> int:
     cfg = container.get_config_service().load()
     output_dir = Path(args.output or cfg.output_dir)
     preset_name = args.preset or cfg.default_preset
-    template = args.template or cfg.naming_template
-    
-    # 1. Hardware
-    hw_svc = container.get_hardware_service()
-    encoder = hw_svc.detect_best_encoder(force=args.encoder or cfg.force_encoder)
-    
-    # 2. Scan & Name
+
+    # 1. Scan & Name
     scanner = container.get_scanner_service()
     naming = container.get_naming_service()
-    
+
     results = scanner.scan(args.input, output_dir=output_dir)
     proposals = naming.build_proposals(results, output_dir)
-    
-    # 3. Filter active
+
+    # 2. Filter active
     active = [p for p in proposals if not p.skipped]
     if not active:
         print("Nothing to convert.")
         return 0
-        
-    # 4. Queue
+
+    # 3. Queue
     q_svc = container.get_queue_service()
     for p in active:
         q_svc.add(
@@ -316,30 +329,26 @@ def handle_convert(args: argparse.Namespace) -> int:
             output=str(p.output_path),
             preset=preset_name
         )
-        
-    # 5. Process
+
+    # 4. Process
     return _process_queue(q_svc, cfg)
 
+
 def _process_queue(q_svc: Any, cfg: Any) -> int:
-    import sys
-    import threading
-    import os
-    from concurrent.futures import ThreadPoolExecutor
-    
     hw_svc = container.get_hardware_service()
     encoder = hw_svc.detect_best_encoder(force=cfg.force_encoder)
-    
+
     logger = container.get_logger()
-    
+
     active_engines: list[Any] = []
     engines_lock = threading.Lock()
-    
+
     def _watchdog() -> None:
         try:
             sys.stdin.read()
         except Exception:
             pass
-        
+
         logger.error("Parent process disconnected! Emergency termination of FFmpeg...")
         with engines_lock:
             for eng in active_engines:
@@ -348,38 +357,36 @@ def _process_queue(q_svc: Any, cfg: Any) -> int:
                 except Exception:
                     pass
         os._exit(1)
-        
+
     if not sys.stdin.isatty():
         threading.Thread(target=_watchdog, name="SynWatchdog", daemon=True).start()
-    
+
     pending = q_svc.get_pending()
     if not pending:
         print("No pending jobs.")
         return 0
-        
+
     logger.session_start(len(pending), encoder.label)
-    
+
     max_workers = max(1, min(cfg.parallel_jobs, 8))
-    
+
     def worker(job_tuple: tuple[int, Any]) -> None:
         index, job = job_tuple
         job_id = job.id
         logger.file_start(index, len(pending), job.source, job_id=job_id)
         q_svc.update_status(job_id, JobStatus.IN_PROGRESS)
-        
+
         try:
             preset = get_preset(job.preset)
-            from backend.core.engine import FFmpegEngine
             thread_engine = FFmpegEngine(hw_svc._ffmpeg)
             with engines_lock:
                 active_engines.append(thread_engine)
-                
-            from backend.services.converter_service import ConverterService
+
             thread_converter = ConverterService(thread_engine, logger)
-            
+
             try:
                 success = thread_converter.process_job(
-                    job, preset, encoder, 
+                    job, preset, encoder,
                     skip_existing=cfg.skip_existing,
                     max_retries=cfg.max_retries
                 )
@@ -387,7 +394,7 @@ def _process_queue(q_svc: Any, cfg: Any) -> int:
                 with engines_lock:
                     if thread_engine in active_engines:
                         active_engines.remove(thread_engine)
-            
+
             if success:
                 q_svc.update_status(job_id, JobStatus.DONE)
             else:
@@ -399,6 +406,6 @@ def _process_queue(q_svc: Any, cfg: Any) -> int:
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         list(executor.map(worker, enumerate(pending, start=1)))
-            
+
     logger.session_end(show_notification=cfg.show_notifications)
     return 0

@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
-from typing import List, Optional, Any
-from backend.models.scan import ScanResult
+from typing import Any, List, Optional
+
 from backend.core.exceptions import ScannerError
+from backend.models.scan import ScanResult
 from backend.services.probe_service import ProbeService
 
 SUPPORTED_EXTENSIONS = frozenset({".mkv", ".mp4", ".webm"})
+
 
 class ScannerService:
     """Service for discovering video files in the filesystem."""
@@ -16,7 +18,7 @@ class ScannerService:
     def scan(self, root: str | Path, output_dir: Optional[str | Path] = None) -> List[ScanResult]:
         """Recursively scan root for supported video files."""
         root_path = Path(root).resolve()
-        
+
         if root_path.is_file():
             if root_path.suffix.lower() in SUPPORTED_EXTENSIONS:
                 return [self._build_result(root_path, Path(root_path.name))]
@@ -45,7 +47,7 @@ class ScannerService:
             try:
                 tracks = self.probe_service.get_tracks(abs_path)
             except Exception:
-                pass # Silently fail probing during scan
+                pass  # Silently fail probing during scan
         return ScanResult(source_path=abs_path, relative_path=rel_path, tracks=tracks)
 
     def scan_multiple(self, roots: List[str | Path], output_dir: Optional[str | Path] = None) -> List[ScanResult]:
@@ -72,12 +74,12 @@ class ScannerService:
             raise FileNotFoundError(f"Input directory does not exist: {root}")
         if not root.is_dir():
             raise NotADirectoryError(f"Input path is not a directory: {root}")
-            
+
         if output_dir is not None:
             output_resolved = Path(output_dir).resolve()
             if root == output_resolved:
                 raise ValueError("Input and output directories must not be the same path.")
-            
+
             try:
                 output_resolved.relative_to(root)
                 raise ValueError("Output directory must not be inside the input directory.")

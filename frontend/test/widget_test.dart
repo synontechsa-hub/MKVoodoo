@@ -11,11 +11,17 @@ import 'package:provider/provider.dart';
 import 'package:mkvoodoo_ui/main.dart';
 import 'package:mkvoodoo_ui/services/backend_bridge.dart';
 import 'package:mkvoodoo_ui/services/theme_provider.dart';
+import 'package:mkvoodoo_ui/services/clipper_api.dart';
+import 'package:mkvoodoo_ui/models/clip_media_info.dart';
+import 'package:mkvoodoo_ui/models/clip_frame.dart';
+import 'package:mkvoodoo_ui/models/thumbnail_candidate.dart';
 import 'package:mkvoodoo_ui/controllers/dashboard_controller.dart';
 import 'package:mkvoodoo_ui/controllers/wizard_controller.dart';
 import 'package:mkvoodoo_ui/controllers/queue_controller.dart';
 import 'package:mkvoodoo_ui/controllers/settings_controller.dart';
 import 'package:mkvoodoo_ui/controllers/youtube_controller.dart';
+import 'package:mkvoodoo_ui/controllers/navigation_controller.dart';
+import 'package:mkvoodoo_ui/controllers/clipper_controller.dart';
 import 'package:mkvoodoo_ui/models/backend_status.dart';
 
 class MockBackendBridge extends BackendBridge {
@@ -84,9 +90,53 @@ class MockBackendBridge extends BackendBridge {
   ];
 }
 
+class FakeClipperApi implements ClipperApi {
+  @override
+  Future<ClipMediaInfo> getMediaInfo(String source) async => const ClipMediaInfo(
+    source: 'mock.mp4',
+    durationUs: 1000000,
+    width: 1920,
+    height: 1080,
+    isVariableFrameRate: false,
+    frameRateReason: 'cfr',
+  );
+
+  @override
+  Future<List<ClipFrame>> getNearbyFrames(
+    String source,
+    int aroundUs, {
+    int before = 1,
+    int after = 1,
+  }) async => [];
+
+  @override
+  Future<void> exportClip(
+    String source,
+    String output,
+    int inUs,
+    int outUs,
+    String container,
+  ) async {}
+
+  @override
+  Future<List<ThumbnailCandidate>> generateThumbnails(
+    String source,
+    int inUs,
+    int outUs,
+    String cacheDirectory,
+  ) async => [];
+
+  @override
+  Future<void> saveThumbnail(
+    String source,
+    int timestampUs,
+    String output,
+    String format,
+  ) async {}
+}
+
 void main() {
   testWidgets('Dashboard smoke test', (WidgetTester tester) async {
-    // Set a desktop-like screen size to avoid overflows
     tester.view.physicalSize = const Size(1920, 1080);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -109,25 +159,23 @@ void main() {
           ChangeNotifierProvider(
             create: (context) => YoutubeController(bridge),
           ),
+          ChangeNotifierProvider(create: (_) => NavigationController()),
+          ChangeNotifierProvider(
+            create: (_) => ClipperController(FakeClipperApi()),
+          ),
         ],
         child: const MKVoodooApp(clipperPage: SizedBox.shrink()),
       ),
     );
 
-    // Initial pump to start loading
     await tester.pump();
-    // Wait for the async loads in controllers
     await tester.pump(const Duration(milliseconds: 500));
 
-    // Verify that Dashboard is the initial page
     expect(find.text('System Overview'), findsOneWidget);
 
-    // Navigation test: Click on "New Job" (Wizard) icon
-    // Using find.byIcon(Icons.add_to_photos_rounded)
     await tester.tap(find.byIcon(Icons.add_to_photos_rounded));
     await tester.pump(const Duration(milliseconds: 500));
 
-    // Verify Wizard page content
     expect(find.text('New Conversion Job'), findsOneWidget);
   });
 
@@ -154,26 +202,26 @@ void main() {
           ChangeNotifierProvider(
             create: (context) => YoutubeController(bridge),
           ),
+          ChangeNotifierProvider(create: (_) => NavigationController()),
+          ChangeNotifierProvider(
+            create: (_) => ClipperController(FakeClipperApi()),
+          ),
         ],
         child: const MKVoodooApp(clipperPage: SizedBox.shrink()),
       ),
     );
 
-    // Navigate to YouTube Tab (Icon at index 2 or using find.byIcon)
     await tester.tap(find.byIcon(Icons.smart_display_rounded));
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('YouTube Downloader'), findsOneWidget);
 
-    // Test URL Fetching
     final textField = find.byType(TextField);
     await tester.enterText(textField, 'https://youtube.com/watch?v=mock');
     await tester.pump();
 
-    // Tap the 'Fetch' text inside the ElevatedButton
     await tester.tap(find.text('Fetch'));
 
-    // Wait for mock fetch (it's async in the controller)
     for (int i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
@@ -181,7 +229,6 @@ void main() {
     expect(find.text('Mock Video'), findsOneWidget);
     expect(find.text('Uploader: Mock Channel'), findsOneWidget);
 
-    // Test Music Mode toggle
     expect(find.text('Audio Only (Music Mode)'), findsOneWidget);
     await tester.tap(find.byType(Switch));
     await tester.pump(const Duration(milliseconds: 500));

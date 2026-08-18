@@ -14,17 +14,24 @@ import 'package:flutter/foundation.dart';
 class ClipperController extends ChangeNotifier {
   ClipperController(this._api) {
     _positionSubscription = player.stream.position.listen(_onPosition);
+    _playingSubscription = player.stream.playing.listen((playing) {
+      _isPlaying = playing;
+      notifyListeners();
+    });
   }
 
   final ClipperApi _api;
   final Player player = Player();
   late final VideoController videoController = VideoController(player);
   late final StreamSubscription<Duration> _positionSubscription;
+  late final StreamSubscription<bool> _playingSubscription;
+  final List<Directory> _tempDirectories = [];
 
   ClipMediaInfo? _mediaInfo;
   ClipSelection _selection = const ClipSelection();
   List<ThumbnailCandidate> _thumbnails = const [];
   int _currentUs = 0;
+  bool _isPlaying = false;
   bool _isLoading = false;
   bool _isExporting = false;
   bool _isGeneratingThumbnails = false;
@@ -36,6 +43,7 @@ class ClipperController extends ChangeNotifier {
   ClipSelection get selection => _selection;
   List<ThumbnailCandidate> get thumbnails => _thumbnails;
   int get currentUs => _currentUs;
+  bool get isPlaying => _isPlaying;
   bool get isLoading => _isLoading;
   bool get isExporting => _isExporting;
   bool get isGeneratingThumbnails => _isGeneratingThumbnails;
@@ -178,7 +186,15 @@ class ClipperController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
+      for (final dir in _tempDirectories) {
+        try {
+          if (dir.existsSync()) dir.deleteSync(recursive: true);
+        } catch (_) {}
+      }
+      _tempDirectories.clear();
+
       final cache = await Directory.systemTemp.createTemp('mkvoodoo-clipper-');
+      _tempDirectories.add(cache);
       _thumbnails = await _api.generateThumbnails(
         source,
         _selection.inUs!,
@@ -252,6 +268,13 @@ class ClipperController extends ChangeNotifier {
   @override
   void dispose() {
     _positionSubscription.cancel();
+    _playingSubscription.cancel();
+    for (final dir in _tempDirectories) {
+      try {
+        if (dir.existsSync()) dir.deleteSync(recursive: true);
+      } catch (_) {}
+    }
+    _tempDirectories.clear();
     unawaited(player.dispose());
     super.dispose();
   }

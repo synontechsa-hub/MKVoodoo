@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 
 @dataclass(frozen=True)
 class ScanResult:
@@ -17,6 +18,7 @@ class ScanResult:
     @property
     def parent_name(self) -> str:
         return self.source_path.parent.name
+
 
 @dataclass
 class NameProposal:

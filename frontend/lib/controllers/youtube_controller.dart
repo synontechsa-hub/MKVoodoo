@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
 import 'package:mkvoodoo_ui/services/backend_bridge.dart';
 
 class YoutubeController extends ChangeNotifier {
@@ -64,7 +63,7 @@ class YoutubeController extends ChangeNotifier {
     }
   }
 
-  Future<void> startDownload(BuildContext context) async {
+  Future<void> startDownload({void Function(String path)? onVideoDownloaded}) async {
     if (_metadata == null) return;
     _isDownloading = true;
     _downloadProgress = 0.0;
@@ -97,9 +96,9 @@ class YoutubeController extends ChangeNotifier {
                   _logs.add('✅ Audio extraction complete!');
                 } else {
                   _logs.add(
-                    '✅ Download complete! Adding to conversion workflow...',
+                    '✅ Download complete! Opening in Precision Clipper...',
                   );
-                  _addToConversionQueue(path);
+                  onVideoDownloaded?.call(path);
                 }
               }
               notifyListeners();
@@ -121,58 +120,9 @@ class YoutubeController extends ChangeNotifier {
     }
   }
 
-  Future<void> _addToConversionQueue(String path) async {
-    try {
-      final config = await _bridge.getConfig();
-      final globalOutput = config['output_dir'] as String?;
-
-      if (globalOutput == null || globalOutput.isEmpty) {
-        _logs.add(
-          '❌ Cannot add to queue: Output directory not set in Settings.',
-        );
-        notifyListeners();
-        return;
-      }
-
-      final outPath = _buildOutputPath(path, globalOutput);
-
-      // When adding a downloaded file, we set delete_source_after_done = true
-      final jobs = [
-        {
-          'source': path,
-          'output': outPath,
-          'delete_source_after_done': true,
-          'keep_all_audio': true,
-          'keep_all_subtitles': true,
-        },
-      ];
-
-      await _bridge.addJobs(jobs);
-      _logs.add('📂 File added to Conversion Queue with Auto-Cleanup enabled.');
-      notifyListeners();
-    } catch (e) {
-      _logs.add('❌ Failed to add to queue: $e');
-      notifyListeners();
-    }
-  }
-
-  String _buildOutputPath(String sourcePath, String outputDir) {
-    final fileName = p.basename(sourcePath);
-    // Replace .mp4, .webm, .mkv extensions from source with .mkv
-    final outName = fileName.replaceAll(
-      RegExp(r'\.(mp4|webm|mkv)$', caseSensitive: false),
-      '.mkv',
-    );
-
-    // Ensure we don't just return the filename if it didn't have an extension
-    final finalName = outName.endsWith('.mkv') ? outName : '$outName.mkv';
-
-    return p.join(outputDir, 'YouTube Downloads', finalName);
-  }
-
   void cancelDownload() {
     _downloadSubscription?.cancel();
-    _bridge.stopActiveProcess();
+    _bridge.cancelOperation('youtube_download');
     _isDownloading = false;
     _logs.add('🛑 Download cancelled by user.');
     notifyListeners();

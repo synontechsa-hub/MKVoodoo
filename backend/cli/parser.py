@@ -1,5 +1,6 @@
 import argparse
 
+
 def build_parser() -> argparse.ArgumentParser:
     """Define the CLI structure for MKVoodoo."""
     parser = argparse.ArgumentParser(
@@ -24,7 +25,6 @@ def build_parser() -> argparse.ArgumentParser:
     p_queue.add_argument("--jobs", help="Add jobs from a JSON string")
     p_queue.add_argument("--to", help="Output directory for added files")
 
-
     # -- scan --
     p_scan = sub.add_parser("scan", help="Scan directories/files and list video files")
     p_scan.add_argument("--input", "-i", nargs="+", required=True, help="Input items to scan")
@@ -33,10 +33,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     # -- convert --
     p_conv = sub.add_parser("convert", help="Convert video files")
-    p_conv.add_argument("--input",    "-i", required=True, help="Input directory")
-    p_conv.add_argument("--output",   "-o", help="Output root directory")
-    p_conv.add_argument("--preset",   "-p", help="Preset name")
-    p_conv.add_argument("--encoder",  "-e", help="Force a specific FFmpeg encoder")
+    p_conv.add_argument("--input", "-i", required=True, help="Input directory")
+    p_conv.add_argument("--output", "-o", help="Output root directory")
+    p_conv.add_argument("--preset", "-p", help="Preset name")
+    p_conv.add_argument("--encoder", "-e", help="Force a specific FFmpeg encoder")
     p_conv.add_argument("--template", "-t", help="Custom naming template")
     p_conv.add_argument("--no-review", action="store_true", help="Skip review mode")
 

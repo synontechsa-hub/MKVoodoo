@@ -1,11 +1,13 @@
 import json
-import uuid
 import threading
-from pathlib import Path
+import uuid
 from dataclasses import asdict
-from typing import List, Optional, Dict
-from backend.models.job import Job, JobStatus
+from pathlib import Path
+from typing import Dict, List, Optional
+
 from backend.core.exceptions import MKVoodooError
+from backend.models.job import Job, JobStatus
+
 
 class QueueService:
     """Service for managing the persistent job queue."""
@@ -16,12 +18,18 @@ class QueueService:
         self._lock = threading.Lock()
         self._load()
 
-    def add(self, source: str, output: str, preset: str,
-            audio_tracks: Optional[list[int]] = None,
-            subtitle_tracks: Optional[list[int]] = None,
-            audio_bitrate: Optional[str] = None,
-            keep_all_audio: bool = True,
-            keep_all_subtitles: bool = True) -> Job:
+    def add(
+        self,
+        source: str,
+        output: str,
+        preset: str,
+        audio_tracks: Optional[list[int]] = None,
+        subtitle_tracks: Optional[list[int]] = None,
+        audio_bitrate: Optional[str] = None,
+        keep_all_audio: bool = True,
+        keep_all_subtitles: bool = True,
+        delete_source_after_done: bool = False,
+    ) -> Job:
         """Add or update a job in the queue."""
         # Use a consistent ID length for cleaner logging/UI
         with self._lock:
@@ -36,6 +44,7 @@ class QueueService:
                     existing.audio_bitrate = audio_bitrate
                     existing.keep_all_audio = keep_all_audio
                     existing.keep_all_subtitles = keep_all_subtitles
+                    existing.delete_source_after_done = delete_source_after_done
                     self._save()
                 return existing
 
@@ -49,7 +58,8 @@ class QueueService:
                 subtitle_tracks=subtitle_tracks,
                 audio_bitrate=audio_bitrate,
                 keep_all_audio=keep_all_audio,
-                keep_all_subtitles=keep_all_subtitles
+                keep_all_subtitles=keep_all_subtitles,
+                delete_source_after_done=delete_source_after_done,
             )
             self._jobs.append(job)
             self._save()
@@ -88,7 +98,8 @@ class QueueService:
                     j.status = JobStatus.PENDING
                     j.error = None
                     count += 1
-            if count: self._save()
+            if count:
+                self._save()
             return count
 
     def remove_by_ids(self, ids: List[str]) -> int:
@@ -154,6 +165,7 @@ class QueueService:
                     job.status = JobStatus.PENDING
                     job.error = None
                     recovered += 1
-            if recovered: self._save()
+            if recovered:
+                self._save()
         except Exception:
             self._jobs = []

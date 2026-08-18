@@ -3,16 +3,16 @@ from pathlib import Path
 from typing import List
 
 from backend.core.engine import FFmpegEngine
-from backend.core.exceptions import ConversionError, DiskFullError
-from backend.models.job import Job, JobStatus
-from backend.models.hardware import EncoderInfo, EncoderBackend
+from backend.core.exceptions import DiskFullError
+from backend.models.hardware import EncoderBackend, EncoderInfo
+from backend.models.job import Job
 from backend.presets import Preset
 from backend.utils.logger import SynLogger
 
 
 class ConverterService:
     """High-level service for orchestrating video conversions.
-    
+
     Uses FFmpegEngine for subprocess management and builds full FFmpeg
     commands with proper stream mapping, subtitle/chapter passthrough,
     and no-upscale guards.
@@ -54,7 +54,7 @@ class ConverterService:
 
             try:
                 success = self.engine.run(
-                    args, 
+                    args,
                     on_progress=lambda pct: self.logger.progress(job_id, pct)
                 )
 
@@ -63,7 +63,7 @@ class ConverterService:
                         job.source, job.output, preset.name,
                         encoder.video_encoder, start_time, job_id=job_id
                     )
-                    
+
                     # Post-processing: Auto-Cleanup
                     if job.delete_source_after_done:
                         try:
@@ -84,10 +84,10 @@ class ConverterService:
                         output_path.unlink()
                     except Exception:
                         pass
-                
+
                 if isinstance(exc, DiskFullError):
                     raise
-                
+
                 # Update job with the specific error from FFmpeg if available
                 job.error = str(exc)
 
@@ -106,7 +106,7 @@ class ConverterService:
         self, job: Job, preset: Preset, encoder: EncoderInfo
     ) -> List[str]:
         """Build full FFmpeg arguments with proper stream mapping.
-        
+
         Rules:
           - Video: re-encoded, downscaled only (never upscaled)
           - Audio: ALL tracks preserved, re-encoded to AAC
@@ -124,7 +124,7 @@ class ConverterService:
         # Note: -hwaccel MUST come before -i
         hw_args = []
         if encoder.backend == EncoderBackend.NVENC:
-            # We use hybrid mode (HW decode -> SW filters -> HW encode) 
+            # We use hybrid mode (HW decode -> SW filters -> HW encode)
             # to maintain compatibility with our complex scaling/padding filters.
             hw_args = ["-hwaccel", "cuda"]
         elif encoder.backend == EncoderBackend.QSV:
@@ -172,7 +172,7 @@ class ConverterService:
 
         audio_codec = "copy" if job.audio_bitrate == "copy" else preset.audio_codec
         args += ["-c:a", audio_codec]
-        
+
         if audio_codec != "copy":
             args += ["-b:a", job.audio_bitrate or preset.audio_bitrate]
 

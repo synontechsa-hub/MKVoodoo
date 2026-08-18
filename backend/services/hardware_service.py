@@ -1,23 +1,24 @@
+import shutil
 import subprocess
-from pathlib import Path
 from typing import List
+
+from backend.core.exceptions import GPUInitError
+from backend.models.hardware import EncoderBackend, EncoderInfo
 from backend.utils.paths import get_ffmpeg_path
 
-from backend.models.hardware import EncoderInfo, EncoderBackend
-from backend.core.exceptions import HardwareError, GPUInitError
 
 def _ffmpeg_bin() -> str:
-    """Resolve the FFmpeg binary path. 
+    """Resolve the FFmpeg binary path.
     In Release mode, we MUST use the bundled binary to guarantee GPU support.
     """
     path = get_ffmpeg_path()
     if path.exists():
         return str(path)
-    
+
     # Fallback only if bundled is missing (dev safety)
-    import shutil
     sys_ffmpeg = shutil.which("ffmpeg")
     return sys_ffmpeg or str(path)
+
 
 class HardwareService:
     """Service for hardware encoder discovery and selection."""
@@ -28,7 +29,7 @@ class HardwareService:
     def get_available_backends(self) -> List[EncoderInfo]:
         """Detect all available hardware backends on this system."""
         backends = []
-        
+
         # 1. Check NVIDIA NVENC
         if self._test_encoder("h264_nvenc", "yuv420p"):
             backends.append(EncoderInfo(
@@ -37,7 +38,7 @@ class HardwareService:
                 label="NVIDIA NVENC (GPU)",
                 is_hardware=True
             ))
-            
+
         # 2. Check Intel QSV
         if self._test_encoder("h264_qsv", "nv12"):
             backends.append(EncoderInfo(
@@ -46,7 +47,7 @@ class HardwareService:
                 label="Intel QuickSync (GPU)",
                 is_hardware=True
             ))
-            
+
         # 3. Always include CPU
         backends.append(EncoderInfo(
             backend=EncoderBackend.CPU,
@@ -54,13 +55,13 @@ class HardwareService:
             label="Standard H.264 (CPU)",
             is_hardware=False
         ))
-        
+
         return backends
 
     def detect_best_encoder(self, force: str | None = None) -> EncoderInfo:
         """Pick the best available encoder, or force a specific one."""
         available = self.get_available_backends()
-        
+
         if force:
             # Check if force string matches an encoder name
             for info in available:
@@ -69,7 +70,7 @@ class HardwareService:
             # If not found among validated backends, try raw check
             if self._test_encoder(force):
                 return EncoderInfo(
-                    backend=EncoderBackend.CPU, # Fallback category
+                    backend=EncoderBackend.CPU,  # Fallback category
                     video_encoder=force,
                     label=f"Forced: {force}",
                     is_hardware="nvenc" in force or "qsv" in force or "amf" in force
@@ -81,7 +82,7 @@ class HardwareService:
             for info in available:
                 if info.backend == b:
                     return info
-        
+
         return [i for i in available if i.backend == EncoderBackend.CPU][0]
 
     def _test_encoder(self, codec: str, pix_fmt: str = "yuv420p") -> bool:
@@ -100,6 +101,10 @@ class HardwareService:
             "-",
         ]
         try:
-            return subprocess.run(cmd, capture_output=True).returncode == 0
+            return subprocess.run(
+                cmd,
+                capture_output=True,
+                stdin=subprocess.DEVNULL,
+            ).returncode == 0
         except Exception:
             return False

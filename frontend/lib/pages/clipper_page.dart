@@ -183,7 +183,11 @@ class _ClipperPageState extends State<ClipperPage>
                 ),
                 IconButton(
                   onPressed: () => unawaited(controller.togglePlayback()),
-                  icon: const Icon(Icons.play_arrow_rounded),
+                  icon: Icon(
+                    controller.isPlaying
+                        ? Icons.pause_rounded
+                        : Icons.play_arrow_rounded,
+                  ),
                 ),
                 IconButton(
                   onPressed: () => unawaited(controller.stepFrame(1)),

@@ -1,9 +1,11 @@
-import subprocess
-import re
 import os
+import re
 import signal
+import subprocess
 from typing import Callable, Optional
-from backend.core.exceptions import FFmpegError, DiskFullError
+
+from backend.core.exceptions import DiskFullError, FFmpegError
+
 
 class FFmpegEngine:
     """Low-level wrapper for FFmpeg process management."""
@@ -17,23 +19,24 @@ class FFmpegEngine:
         self.stop()
 
     def run(
-        self, 
-        args: list[str], 
+        self,
+        args: list[str],
         on_progress: Optional[Callable[[float], None]] = None
     ) -> bool:
         """Run FFmpeg with provided arguments and parse progress."""
         cmd = [self.ffmpeg_path] + args
         last_lines = []
-        
+
         try:
             self._process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
+                stdin=subprocess.DEVNULL,
                 universal_newlines=True,
                 encoding="utf-8",
                 errors="replace",
-                bufsize=1, # Line buffered
+                bufsize=1,  # Line buffered
                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
             )
 
@@ -43,7 +46,7 @@ class FFmpegEngine:
                     line = line.strip()
                     if not line:
                         continue
-                    
+
                     # Keep track of last lines for error reporting
                     last_lines.append(line)
                     if len(last_lines) > 10:
@@ -79,12 +82,13 @@ class FFmpegEngine:
                         error_msg = line
                         break
                 raise FFmpegError(f"FFmpeg failed: {error_msg}")
-            
+
             return True
 
         except Exception as exc:
             self.stop()
-            if isinstance(exc, (DiskFullError, FFmpegError)): raise
+            if isinstance(exc, (DiskFullError, FFmpegError)):
+                raise
             raise FFmpegError(f"FFmpeg execution failed: {exc}")
         finally:
             self._process = None
@@ -95,8 +99,11 @@ class FFmpegEngine:
             try:
                 if os.name == "nt":
                     # Windows: kill process tree to ensure ffmpeg.exe dies
-                    subprocess.run(["taskkill", "/F", "/T", "/PID", str(self._process.pid)], 
-                                 capture_output=True)
+                    subprocess.run(
+                        ["taskkill", "/F", "/T", "/PID", str(self._process.pid)],
+                        capture_output=True,
+                        stdin=subprocess.DEVNULL,
+                    )
                 else:
                     sig = getattr(signal, "SIGKILL", signal.SIGTERM)
                     os.kill(self._process.pid, sig)

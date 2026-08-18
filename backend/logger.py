@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import sys
 import time
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,19 +18,20 @@ from pathlib import Path
 # ANSI colour helpers (degrade gracefully on Windows without ANSI)
 # ---------------------------------------------------------------------------
 
+
 def _supports_color() -> bool:
     return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
 
 
 _COLOR = _supports_color()
 
-_RESET  = "\033[0m"   if _COLOR else ""
-_BOLD   = "\033[1m"   if _COLOR else ""
-_GREEN  = "\033[92m"  if _COLOR else ""
-_YELLOW = "\033[93m"  if _COLOR else ""
-_RED    = "\033[91m"  if _COLOR else ""
-_CYAN   = "\033[96m"  if _COLOR else ""
-_DIM    = "\033[2m"   if _COLOR else ""
+_RESET = "\033[0m" if _COLOR else ""
+_BOLD = "\033[1m" if _COLOR else ""
+_GREEN = "\033[92m" if _COLOR else ""
+_YELLOW = "\033[93m" if _COLOR else ""
+_RED = "\033[91m" if _COLOR else ""
+_CYAN = "\033[96m" if _COLOR else ""
+_DIM = "\033[2m" if _COLOR else ""
 
 
 def _fmt(text: str, *codes: str) -> str:
@@ -92,7 +93,7 @@ class SynLogger:
 
     def session_end(self) -> None:
         success = sum(1 for r in self._records if r.status == "success")
-        failed  = sum(1 for r in self._records if r.status == "failed")
+        failed = sum(1 for r in self._records if r.status == "failed")
         skipped = sum(1 for r in self._records if r.status == "skipped")
         total_time = sum(r.duration_seconds for r in self._records)
 
