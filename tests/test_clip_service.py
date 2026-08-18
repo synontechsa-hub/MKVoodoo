@@ -29,6 +29,9 @@ def _create_cfr_fixture(path: Path) -> None:
             "-c:v", "libx264", "-pix_fmt", "yuv420p", str(path),
         ],
         check=True,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
 
 
@@ -39,6 +42,7 @@ def _frame_hashes(path: Path) -> list[str]:
         check=True,
         capture_output=True,
         text=True,
+        stdin=subprocess.DEVNULL,
     )
     return [line.split(",")[-1].strip() for line in result.stdout.splitlines() if line.startswith("0,")]
 
@@ -56,6 +60,7 @@ def _selection_ssim(source: Path, clip: Path, start_us: int, end_us: int) -> flo
         check=True,
         capture_output=True,
         text=True,
+        stdin=subprocess.DEVNULL,
     )
     marker = "All:"
     return float(result.stderr.rsplit(marker, 1)[1].split()[0])
