@@ -13,7 +13,8 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClientMixin {
+class _SettingsPageState extends State<SettingsPage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -43,11 +44,20 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline_rounded, size: 64, color: Colors.redAccent),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      size: 64,
+                      color: Colors.redAccent,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Failed to load settings from backend',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 18),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        fontSize: 18,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
@@ -95,19 +105,27 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                             'Review before conversion',
                             'Show a mapping of files before starting the process.',
                             controller.config!['review_before_convert'] as bool,
-                            (val) => controller.setConfigValue('review_before_convert', val),
+                            (val) => controller.setConfigValue(
+                              'review_before_convert',
+                              val,
+                            ),
                           ),
                           _buildSwitchTile(
                             'Skip existing files',
                             'Do not re-convert files that already exist in the output folder.',
                             controller.config!['skip_existing'] as bool,
-                            (val) => controller.setConfigValue('skip_existing', val),
+                            (val) =>
+                                controller.setConfigValue('skip_existing', val),
                           ),
                           _buildSwitchTile(
                             'System Notifications',
                             'Show a Windows notification when a batch finishes.',
-                            controller.config!['show_notifications'] as bool? ?? true,
-                            (val) => controller.setConfigValue('show_notifications', val),
+                            controller.config!['show_notifications'] as bool? ??
+                                true,
+                            (val) => controller.setConfigValue(
+                              'show_notifications',
+                              val,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           Row(
@@ -180,9 +198,13 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                             {
                               '': 'Auto-Detect (Best Available)',
                               for (var e in controller.availableEncoders)
-                                e['video_encoder'] as String: e['label'] as String,
+                                e['video_encoder'] as String:
+                                    e['label'] as String,
                             },
-                            (val) => controller.setConfigValue('force_encoder', val == '' ? null : val),
+                            (val) => controller.setConfigValue(
+                              'force_encoder',
+                              val == '' ? null : val,
+                            ),
                           ),
                         ],
                       ),
@@ -201,23 +223,46 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                           Padding(
                             padding: const EdgeInsets.only(left: 4, bottom: 16),
                             child: TextButton.icon(
-                              onPressed: () => launchUrl(Uri.parse('https://www.themoviedb.org/settings/api')),
-                              icon: const Icon(Icons.open_in_new_rounded, size: 14, color: Color(0xFFB900FF)),
-                              label: const Text('Get your own API key here (Free)', 
-                                style: TextStyle(fontSize: 12, color: Color(0xFFB900FF))),
+                              onPressed: () => launchUrl(
+                                Uri.parse(
+                                  'https://www.themoviedb.org/settings/api',
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.open_in_new_rounded,
+                                size: 14,
+                                color: Color(0xFFB900FF),
+                              ),
+                              label: const Text(
+                                'Get your own API key here (Free)',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFFB900FF),
+                                ),
+                              ),
                             ),
                           ),
                           _buildSwitchTile(
                             'Automatic Update Checks',
                             'Check for MKVoodoo updates on startup.',
-                            controller.config!['update_check_enabled'] as bool? ?? true,
-                            (val) => controller.setConfigValue('update_check_enabled', val),
+                            controller.config!['update_check_enabled']
+                                    as bool? ??
+                                true,
+                            (val) => controller.setConfigValue(
+                              'update_check_enabled',
+                              val,
+                            ),
                           ),
                           _buildSwitchTile(
                             'Auto-update Downloader',
                             'Automatically keep yt-dlp up to date.',
-                            controller.config!['auto_update_downloader'] as bool? ?? false,
-                            (val) => controller.setConfigValue('auto_update_downloader', val),
+                            controller.config!['auto_update_downloader']
+                                    as bool? ??
+                                false,
+                            (val) => controller.setConfigValue(
+                              'auto_update_downloader',
+                              val,
+                            ),
                           ),
                         ],
                       ),
@@ -255,7 +300,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                           Text(
                             'If you find MKVoodoo useful, please consider supporting development! Your donations help keep the magic alive. ✨',
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
                               fontSize: 14,
                             ),
                           ),
@@ -299,7 +346,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFB900FF).withValues(alpha: 0.3),
+                            color: const Color(
+                              0xFFB900FF,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 15,
                             spreadRadius: 2,
                           ),
@@ -313,8 +362,14 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(success ? 'Settings saved successfully' : 'Failed to save settings'),
-                                      backgroundColor: success ? const Color(0xFF2ECC71) : Colors.redAccent,
+                                      content: Text(
+                                        success
+                                            ? 'Settings saved successfully'
+                                            : 'Failed to save settings',
+                                      ),
+                                      backgroundColor: success
+                                          ? const Color(0xFF2ECC71)
+                                          : Colors.redAccent,
                                     ),
                                   );
                                 }
@@ -323,10 +378,19 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
                               )
                             : const Icon(Icons.save_rounded),
-                        label: const Text('Save Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        label: const Text(
+                          'Save Settings',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           foregroundColor: Colors.white,
@@ -364,7 +428,10 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
           _showUpdateFoundDialog(context, res);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('MKVoodoo is up to date!'), backgroundColor: Color(0xFF2ECC71)),
+            const SnackBar(
+              content: Text('MKVoodoo is up to date!'),
+              backgroundColor: Color(0xFF2ECC71),
+            ),
           );
         }
       }
@@ -372,13 +439,19 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Update check failed: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Text('Update check failed: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
   }
 
-  void _showUpdateFoundDialog(BuildContext context, Map<String, dynamic> updateInfo) {
+  void _showUpdateFoundDialog(
+    BuildContext context,
+    Map<String, dynamic> updateInfo,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -387,20 +460,31 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('A newer version of MKVoodoo has been released.', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'A newer version of MKVoodoo has been released.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             if (updateInfo['notes'] != null)
               Text(updateInfo['notes'], style: const TextStyle(fontSize: 12)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Later')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Later'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              if (updateInfo['url'] != null) launchUrl(Uri.parse(updateInfo['url']));
+              if (updateInfo['url'] != null) {
+                launchUrl(Uri.parse(updateInfo['url']));
+              }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFB900FF), foregroundColor: Colors.black),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB900FF),
+              foregroundColor: Colors.black,
+            ),
             child: const Text('Download Installer'),
           ),
         ],
@@ -419,24 +503,39 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     try {
       final res = await bridge.updateDownloader();
       if (context.mounted) Navigator.pop(context);
-      
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res.contains('up to date') ? 'Engine is up to date!' : 'Engine updated successfully!'), 
-          backgroundColor: const Color(0xFF2ECC71)),
+          SnackBar(
+            content: Text(
+              res.contains('up to date')
+                  ? 'Engine is up to date!'
+                  : 'Engine updated successfully!',
+            ),
+            backgroundColor: const Color(0xFF2ECC71),
+          ),
         );
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Engine update failed: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Text('Engine update failed: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
   }
 
-  Widget _buildMaintenanceRow(String title, String subtitle, String buttonLabel, IconData icon, VoidCallback onPressed) {
+  Widget _buildMaintenanceRow(
+    String title,
+    String subtitle,
+    String buttonLabel,
+    IconData icon,
+    VoidCallback onPressed,
+  ) {
     return Row(
       children: [
         Icon(icon, color: const Color(0xFFB900FF).withValues(alpha: 0.5)),
@@ -446,7 +545,15 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(subtitle, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
             ],
           ),
         ),
@@ -456,7 +563,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
             backgroundColor: Theme.of(context).cardColor,
             foregroundColor: const Color(0xFFB900FF),
             side: const BorderSide(color: Color(0xFFB900FF), width: 0.5),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           child: Text(buttonLabel),
         ),
@@ -489,10 +598,14 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
           width: 700,
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.02),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.02)
+                : Colors.black.withValues(alpha: 0.02),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.black.withValues(alpha: 0.05),
             ),
             boxShadow: [
               if (isDark)
@@ -509,7 +622,12 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController textController, String hint, {double? width}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController textController,
+    String hint, {
+    double? width,
+  }) {
     return Container(
       width: width ?? double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -528,14 +646,21 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
             controller: textController,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
+              hintStyle: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.2),
+              ),
               filled: true,
               fillColor: Theme.of(context).cardColor,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
             ),
           ),
         ],
@@ -543,7 +668,12 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildExplorableField(String label, TextEditingController textController, String hint, VoidCallback onBrowse) {
+  Widget _buildExplorableField(
+    String label,
+    TextEditingController textController,
+    String hint,
+    VoidCallback onBrowse,
+  ) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -566,21 +696,32 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                   readOnly: true,
                   decoration: InputDecoration(
                     hintText: hint,
-                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
+                    hintStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.2),
+                    ),
                     filled: true,
                     fillColor: Theme.of(context).cardColor,
                     border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.horizontal(left: Radius.circular(12)),
+                      borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(12),
+                      ),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                   ),
                 ),
               ),
               Container(
                 height: 52,
                 decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.horizontal(right: Radius.circular(12)),
+                  borderRadius: BorderRadius.horizontal(
+                    right: Radius.circular(12),
+                  ),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: ElevatedButton.icon(
@@ -591,7 +732,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                     backgroundColor: const Color(0xFFB900FF),
                     foregroundColor: Colors.white,
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.horizontal(right: Radius.circular(12)),
+                      borderRadius: BorderRadius.horizontal(
+                        right: Radius.circular(12),
+                      ),
                     ),
                     elevation: 0,
                   ),
@@ -604,7 +747,12 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildDropdown(String label, String value, Map<String, String> options, Function(String) onChanged) {
+  Widget _buildDropdown(
+    String label,
+    String value,
+    Map<String, String> options,
+    Function(String) onChanged,
+  ) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -630,12 +778,11 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 value: value,
                 isExpanded: true,
                 dropdownColor: Theme.of(context).cardColor,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 items: options.entries.map((e) {
-                  return DropdownMenuItem(
-                    value: e.key,
-                    child: Text(e.value),
-                  );
+                  return DropdownMenuItem(value: e.key, child: Text(e.value));
                 }).toList(),
                 onChanged: (val) {
                   if (val != null) onChanged(val);
@@ -648,7 +795,12 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildSwitchTile(String title, String subtitle, bool value, Function(bool) onChanged) {
+  Widget _buildSwitchTile(
+    String title,
+    String subtitle,
+    bool value,
+    Function(bool) onChanged,
+  ) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 8),
@@ -659,12 +811,17 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
         child: SwitchListTile(
           title: Text(
             title,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 14,
+            ),
           ),
           subtitle: Text(
             subtitle,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               fontSize: 12,
             ),
           ),
@@ -700,7 +857,12 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildSupportButton(String label, String url, Color color, IconData icon) {
+  Widget _buildSupportButton(
+    String label,
+    String url,
+    Color color,
+    IconData icon,
+  ) {
     return ElevatedButton.icon(
       onPressed: () async {
         final uri = Uri.parse(url);

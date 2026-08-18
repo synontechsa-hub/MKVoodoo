@@ -129,8 +129,37 @@ def handle_status(args: argparse.Namespace) -> int:
 
 def handle_probe(args: argparse.Namespace) -> int:
     svc = container.get_probe_service()
+    if args.clip_info:
+        print(json.dumps(svc.get_clip_media_info(args.input).to_dict(), indent=2))
+        return 0
+    if args.around_us is not None:
+        frames = svc.get_nearby_frames(args.input, args.around_us, args.before, args.after)
+        print(json.dumps([frame.to_dict() for frame in frames], indent=2))
+        return 0
     tracks = svc.get_tracks(args.input)
     print(json.dumps(tracks, indent=2))
+    return 0
+
+def handle_clip(args: argparse.Namespace) -> int:
+    service = container.get_clip_service()
+    encoder = container.get_hardware_service().detect_best_encoder()
+    result = service.export(args.input, args.output, args.in_us, args.out_us, args.container, encoder)
+    print(json.dumps(result.to_dict(), indent=2))
+    return 0
+
+
+def handle_thumbnail(args: argparse.Namespace) -> int:
+    service = container.get_thumbnail_service()
+    if args.timestamp_us is not None:
+        if not args.output:
+            raise ValueError("--output is required with --timestamp-us.")
+        output = service.extract_frame(args.input, args.timestamp_us, args.output, args.format)
+        print(json.dumps({"path": str(output), "timestamp_us": args.timestamp_us}, indent=2))
+        return 0
+    if args.in_us is None or args.end_us is None or not args.cache_dir:
+        raise ValueError("Candidate generation requires --in-us, --end-us, and --cache-dir.")
+    candidates = service.generate_candidates(args.input, args.in_us, args.end_us, args.cache_dir, args.count)
+    print(json.dumps([candidate.to_dict() for candidate in candidates], indent=2))
     return 0
 
 def handle_debug(_args: argparse.Namespace) -> int:

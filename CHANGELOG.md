@@ -2,12 +2,27 @@
 
 All notable changes to the MKVoodoo project will be documented in this file.
 
+## [1.2.0] — 2026-08-18 (*Precision Clipper*)
+
+### Added
+- Added a Precision Clipper with presentation-timestamp frame navigation and explicit In/Out selection.
+- Added frame-inclusive MP4 and MKV clip exports with CPU and detected hardware encoder support.
+- Added thumbnail candidate generation and still-image export from the selected clip range.
+
+### Fixed
+- Updated the Clipper's file dialogs for the `file_picker` 11 API so the Flutter application compiles.
+- Prevented clip export from overwriting an existing destination and removed partial output after failed exports.
+
+### Release Maintenance
+- Synchronized version 1.2.0 across the Python package, backend manifest, Flutter package, README, and Inno Setup installer.
+- Aligned Python package metadata with the repository's MIT license.
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.1.1] — 2026-08-13 (*Voodoo Master*)
+## [1.0.4] — 2026-08-13 (*Alchemist II*)
 
 ### 🐛 Fixed
 - **YouTube Downloader Packaging**: Bundled the official `yt-dlp.exe` Windows executable (2026.07.04), which was referenced by the application and installer but absent from v1.0.3.
@@ -15,11 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Download Diagnostics**: Failed downloads now retain the final `yt-dlp` diagnostic line so common YouTube-side failures can be understood from the UI.
 
 ### ⚙️ Release Maintenance
-- Synchronized the release version as `1.1.1` across the Python package, backend manifest, Flutter package, README, and Inno Setup installer.
+- Synchronized the application version as `1.0.4` across the Python package, backend manifest, Flutter package, README, and Inno Setup installer.
 
 ---
 
-## [1.1.0] — 2026-08-05 (*Voodoo Master*)
+## [1.0.3] — 2026-08-05 (*Alchemist*)
 
 ### 🚀 Added
 - **Windows Installer Integration**: Added `mkvoodoo.iss` Inno Setup configuration for generating standalone executable installers (`MKVoodoo_v1.0.3_Setup.exe`).

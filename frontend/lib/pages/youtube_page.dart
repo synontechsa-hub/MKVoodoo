@@ -10,7 +10,8 @@ class YoutubePage extends StatefulWidget {
   State<YoutubePage> createState() => _YoutubePageState();
 }
 
-class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClientMixin {
+class _YoutubePageState extends State<YoutubePage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -58,14 +59,16 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
         Text(
           'YouTube Downloader',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         Text(
           'Paste a link to fetch video and start the conversion workflow.',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.4),
             fontSize: 14,
           ),
         ),
@@ -78,7 +81,9 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+        ),
       ),
       child: TextField(
         controller: _urlController,
@@ -89,23 +94,33 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
           suffixIcon: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-              onPressed: controller.url.isEmpty ? null : () => controller.fetchMetadata(),
+              onPressed: controller.url.isEmpty
+                  ? null
+                  : () => controller.fetchMetadata(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFB900FF),
                 foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: const Text('Fetch'),
             ),
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildMetadataCard(BuildContext context, YoutubeController controller) {
+  Widget _buildMetadataCard(
+    BuildContext context,
+    YoutubeController controller,
+  ) {
     final meta = controller.metadata!;
     return Center(
       child: ConstrainedBox(
@@ -121,7 +136,11 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
                     ? Colors.white.withValues(alpha: 0.03)
                     : Colors.black.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -144,13 +163,20 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
                   const SizedBox(height: 24),
                   Text(
                     meta['title'] ?? 'Unknown Title',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Uploader: ${meta['uploader'] ?? 'Unknown'}',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
                   const SizedBox(height: 24),
                   const Divider(),
@@ -159,13 +185,23 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
                   const SizedBox(height: 32),
                   ElevatedButton.icon(
                     onPressed: () => controller.startDownload(context),
-                    icon: Icon(controller.audioOnly ? Icons.audiotrack_rounded : Icons.download_rounded),
-                    label: Text(controller.audioOnly ? 'Download MP3' : 'Download & Add to Workflow'),
+                    icon: Icon(
+                      controller.audioOnly
+                          ? Icons.audiotrack_rounded
+                          : Icons.download_rounded,
+                    ),
+                    label: Text(
+                      controller.audioOnly
+                          ? 'Download MP3'
+                          : 'Download & Add to Workflow',
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB900FF),
                       foregroundColor: Colors.black,
                       minimumSize: const Size(double.infinity, 56),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                   ),
                 ],
@@ -177,7 +213,10 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
     );
   }
 
-  Widget _buildDownloadOptions(BuildContext context, YoutubeController controller) {
+  Widget _buildDownloadOptions(
+    BuildContext context,
+    YoutubeController controller,
+  ) {
     return Column(
       children: [
         Row(
@@ -185,9 +224,16 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
           children: [
             const Row(
               children: [
-                Icon(Icons.audiotrack_rounded, size: 20, color: Color(0xFFB900FF)),
+                Icon(
+                  Icons.audiotrack_rounded,
+                  size: 20,
+                  color: Color(0xFFB900FF),
+                ),
                 SizedBox(width: 12),
-                Text('Audio Only (Music Mode)', style: TextStyle(fontWeight: FontWeight.w500)),
+                Text(
+                  'Audio Only (Music Mode)',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
               ],
             ),
             Switch(
@@ -202,11 +248,17 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Format', style: TextStyle(fontSize: 13, color: Colors.grey)),
+              const Text(
+                'Format',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
               DropdownButton<String>(
                 value: controller.selectedFormat,
                 items: ['mp3', 'flac', 'm4a'].map((f) {
-                  return DropdownMenuItem(value: f, child: Text(f.toUpperCase()));
+                  return DropdownMenuItem(
+                    value: f,
+                    child: Text(f.toUpperCase()),
+                  );
                 }).toList(),
                 onChanged: (val) => controller.setSelectedFormat(val!),
                 underline: const SizedBox(),
@@ -219,7 +271,10 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
     );
   }
 
-  Widget _buildDownloadView(BuildContext context, YoutubeController controller) {
+  Widget _buildDownloadView(
+    BuildContext context,
+    YoutubeController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -229,7 +284,10 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
               const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFB900FF)),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFFB900FF),
+                ),
               )
             else
               const Icon(Icons.check_circle_rounded, color: Color(0xFF2ECC71)),
@@ -242,14 +300,19 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
             if (controller.isDownloading)
               TextButton(
                 onPressed: () => controller.cancelDownload(),
-                child: const Text('CANCEL', style: TextStyle(color: Colors.redAccent)),
+                child: const Text(
+                  'CANCEL',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
               ),
           ],
         ),
         const SizedBox(height: 16),
         LinearProgressIndicator(
           value: controller.downloadProgress / 100,
-          backgroundColor: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+          backgroundColor: Theme.of(
+            context,
+          ).dividerColor.withValues(alpha: 0.1),
           color: const Color(0xFFB900FF),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -282,11 +345,19 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.smart_display_rounded, size: 64, color: Theme.of(context).dividerColor),
+            Icon(
+              Icons.smart_display_rounded,
+              size: 64,
+              color: Theme.of(context).dividerColor,
+            ),
             const SizedBox(height: 16),
             Text(
               'Paste a YouTube link above to start',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
             ),
           ],
         ),
@@ -300,14 +371,26 @@ class _YoutubePageState extends State<YoutubePage> with AutomaticKeepAliveClient
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 64, color: Colors.redAccent),
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 64,
+              color: Colors.redAccent,
+            ),
             const SizedBox(height: 16),
-            Text('Error', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.redAccent)),
+            Text(
+              'Error',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: Colors.redAccent),
+            ),
             const SizedBox(height: 8),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () => Provider.of<YoutubeController>(context, listen: false).fetchMetadata(),
+              onPressed: () => Provider.of<YoutubeController>(
+                context,
+                listen: false,
+              ).fetchMetadata(),
               child: const Text('Retry'),
             ),
           ],

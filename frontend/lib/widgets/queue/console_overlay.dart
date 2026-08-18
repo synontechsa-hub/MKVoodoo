@@ -31,7 +31,7 @@ class _ConsoleOverlayState extends State<ConsoleOverlay> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<QueueController>();
-    
+
     // Auto scroll to bottom whenever logs update
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
@@ -42,7 +42,9 @@ class _ConsoleOverlayState extends State<ConsoleOverlay> {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFB900FF).withValues(alpha: 0.3)),
+        border: Border.all(
+          color: const Color(0xFFB900FF).withValues(alpha: 0.3),
+        ),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -53,10 +55,19 @@ class _ConsoleOverlayState extends State<ConsoleOverlay> {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.terminal_rounded, color: Color(0xFFB900FF), size: 16),
+                  Icon(
+                    Icons.terminal_rounded,
+                    color: Color(0xFFB900FF),
+                    size: 16,
+                  ),
                   SizedBox(width: 8),
-                  Text('Processing Queue...',
-                      style: TextStyle(color: Color(0xFFB900FF), fontWeight: FontWeight.bold)),
+                  Text(
+                    'Processing Queue...',
+                    style: TextStyle(
+                      color: Color(0xFFB900FF),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               Row(
@@ -66,14 +77,19 @@ class _ConsoleOverlayState extends State<ConsoleOverlay> {
                     icon: const Icon(Icons.delete_outline_rounded, size: 14),
                     label: const Text('Clear', style: TextStyle(fontSize: 12)),
                     style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.4),
                     ),
                   ),
                   const SizedBox(width: 8),
                   const SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFB900FF)),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFFB900FF),
+                    ),
                   ),
                 ],
               ),
@@ -89,12 +105,16 @@ class _ConsoleOverlayState extends State<ConsoleOverlay> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 4.0),
                   child: Text(
-                     line,
-                     style: TextStyle(
-                       color: line.startsWith('❌') ? Colors.redAccent : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                       fontFamily: 'monospace',
-                       fontSize: 12,
-                     ),
+                    line,
+                    style: TextStyle(
+                      color: line.startsWith('❌')
+                          ? Colors.redAccent
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                    ),
                   ),
                 );
               },

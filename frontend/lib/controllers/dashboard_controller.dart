@@ -6,7 +6,7 @@ import '../services/backend_bridge.dart';
 class DashboardController extends ChangeNotifier {
   final BackendBridge _bridge;
   Timer? _refreshTimer;
-  
+
   BackendStatus _status = BackendStatus.error;
   int _activeJobs = 0;
   int _doneJobs = 0;
@@ -39,7 +39,7 @@ class DashboardController extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
     }
-    
+
     try {
       final newStatus = await _bridge.checkStatus();
       _status = newStatus;
@@ -47,7 +47,7 @@ class DashboardController extends ChangeNotifier {
       if (_status == BackendStatus.ready) {
         final data = await _bridge.getQueueStatus();
         final stats = data['stats'] ?? {};
-        
+
         _activeJobs = (stats['active_jobs'] ?? 0) as int;
         _doneJobs = (stats['done_jobs'] ?? 0) as int;
         _failedJobs = (stats['failed_jobs'] ?? 0) as int;

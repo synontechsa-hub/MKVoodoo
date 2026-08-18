@@ -14,7 +14,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
     final savedTheme = prefs.getString(_themeKey);
-    
+
     if (savedTheme == 'light') {
       _themeMode = ThemeMode.light;
     } else if (savedTheme == 'system') {
@@ -28,7 +28,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setTheme(ThemeMode mode) async {
     _themeMode = mode;
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     if (mode == ThemeMode.light) {
       await prefs.setString(_themeKey, 'light');

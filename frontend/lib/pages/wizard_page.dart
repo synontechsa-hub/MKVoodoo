@@ -12,7 +12,8 @@ class WizardPage extends StatefulWidget {
   State<WizardPage> createState() => _WizardPageState();
 }
 
-class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMixin {
+class _WizardPageState extends State<WizardPage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -67,9 +68,9 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
               Text(
                 'New Conversion Job',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 32),
               if (controller.inputPaths.isEmpty)
@@ -78,7 +79,8 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                 const Expanded(
                   child: Center(child: CircularProgressIndicator()),
                 )
-              else if (controller.isConverting || controller.conversionLog.isNotEmpty)
+              else if (controller.isConverting ||
+                  controller.conversionLog.isNotEmpty)
                 Expanded(child: _buildConversionLog(context, controller))
               else if (controller.proposals != null)
                 const Expanded(child: ProposalTable())
@@ -91,7 +93,10 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
     );
   }
 
-  Widget _buildReadyToScanView(BuildContext context, WizardController controller) {
+  Widget _buildReadyToScanView(
+    BuildContext context,
+    WizardController controller,
+  ) {
     return Expanded(
       child: Center(
         child: Column(
@@ -100,13 +105,17 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
             Icon(
               Icons.search_off_rounded,
               size: 64,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
             ),
             const SizedBox(height: 16),
             Text(
               'No files scanned yet',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 16,
               ),
             ),
@@ -134,10 +143,14 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
               width: 500,
               padding: const EdgeInsets.all(48),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.03),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.03)
+                    : Colors.black.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(32),
                 border: Border.all(
-                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.05),
                 ),
                 boxShadow: [
                   if (isDark)
@@ -166,26 +179,31 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                   const SizedBox(height: 32),
                   const Text(
                     'Select Source Folder',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Pick the directory or specific files you want to convert.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
                   const SizedBox(height: 32),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.02),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.05),
                       ),
                     ),
                     child: Column(
@@ -193,14 +211,18 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                         Icon(
                           Icons.mouse_outlined,
                           size: 20,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'or drag and drop them here',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.3),
                           ),
                         ),
                       ],
@@ -248,7 +270,10 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
     );
   }
 
-  Widget _buildConversionLog(BuildContext context, WizardController controller) {
+  Widget _buildConversionLog(
+    BuildContext context,
+    WizardController controller,
+  ) {
     final isFinished = !controller.isConverting && !controller.isAborting;
 
     return Column(
@@ -272,32 +297,52 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                 ),
               ),
             ] else if (controller.isAborting) ...[
-              const Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent),
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.orangeAccent,
+              ),
               const SizedBox(width: 12),
               const Text(
                 'Aborting...',
-                style: TextStyle(color: Colors.orangeAccent, fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.orangeAccent,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ] else ...[
               const Icon(Icons.check_circle_rounded, color: Color(0xFF2ECC71)),
               const SizedBox(width: 12),
               const Text(
                 'Conversion Finished',
-                style: TextStyle(color: Color(0xFF2ECC71), fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Color(0xFF2ECC71),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
             const Spacer(),
             if (controller.isConverting && !controller.isAborting)
               TextButton.icon(
                 onPressed: () => controller.abortConversion(),
-                icon: const Icon(Icons.stop_circle_rounded, color: Colors.redAccent),
+                icon: const Icon(
+                  Icons.stop_circle_rounded,
+                  color: Colors.redAccent,
+                ),
                 label: const Text(
                   'ABORT CONVERSION',
-                  style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.redAccent.withValues(alpha: 0.1),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                 ),
               )
             else if (isFinished)
@@ -321,12 +366,14 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).brightness == Brightness.dark 
-                      ? Colors.white.withValues(alpha: 0.02) 
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withValues(alpha: 0.02)
                       : Colors.black.withValues(alpha: 0.02),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
                   ),
                 ),
                 child: ListView.builder(
@@ -334,7 +381,9 @@ class _WizardPageState extends State<WizardPage> with AutomaticKeepAliveClientMi
                   itemCount: controller.conversionLog.length,
                   itemBuilder: (context, index) {
                     final line = controller.conversionLog[index];
-                    Color lineColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
+                    Color lineColor = Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7);
                     if (line.contains('✓') || line.contains('success')) {
                       lineColor = const Color(0xFF2ECC71);
                     } else if (line.contains('✗') ||

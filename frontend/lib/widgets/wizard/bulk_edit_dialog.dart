@@ -64,51 +64,86 @@ class _BulkEditDialogState extends State<BulkEditDialog> {
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
               const SizedBox(height: 24),
-              const Text('Audio Quality', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Audio Quality',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _bitrate,
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 ),
                 items: ['96k', '128k', '160k', '192k', '256k', '320k', 'copy']
-                    .map((b) => DropdownMenuItem(
-                          value: b,
-                          child: Text(b == 'copy' ? 'Passthrough (Copy)' : b),
-                        ))
+                    .map(
+                      (b) => DropdownMenuItem(
+                        value: b,
+                        child: Text(b == 'copy' ? 'Passthrough (Copy)' : b),
+                      ),
+                    )
                     .toList(),
                 onChanged: (val) => setState(() => _bitrate = val!),
               ),
               const SizedBox(height: 24),
-              const Text('Audio Track Strategy', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Audio Track Strategy',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _audioStrategy,
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'all', child: Text('Keep All Audio Tracks')),
-                  DropdownMenuItem(value: 'first', child: Text('Keep First Audio Track Only')),
-                  DropdownMenuItem(value: 'lang', child: Text('Keep Specific Languages Only')),
+                  DropdownMenuItem(
+                    value: 'all',
+                    child: Text('Keep All Audio Tracks'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'first',
+                    child: Text('Keep First Audio Track Only'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'lang',
+                    child: Text('Keep Specific Languages Only'),
+                  ),
                 ],
                 onChanged: (val) => setState(() => _audioStrategy = val!),
               ),
               const SizedBox(height: 24),
-              const Text('Subtitle Strategy', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Subtitle Strategy',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _subStrategy,
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'all', child: Text('Keep All Subtitles')),
-                  DropdownMenuItem(value: 'none', child: Text('Strip All Subtitles')),
-                  DropdownMenuItem(value: 'lang', child: Text('Keep Specific Languages Only')),
+                  DropdownMenuItem(
+                    value: 'all',
+                    child: Text('Keep All Subtitles'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'none',
+                    child: Text('Strip All Subtitles'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'lang',
+                    child: Text('Keep Specific Languages Only'),
+                  ),
                 ],
                 onChanged: (val) => setState(() => _subStrategy = val!),
               ),
@@ -116,7 +151,10 @@ class _BulkEditDialogState extends State<BulkEditDialog> {
                 const SizedBox(height: 24),
                 const Divider(),
                 const SizedBox(height: 16),
-                const Text('Target Languages', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  'Target Languages',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 8),
                 const Text(
                   'Files will keep tracks matching these languages + any "undefined" tracks.',
@@ -133,7 +171,9 @@ class _BulkEditDialogState extends State<BulkEditDialog> {
                       onSelected: (selected) {
                         setState(() => _selectedLanguages[lang] = selected);
                       },
-                      selectedColor: const Color(0xFFB900FF).withValues(alpha: 0.2),
+                      selectedColor: const Color(
+                        0xFFB900FF,
+                      ).withValues(alpha: 0.2),
                       checkmarkColor: const Color(0xFFB900FF),
                     );
                   }).toList(),

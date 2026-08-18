@@ -15,7 +15,8 @@ class SettingsController extends ChangeNotifier {
   String _selectedAudioBitrate = '128k';
 
   final TextEditingController outputDirController = TextEditingController();
-  final TextEditingController namingTemplateController = TextEditingController();
+  final TextEditingController namingTemplateController =
+      TextEditingController();
   final TextEditingController maxRetriesController = TextEditingController();
   final TextEditingController parallelJobsController = TextEditingController();
   final TextEditingController tmdbApiKeyController = TextEditingController();
@@ -69,7 +70,8 @@ class SettingsController extends ChangeNotifier {
       outputDirController.text = loadedConfig['output_dir'] ?? '';
       namingTemplateController.text = loadedConfig['naming_template'] ?? '';
       maxRetriesController.text = (loadedConfig['max_retries'] ?? 1).toString();
-      parallelJobsController.text = (loadedConfig['parallel_jobs'] ?? 2).toString();
+      parallelJobsController.text = (loadedConfig['parallel_jobs'] ?? 2)
+          .toString();
       tmdbApiKeyController.text = loadedConfig['tmdb_api_key'] ?? '';
       _selectedAudioBitrate = loadedConfig['default_audio_bitrate'] ?? '128k';
 

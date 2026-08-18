@@ -1,3 +1,3 @@
-VERSION = "1.1.1"
-RELEASE_DATE = "2026-08-13"
-CODENAME = "Voodoo Master"
+VERSION = "1.2.0"
+RELEASE_DATE = "Development"
+CODENAME = "Precision Clipper"

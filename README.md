@@ -2,7 +2,7 @@
 
 **MKVoodoo** is a powerful, offline batch video transcoder designed for media enthusiasts. It combines a sleek Flutter-based UI with a high-performance Python backend to provide a seamless transcoding experience with full hardware acceleration support.
 
-![Version](https://img.shields.io/badge/version-1.1.1-blueviolet)
+![Version](https://img.shields.io/badge/version-1.2.0-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---

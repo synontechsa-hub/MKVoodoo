@@ -1,6 +1,1 @@
-enum BackendStatus {
-  ready,
-  pythonMissing,
-  moduleMissing,
-  error,
-}
+enum BackendStatus { ready, pythonMissing, moduleMissing, error }

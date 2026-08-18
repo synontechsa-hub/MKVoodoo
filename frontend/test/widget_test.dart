@@ -25,41 +25,63 @@ class MockBackendBridge extends BackendBridge {
 
   @override
   Future<Map<String, dynamic>> getConfig() async => {
-        'output_dir': 'C:/Videos',
-        'naming_template': 'S{S:02d}E{E:02d} - {title}',
-        'review_before_convert': true,
-        'skip_existing': true,
-      };
+    'output_dir': 'C:/Videos',
+    'naming_template': 'S{S:02d}E{E:02d} - {title}',
+    'review_before_convert': true,
+    'skip_existing': true,
+  };
 
   @override
   Future<Map<String, dynamic>> getQueueStatus() async => {
-        'jobs': [],
-        'stats': {'active_jobs': 0, 'done_jobs': 0, 'failed_jobs': 0, 'processed_gb': 0.0},
-        'storage': {'total_gb': 500, 'free_gb': 200, 'used_percent': 60},
-        'hardware': {'label': 'CPU (Software)', 'is_hardware': false, 'video_encoder': 'libx264'}
-      };
+    'jobs': [],
+    'stats': {
+      'active_jobs': 0,
+      'done_jobs': 0,
+      'failed_jobs': 0,
+      'processed_gb': 0.0,
+    },
+    'storage': {'total_gb': 500, 'free_gb': 200, 'used_percent': 60},
+    'hardware': {
+      'label': 'CPU (Software)',
+      'is_hardware': false,
+      'video_encoder': 'libx264',
+    },
+  };
 
   @override
   Future<List<Map<String, dynamic>>> getAvailableEncoders() async => [];
 
   @override
   Future<Map<String, dynamic>> getYoutubeInfo(String url) async => {
-        'title': 'Mock Video',
-        'thumbnail': 'https://mock.com/thumb.jpg',
-        'uploader': 'Mock Channel',
-      };
+    'title': 'Mock Video',
+    'thumbnail': 'https://mock.com/thumb.jpg',
+    'uploader': 'Mock Channel',
+  };
 
   @override
-  Stream<String> downloadYoutube(String url, {bool audioOnly = false, String format = 'mp3'}) async* {
+  Stream<String> downloadYoutube(
+    String url, {
+    bool audioOnly = false,
+    String format = 'mp3',
+  }) async* {
     yield '🚀 Starting download...';
     yield '⏱ Progress: 50.0%';
     yield '✓ Downloaded to: C:/Downloads/mock.mp4';
   }
 
   @override
-  Future<List<Map<String, dynamic>>> searchMetadata(String query, {bool isTv = false}) async => [
-        {'id': 1, 'title': 'Mock Movie', 'date': '2024-01-01', 'poster_url': 'https://mock.com/poster.jpg', 'overview': 'Mock overview'}
-      ];
+  Future<List<Map<String, dynamic>>> searchMetadata(
+    String query, {
+    bool isTv = false,
+  }) async => [
+    {
+      'id': 1,
+      'title': 'Mock Movie',
+      'date': '2024-01-01',
+      'poster_url': 'https://mock.com/poster.jpg',
+      'overview': 'Mock overview',
+    },
+  ];
 }
 
 void main() {
@@ -70,19 +92,25 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
 
     final bridge = MockBackendBridge();
-    
+
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           Provider<BackendBridge>.value(value: bridge),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
-          ChangeNotifierProvider(create: (context) => DashboardController(bridge)),
+          ChangeNotifierProvider(
+            create: (context) => DashboardController(bridge),
+          ),
           ChangeNotifierProvider(create: (context) => WizardController(bridge)),
           ChangeNotifierProvider(create: (context) => QueueController(bridge)),
-          ChangeNotifierProvider(create: (context) => SettingsController(bridge)),
-          ChangeNotifierProvider(create: (context) => YoutubeController(bridge)),
+          ChangeNotifierProvider(
+            create: (context) => SettingsController(bridge),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => YoutubeController(bridge),
+          ),
         ],
-        child: const MKVoodooApp(),
+        child: const MKVoodooApp(clipperPage: SizedBox.shrink()),
       ),
     );
 
@@ -93,7 +121,7 @@ void main() {
 
     // Verify that Dashboard is the initial page
     expect(find.text('System Overview'), findsOneWidget);
-    
+
     // Navigation test: Click on "New Job" (Wizard) icon
     // Using find.byIcon(Icons.add_to_photos_rounded)
     await tester.tap(find.byIcon(Icons.add_to_photos_rounded));
@@ -109,19 +137,25 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
 
     final bridge = MockBackendBridge();
-    
+
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           Provider<BackendBridge>.value(value: bridge),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
-          ChangeNotifierProvider(create: (context) => DashboardController(bridge)),
+          ChangeNotifierProvider(
+            create: (context) => DashboardController(bridge),
+          ),
           ChangeNotifierProvider(create: (context) => WizardController(bridge)),
           ChangeNotifierProvider(create: (context) => QueueController(bridge)),
-          ChangeNotifierProvider(create: (context) => SettingsController(bridge)),
-          ChangeNotifierProvider(create: (context) => YoutubeController(bridge)),
+          ChangeNotifierProvider(
+            create: (context) => SettingsController(bridge),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => YoutubeController(bridge),
+          ),
         ],
-        child: const MKVoodooApp(),
+        child: const MKVoodooApp(clipperPage: SizedBox.shrink()),
       ),
     );
 
@@ -135,10 +169,10 @@ void main() {
     final textField = find.byType(TextField);
     await tester.enterText(textField, 'https://youtube.com/watch?v=mock');
     await tester.pump();
-    
+
     // Tap the 'Fetch' text inside the ElevatedButton
     await tester.tap(find.text('Fetch'));
-    
+
     // Wait for mock fetch (it's async in the controller)
     for (int i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 100));
@@ -151,7 +185,7 @@ void main() {
     expect(find.text('Audio Only (Music Mode)'), findsOneWidget);
     await tester.tap(find.byType(Switch));
     await tester.pump(const Duration(milliseconds: 500));
-    
+
     expect(find.text('Format'), findsOneWidget);
     expect(find.text('MP3'), findsOneWidget);
   });

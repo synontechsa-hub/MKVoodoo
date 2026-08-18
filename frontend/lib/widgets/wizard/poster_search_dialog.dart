@@ -6,7 +6,11 @@ class PosterSearchDialog extends StatefulWidget {
   final String initialQuery;
   final bool isTv;
 
-  const PosterSearchDialog({super.key, required this.initialQuery, this.isTv = false});
+  const PosterSearchDialog({
+    super.key,
+    required this.initialQuery,
+    this.isTv = false,
+  });
 
   @override
   State<PosterSearchDialog> createState() => _PosterSearchDialogState();
@@ -30,12 +34,18 @@ class _PosterSearchDialogState extends State<PosterSearchDialog> {
 
     try {
       final bridge = context.read<BackendBridge>();
-      final results = await bridge.searchMetadata(_searchController.text, isTv: widget.isTv);
+      final results = await bridge.searchMetadata(
+        _searchController.text,
+        isTv: widget.isTv,
+      );
       setState(() => _results = results);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Search failed: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Text('Search failed: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     } finally {
@@ -60,7 +70,9 @@ class _PosterSearchDialogState extends State<PosterSearchDialog> {
                   icon: const Icon(Icons.search_rounded),
                   onPressed: _performSearch,
                 ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onSubmitted: (_) => _performSearch(),
             ),
@@ -69,31 +81,38 @@ class _PosterSearchDialogState extends State<PosterSearchDialog> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _results.isEmpty
-                      ? const Center(child: Text('No results found.'))
-                      : ListView.separated(
-                          itemCount: _results.length,
-                          separatorBuilder: (_, _) => const Divider(),
-                          itemBuilder: (context, index) {
-                            final item = _results[index];
-                            return ListTile(
-                              leading: item['poster_url'] != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: Image.network(item['poster_url'], width: 40, fit: BoxFit.cover),
-                                    )
-                                  : const Icon(Icons.movie_rounded),
-                              title: Text(item['title'] ?? 'Unknown'),
-                              subtitle: Text(item['date']?.split('-').first ?? ''),
-                              onTap: () => Navigator.pop(context, item),
-                            );
-                          },
-                        ),
+                  ? const Center(child: Text('No results found.'))
+                  : ListView.separated(
+                      itemCount: _results.length,
+                      separatorBuilder: (_, _) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final item = _results[index];
+                        return ListTile(
+                          leading: item['poster_url'] != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: Image.network(
+                                    item['poster_url'],
+                                    width: 40,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : const Icon(Icons.movie_rounded),
+                          title: Text(item['title'] ?? 'Unknown'),
+                          subtitle: Text(item['date']?.split('-').first ?? ''),
+                          onTap: () => Navigator.pop(context, item),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
       ],
     );
   }

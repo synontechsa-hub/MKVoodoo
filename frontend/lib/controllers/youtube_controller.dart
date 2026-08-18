@@ -73,44 +73,47 @@ class YoutubeController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _downloadSubscription = _bridge.downloadYoutube(
-        _url, 
-        audioOnly: _audioOnly, 
-        format: _selectedFormat
-      ).listen(
-        (line) {
-          final trimmed = line.trim();
-          if (trimmed.isEmpty) return;
-          _logs.add(trimmed);
+      _downloadSubscription = _bridge
+          .downloadYoutube(_url, audioOnly: _audioOnly, format: _selectedFormat)
+          .listen(
+            (line) {
+              final trimmed = line.trim();
+              if (trimmed.isEmpty) return;
+              _logs.add(trimmed);
 
-          if (trimmed.contains('⏱ Progress:')) {
-            final pctMatch = RegExp(r'Progress: ([\d\.]+)%').firstMatch(trimmed);
-            if (pctMatch != null) {
-              _downloadProgress = double.tryParse(pctMatch.group(1)!) ?? 0.0;
-            }
-          }
+              if (trimmed.contains('⏱ Progress:')) {
+                final pctMatch = RegExp(
+                  r'Progress: ([\d\.]+)%',
+                ).firstMatch(trimmed);
+                if (pctMatch != null) {
+                  _downloadProgress =
+                      double.tryParse(pctMatch.group(1)!) ?? 0.0;
+                }
+              }
 
-          if (trimmed.contains('✓ Downloaded to:')) {
-             final path = trimmed.split('Downloaded to:')[1].trim();
-             if (_audioOnly) {
-               _logs.add('✅ Audio extraction complete!');
-             } else {
-               _logs.add('✅ Download complete! Adding to conversion workflow...');
-               _addToConversionQueue(path);
-             }
-          }
-          notifyListeners();
-        },
-        onDone: () {
-          _isDownloading = false;
-          notifyListeners();
-        },
-        onError: (e) {
-          _errorMessage = e.toString();
-          _isDownloading = false;
-          notifyListeners();
-        }
-      );
+              if (trimmed.contains('✓ Downloaded to:')) {
+                final path = trimmed.split('Downloaded to:')[1].trim();
+                if (_audioOnly) {
+                  _logs.add('✅ Audio extraction complete!');
+                } else {
+                  _logs.add(
+                    '✅ Download complete! Adding to conversion workflow...',
+                  );
+                  _addToConversionQueue(path);
+                }
+              }
+              notifyListeners();
+            },
+            onDone: () {
+              _isDownloading = false;
+              notifyListeners();
+            },
+            onError: (e) {
+              _errorMessage = e.toString();
+              _isDownloading = false;
+              notifyListeners();
+            },
+          );
     } catch (e) {
       _errorMessage = e.toString();
       _isDownloading = false;
@@ -119,44 +122,51 @@ class YoutubeController extends ChangeNotifier {
   }
 
   Future<void> _addToConversionQueue(String path) async {
-     try {
-       final config = await _bridge.getConfig();
-       final globalOutput = config['output_dir'] as String?;
-       
-       if (globalOutput == null || globalOutput.isEmpty) {
-         _logs.add('❌ Cannot add to queue: Output directory not set in Settings.');
-         notifyListeners();
-         return;
-       }
+    try {
+      final config = await _bridge.getConfig();
+      final globalOutput = config['output_dir'] as String?;
 
-       final outPath = _buildOutputPath(path, globalOutput);
+      if (globalOutput == null || globalOutput.isEmpty) {
+        _logs.add(
+          '❌ Cannot add to queue: Output directory not set in Settings.',
+        );
+        notifyListeners();
+        return;
+      }
 
-       // When adding a downloaded file, we set delete_source_after_done = true
-       final jobs = [{
-         'source': path,
-         'output': outPath,
-         'delete_source_after_done': true,
-         'keep_all_audio': true,
-         'keep_all_subtitles': true,
-       }];
-       
-       await _bridge.addJobs(jobs);
-       _logs.add('📂 File added to Conversion Queue with Auto-Cleanup enabled.');
-       notifyListeners();
-     } catch (e) {
-       _logs.add('❌ Failed to add to queue: $e');
-       notifyListeners();
-     }
+      final outPath = _buildOutputPath(path, globalOutput);
+
+      // When adding a downloaded file, we set delete_source_after_done = true
+      final jobs = [
+        {
+          'source': path,
+          'output': outPath,
+          'delete_source_after_done': true,
+          'keep_all_audio': true,
+          'keep_all_subtitles': true,
+        },
+      ];
+
+      await _bridge.addJobs(jobs);
+      _logs.add('📂 File added to Conversion Queue with Auto-Cleanup enabled.');
+      notifyListeners();
+    } catch (e) {
+      _logs.add('❌ Failed to add to queue: $e');
+      notifyListeners();
+    }
   }
 
   String _buildOutputPath(String sourcePath, String outputDir) {
     final fileName = p.basename(sourcePath);
     // Replace .mp4, .webm, .mkv extensions from source with .mkv
-    final outName = fileName.replaceAll(RegExp(r'\.(mp4|webm|mkv)$', caseSensitive: false), '.mkv');
-    
+    final outName = fileName.replaceAll(
+      RegExp(r'\.(mp4|webm|mkv)$', caseSensitive: false),
+      '.mkv',
+    );
+
     // Ensure we don't just return the filename if it didn't have an extension
     final finalName = outName.endsWith('.mkv') ? outName : '$outName.mkv';
-    
+
     return p.join(outputDir, 'YouTube Downloads', finalName);
   }
 

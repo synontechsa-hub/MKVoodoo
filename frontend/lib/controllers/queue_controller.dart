@@ -31,7 +31,7 @@ class QueueController extends ChangeNotifier {
 
   // Selected selection utilities
   bool isSelected(String id) => _selectedIds.contains(id);
-  
+
   void toggleSelect(String id, bool selected) {
     if (selected) {
       _selectedIds.add(id);
@@ -57,7 +57,7 @@ class QueueController extends ChangeNotifier {
 
   Future<void> refreshQueue() async {
     if (_refreshDebounce?.isActive ?? false) _refreshDebounce!.cancel();
-    
+
     _refreshDebounce = Timer(const Duration(milliseconds: 300), () async {
       _isLoading = true;
       notifyListeners();
@@ -65,7 +65,9 @@ class QueueController extends ChangeNotifier {
         final data = await _bridge.getQueueStatus();
         final List? rawJobs = data['jobs'] as List?;
         if (rawJobs != null) {
-          _jobs = rawJobs.map((j) => Job.fromJson(j as Map<String, dynamic>)).toList();
+          _jobs = rawJobs
+              .map((j) => Job.fromJson(j as Map<String, dynamic>))
+              .toList();
         } else {
           _jobs = [];
         }
@@ -151,16 +153,19 @@ class QueueController extends ChangeNotifier {
         if (trimmed.contains('⏱')) {
           final jobIdMatch = RegExp(r'\[(.*?)\]').firstMatch(trimmed);
           final jobId = jobIdMatch?.group(1);
-          
+
           if (jobId != null) {
-            final pctMatch = RegExp(r'Progress: ([\d\.]+)%').firstMatch(trimmed);
+            final pctMatch = RegExp(
+              r'Progress: ([\d\.]+)%',
+            ).firstMatch(trimmed);
             if (pctMatch != null) {
               _jobProgress[jobId] = double.tryParse(pctMatch.group(1)!) ?? 0.0;
             }
 
             if (_jobTimerLineIndex.containsKey(jobId)) {
               final idx = _jobTimerLineIndex[jobId]!;
-              if (idx < _consoleLogs.length && _consoleLogs[idx].contains('[$jobId]')) {
+              if (idx < _consoleLogs.length &&
+                  _consoleLogs[idx].contains('[$jobId]')) {
                 _consoleLogs[idx] = trimmed;
               } else {
                 _jobTimerLineIndex[jobId] = _consoleLogs.length;
@@ -179,8 +184,9 @@ class QueueController extends ChangeNotifier {
 
         // Throttle UI updates to 10 FPS to save CPU
         final now = DateTime.now();
-        if (_lastNotifyTime == null || 
-            now.difference(_lastNotifyTime!) > const Duration(milliseconds: 100)) {
+        if (_lastNotifyTime == null ||
+            now.difference(_lastNotifyTime!) >
+                const Duration(milliseconds: 100)) {
           _lastNotifyTime = now;
           notifyListeners();
         }

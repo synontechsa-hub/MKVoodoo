@@ -8,20 +8,26 @@ import 'package:mkvoodoo_ui/controllers/wizard_controller.dart';
 import 'package:mkvoodoo_ui/controllers/queue_controller.dart';
 import 'package:mkvoodoo_ui/controllers/settings_controller.dart';
 import 'package:mkvoodoo_ui/controllers/youtube_controller.dart';
+import 'package:mkvoodoo_ui/controllers/clipper_controller.dart';
+import 'package:mkvoodoo_ui/services/backend_clipper_api.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:mkvoodoo_ui/pages/dashboard_page.dart';
 import 'package:mkvoodoo_ui/pages/wizard_page.dart';
 import 'package:mkvoodoo_ui/pages/queue_page.dart';
 import 'package:mkvoodoo_ui/pages/settings_page.dart';
 import 'package:mkvoodoo_ui/pages/youtube_page.dart';
+import 'package:mkvoodoo_ui/pages/clipper_page.dart';
 
 void main() {
+  MediaKit.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
         Provider(create: (_) => BackendBridge()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(
-          create: (context) => DashboardController(context.read<BackendBridge>()),
+          create: (context) =>
+              DashboardController(context.read<BackendBridge>()),
         ),
         ChangeNotifierProvider(
           create: (context) => WizardController(context.read<BackendBridge>()),
@@ -30,10 +36,16 @@ void main() {
           create: (context) => QueueController(context.read<BackendBridge>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => SettingsController(context.read<BackendBridge>()),
+          create: (context) =>
+              SettingsController(context.read<BackendBridge>()),
         ),
         ChangeNotifierProvider(
           create: (context) => YoutubeController(context.read<BackendBridge>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ClipperController(
+            BackendClipperApi(context.read<BackendBridge>()),
+          ),
         ),
       ],
       child: const MKVoodooApp(),
@@ -42,7 +54,9 @@ void main() {
 }
 
 class MKVoodooApp extends StatelessWidget {
-  const MKVoodooApp({super.key});
+  const MKVoodooApp({super.key, this.clipperPage = const ClipperPage()});
+
+  final Widget clipperPage;
 
   @override
   Widget build(BuildContext context) {
@@ -71,13 +85,31 @@ class MKVoodooApp extends StatelessWidget {
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: Colors.transparent,
         indicatorColor: const Color(0xFF39FF14).withValues(alpha: 0.15),
-        indicatorShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        selectedIconTheme: const IconThemeData(color: Color(0xFF39FF14), size: 28),
-        unselectedIconTheme: IconThemeData(color: Colors.white.withValues(alpha: 0.4), size: 24),
-        selectedLabelTextStyle: const TextStyle(color: Color(0xFF39FF14), fontWeight: FontWeight.bold, fontSize: 13),
-        unselectedLabelTextStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        selectedIconTheme: const IconThemeData(
+          color: Color(0xFF39FF14),
+          size: 28,
+        ),
+        unselectedIconTheme: IconThemeData(
+          color: Colors.white.withValues(alpha: 0.4),
+          size: 24,
+        ),
+        selectedLabelTextStyle: const TextStyle(
+          color: Color(0xFF39FF14),
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+        unselectedLabelTextStyle: TextStyle(
+          color: Colors.white.withValues(alpha: 0.4),
+          fontSize: 12,
+        ),
       ),
-      dividerTheme: DividerThemeData(color: Colors.white.withValues(alpha: 0.05), thickness: 1),
+      dividerTheme: DividerThemeData(
+        color: Colors.white.withValues(alpha: 0.05),
+        thickness: 1,
+      ),
     );
 
     final lightTheme = ThemeData(
@@ -103,13 +135,31 @@ class MKVoodooApp extends StatelessWidget {
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: Colors.transparent,
         indicatorColor: const Color(0xFF39FF14).withValues(alpha: 0.15),
-        indicatorShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        selectedIconTheme: const IconThemeData(color: Color(0xFF39FF14), size: 28),
-        unselectedIconTheme: IconThemeData(color: Colors.black.withValues(alpha: 0.4), size: 24),
-        selectedLabelTextStyle: const TextStyle(color: Color(0xFF39FF14), fontWeight: FontWeight.bold, fontSize: 13),
-        unselectedLabelTextStyle: TextStyle(color: Colors.black.withValues(alpha: 0.4), fontSize: 12),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        selectedIconTheme: const IconThemeData(
+          color: Color(0xFF39FF14),
+          size: 28,
+        ),
+        unselectedIconTheme: IconThemeData(
+          color: Colors.black.withValues(alpha: 0.4),
+          size: 24,
+        ),
+        selectedLabelTextStyle: const TextStyle(
+          color: Color(0xFF39FF14),
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+        unselectedLabelTextStyle: TextStyle(
+          color: Colors.black.withValues(alpha: 0.4),
+          fontSize: 12,
+        ),
       ),
-      dividerTheme: DividerThemeData(color: Colors.black.withValues(alpha: 0.05), thickness: 1),
+      dividerTheme: DividerThemeData(
+        color: Colors.black.withValues(alpha: 0.05),
+        thickness: 1,
+      ),
     );
 
     return MaterialApp(
@@ -118,13 +168,15 @@ class MKVoodooApp extends StatelessWidget {
       themeMode: themeProvider.themeMode,
       theme: lightTheme,
       darkTheme: darkTheme,
-      home: const MainLayout(),
+      home: MainLayout(clipperPage: clipperPage),
     );
   }
 }
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
+  const MainLayout({super.key, this.clipperPage = const ClipperPage()});
+
+  final Widget clipperPage;
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
@@ -138,7 +190,9 @@ class _MainLayoutState extends State<MainLayout> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF030305) : const Color(0xFFF9F9F9),
+      backgroundColor: isDark
+          ? const Color(0xFF030305)
+          : const Color(0xFFF9F9F9),
       body: Container(
         decoration: isDark
             ? const BoxDecoration(
@@ -157,10 +211,14 @@ class _MainLayoutState extends State<MainLayout> {
             Container(
               margin: const EdgeInsets.fromLTRB(16, 16, 8, 16),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.02),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.02)
+                    : Colors.black.withValues(alpha: 0.02),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.05),
                 ),
                 boxShadow: [
                   if (isDark)
@@ -190,7 +248,9 @@ class _MainLayoutState extends State<MainLayout> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF39FF14).withValues(alpha: 0.25),
+                            color: const Color(
+                              0xFF39FF14,
+                            ).withValues(alpha: 0.25),
                             blurRadius: 24,
                             spreadRadius: 2,
                           ),
@@ -214,30 +274,50 @@ class _MainLayoutState extends State<MainLayout> {
                 destinations: const [
                   NavigationRailDestination(
                     icon: Icon(Icons.dashboard_rounded),
-                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('Dashboard')),
+                    label: Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text('Dashboard'),
+                    ),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.add_to_photos_rounded),
-                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('New Job')),
+                    label: Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text('New Job'),
+                    ),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.smart_display_rounded),
-                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('YouTube')),
+                    label: Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text('YouTube'),
+                    ),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.content_cut_rounded),
+                    label: Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text('Clipper'),
+                    ),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.queue_play_next_rounded),
-                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('Queue')),
+                    label: Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text('Queue'),
+                    ),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.settings_rounded),
-                    label: Padding(padding: EdgeInsets.only(top: 4), child: Text('Settings')),
+                    label: Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text('Settings'),
+                    ),
                   ),
                 ],
               ),
             ),
-            Expanded(
-              child: _buildBody(),
-            ),
+            Expanded(child: _buildBody()),
           ],
         ),
       ),
@@ -247,12 +327,13 @@ class _MainLayoutState extends State<MainLayout> {
   Widget _buildBody() {
     return IndexedStack(
       index: _selectedIndex,
-      children: const [
-        DashboardPage(),
-        WizardPage(),
-        YoutubePage(),
-        QueuePage(),
-        SettingsPage(),
+      children: [
+        const DashboardPage(),
+        const WizardPage(),
+        const YoutubePage(),
+        widget.clipperPage,
+        const QueuePage(),
+        const SettingsPage(),
       ],
     );
   }

@@ -13,7 +13,8 @@ class QueuePage extends StatefulWidget {
   State<QueuePage> createState() => _QueuePageState();
 }
 
-class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixin {
+class _QueuePageState extends State<QueuePage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -66,7 +67,8 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                     children: [
                       Text(
                         'Conversion Queue',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -74,7 +76,9 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                       Text(
                         'Manage your background tasks and pending jobs.',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.4),
                           fontSize: 14,
                         ),
                       ),
@@ -85,7 +89,8 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                       if (controller.selectedIds.isNotEmpty)
                         _buildActionButton(
                           icon: Icons.delete_sweep_rounded,
-                          label: 'Remove Selected (${controller.selectedIds.length})',
+                          label:
+                              'Remove Selected (${controller.selectedIds.length})',
                           color: Colors.redAccent,
                           onPressed: () async {
                             try {
@@ -101,15 +106,19 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                             icon: Icons.stop_rounded,
                             label: 'Stop Processing',
                             color: Colors.redAccent,
-                            onPressed: () async => await controller.stopProcessing(),
+                            onPressed: () async =>
+                                await controller.stopProcessing(),
                           )
                         else
                           _buildActionButton(
                             icon: Icons.play_arrow_rounded,
                             label: 'Resume Queue',
                             color: const Color(0xFFB900FF),
-                            onPressed: controller.jobs != null &&
-                                    controller.jobs!.any((j) => j.status == JobStatus.pending)
+                            onPressed:
+                                controller.jobs != null &&
+                                    controller.jobs!.any(
+                                      (j) => j.status == JobStatus.pending,
+                                    )
                                 ? () => controller.resumeQueue()
                                 : null,
                           ),
@@ -118,8 +127,11 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                           icon: Icons.restore_rounded,
                           label: 'Reset Failed',
                           color: Colors.orangeAccent,
-                          onPressed: controller.jobs != null &&
-                                  controller.jobs!.any((j) => j.status == JobStatus.failed)
+                          onPressed:
+                              controller.jobs != null &&
+                                  controller.jobs!.any(
+                                    (j) => j.status == JobStatus.failed,
+                                  )
                               ? () async {
                                   try {
                                     await controller.resetFailed();
@@ -134,11 +146,16 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                       _buildActionButton(
                         icon: Icons.cleaning_services_rounded,
                         label: 'Clear Done',
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                        onPressed: controller.jobs != null &&
-                                controller.jobs!.any((j) =>
-                                    j.status == JobStatus.done ||
-                                    j.status == JobStatus.skipped)
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.3),
+                        onPressed:
+                            controller.jobs != null &&
+                                controller.jobs!.any(
+                                  (j) =>
+                                      j.status == JobStatus.done ||
+                                      j.status == JobStatus.skipped,
+                                )
                             ? () async {
                                 try {
                                   await controller.clearCompleted();
@@ -153,18 +170,25 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                         icon: Icons.history_rounded,
                         label: 'Clear History',
                         color: Colors.redAccent.withValues(alpha: 0.5),
-                        onPressed: controller.jobs != null &&
-                                controller.jobs!.any((j) =>
-                                    j.status != JobStatus.pending &&
-                                    j.status != JobStatus.inProgress)
+                        onPressed:
+                            controller.jobs != null &&
+                                controller.jobs!.any(
+                                  (j) =>
+                                      j.status != JobStatus.pending &&
+                                      j.status != JobStatus.inProgress,
+                                )
                             ? () => _confirmClearAllHistory(context, controller)
                             : null,
                       ),
                       const SizedBox(width: 12),
                       IconButton(
                         onPressed: () => controller.refreshQueue(),
-                        icon: Icon(Icons.refresh_rounded,
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+                        icon: Icon(
+                          Icons.refresh_rounded,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
                         tooltip: 'Refresh Status',
                       ),
                     ],
@@ -173,21 +197,29 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
               ),
               const SizedBox(height: 32),
               if (controller.isLoading && controller.jobs == null)
-                const Expanded(child: Center(child: CircularProgressIndicator()))
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
               else if (controller.jobs == null || controller.jobs!.isEmpty)
                 Expanded(
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.inbox_rounded,
-                            size: 64,
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
+                        Icon(
+                          Icons.inbox_rounded,
+                          size: 64,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'No jobs in queue',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.3),
                             fontSize: 18,
                           ),
                         ),
@@ -205,9 +237,11 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                         child: Row(
                           children: [
                             Checkbox(
-                              value: controller.jobs != null &&
+                              value:
+                                  controller.jobs != null &&
                                   controller.jobs!.isNotEmpty &&
-                                  controller.selectedIds.length == controller.jobs!.length,
+                                  controller.selectedIds.length ==
+                                      controller.jobs!.length,
                               onChanged: (val) {
                                 controller.toggleSelectAll(val == true);
                               },
@@ -215,7 +249,9 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                             Text(
                               'Select All Jobs (${controller.jobs!.length})',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -226,7 +262,8 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                       Expanded(
                         child: ListView.separated(
                           itemCount: controller.jobs!.length,
-                          separatorBuilder: (context, index) => const SizedBox(height: 12),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             final job = controller.jobs![index];
                             final id = job.id;
@@ -234,10 +271,20 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                             final source = job.source;
                             final attempts = job.attempts;
                             final output = job.output;
-                            final filename = source.split('\\').last.split('/').last;
-                            final outFilename = output.split('\\').last.split('/').last;
+                            final filename = source
+                                .split('\\')
+                                .last
+                                .split('/')
+                                .last;
+                            final outFilename = output
+                                .split('\\')
+                                .last
+                                .split('/')
+                                .last;
 
-                            Color statusColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
+                            Color statusColor = Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7);
                             IconData statusIcon = Icons.help_outline;
 
                             switch (status) {
@@ -258,7 +305,9 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                                 statusIcon = Icons.error_rounded;
                                 break;
                               case JobStatus.skipped:
-                                statusColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3);
+                                statusColor = Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.3);
                                 statusIcon = Icons.skip_next_rounded;
                                 break;
                             }
@@ -272,192 +321,258 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                filter: ImageFilter.blur(
+                                  sigmaX: 16,
+                                  sigmaY: 16,
+                                ),
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).brightness == Brightness.dark
+                                    color:
+                                        Theme.of(context).brightness ==
+                                            Brightness.dark
                                         ? Colors.white.withValues(alpha: 0.03)
                                         : Colors.black.withValues(alpha: 0.03),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
                                       color: controller.isSelected(id)
-                                          ? const Color(0xFFB900FF).withValues(alpha: 0.5)
-                                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                                      width: controller.isSelected(id) ? 1.5 : 1,
+                                          ? const Color(
+                                              0xFFB900FF,
+                                            ).withValues(alpha: 0.5)
+                                          : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withValues(alpha: 0.05),
+                                      width: controller.isSelected(id)
+                                          ? 1.5
+                                          : 1,
                                     ),
                                     boxShadow: controller.isSelected(id)
                                         ? [
                                             BoxShadow(
-                                              color: const Color(0xFFB900FF).withValues(alpha: 0.15),
+                                              color: const Color(
+                                                0xFFB900FF,
+                                              ).withValues(alpha: 0.15),
                                               blurRadius: 15,
                                               spreadRadius: -2,
-                                            )
+                                            ),
                                           ]
                                         : null,
                                   ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Checkbox(
-                                        value: controller.isSelected(id),
-                                        onChanged: (val) {
-                                          controller.toggleSelect(id, val == true);
-                                        },
-                                      ),
-                                      Icon(statusIcon, color: statusColor, size: 20),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Tooltip(
-                                              message: source,
-                                              child: Text(
-                                                filename,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 13,
+                                      Row(
+                                        children: [
+                                          Checkbox(
+                                            value: controller.isSelected(id),
+                                            onChanged: (val) {
+                                              controller.toggleSelect(
+                                                id,
+                                                val == true,
+                                              );
+                                            },
+                                          ),
+                                          Icon(
+                                            statusIcon,
+                                            color: statusColor,
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Tooltip(
+                                                  message: source,
+                                                  child: Text(
+                                                    filename,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 13,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
                                                 ),
-                                                overflow: TextOverflow.ellipsis,
+                                                const SizedBox(height: 4),
+                                                Tooltip(
+                                                  message: output,
+                                                  child: Text(
+                                                    'Destination: $outFilename',
+                                                    style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface
+                                                          .withValues(
+                                                            alpha: 0.4,
+                                                          ),
+                                                      fontSize: 10,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: statusColor.withValues(
+                                                alpha: 0.1,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              statusLabel,
+                                              style: TextStyle(
+                                                color: statusColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 10,
                                               ),
                                             ),
-                                            const SizedBox(height: 4),
-                                            Tooltip(
-                                              message: output,
-                                              child: Text(
-                                                'Destination: $outFilename',
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                'Attempts',
                                                 style: TextStyle(
                                                   color: Theme.of(context)
                                                       .colorScheme
                                                       .onSurface
-                                                      .withValues(alpha: 0.4),
-                                                  fontSize: 10,
+                                                      .withValues(alpha: 0.3),
+                                                  fontSize: 8,
                                                 ),
-                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: statusColor.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: Text(
-                                          statusLabel,
-                                          style: TextStyle(
-                                            color: statusColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            'Attempts',
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withValues(alpha: 0.3),
-                                              fontSize: 8,
-                                            ),
-                                          ),
-                                          Text(
-                                            attempts.toString(),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  if (status == JobStatus.inProgress) ...[
-                                    const SizedBox(height: 12),
-                                    LayoutBuilder(
-                                      builder: (context, constraints) {
-                                        return Container(
-                                          height: 6,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: statusColor.withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Stack(
-                                            children: [
-                                              AnimatedContainer(
-                                                duration: const Duration(milliseconds: 300),
-                                                width: constraints.maxWidth * (progress / 100),
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(4),
-                                                  gradient: const LinearGradient(
-                                                    colors: [Color(0xFFB900FF), Color(0xFF39FF14)],
-                                                    begin: Alignment.centerLeft,
-                                                    end: Alignment.centerRight,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: const Color(0xFF39FF14).withValues(alpha: 0.4),
-                                                      blurRadius: 8,
-                                                    ),
-                                                  ],
+                                              Text(
+                                                attempts.toString(),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        );
-                                      },
-                                    ),
-                                  ] else if (status == JobStatus.failed && job.error != null) ...[
-                                    const SizedBox(height: 12),
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                        color: Colors.redAccent.withValues(alpha: 0.05),
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.1)),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.error_outline_rounded, size: 14, color: Colors.redAccent),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              job.error!,
-                                              style: const TextStyle(
-                                                color: Colors.redAccent,
-                                                fontSize: 11,
-                                                fontFamily: 'monospace',
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
                                         ],
                                       ),
-                                    ),
-                                  ],
-                                ],
+                                      if (status == JobStatus.inProgress) ...[
+                                        const SizedBox(height: 12),
+                                        LayoutBuilder(
+                                          builder: (context, constraints) {
+                                            return Container(
+                                              height: 6,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                color: statusColor.withValues(
+                                                  alpha: 0.1,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              child: Stack(
+                                                children: [
+                                                  AnimatedContainer(
+                                                    duration: const Duration(
+                                                      milliseconds: 300,
+                                                    ),
+                                                    width:
+                                                        constraints.maxWidth *
+                                                        (progress / 100),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                      gradient:
+                                                          const LinearGradient(
+                                                            colors: [
+                                                              Color(0xFFB900FF),
+                                                              Color(0xFF39FF14),
+                                                            ],
+                                                            begin: Alignment
+                                                                .centerLeft,
+                                                            end: Alignment
+                                                                .centerRight,
+                                                          ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color:
+                                                              const Color(
+                                                                0xFF39FF14,
+                                                              ).withValues(
+                                                                alpha: 0.4,
+                                                              ),
+                                                          blurRadius: 8,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ] else if (status == JobStatus.failed &&
+                                          job.error != null) ...[
+                                        const SizedBox(height: 12),
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            color: Colors.redAccent.withValues(
+                                              alpha: 0.05,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.redAccent
+                                                  .withValues(alpha: 0.1),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.error_outline_rounded,
+                                                size: 14,
+                                                color: Colors.redAccent,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  job.error!,
+                                                  style: const TextStyle(
+                                                    color: Colors.redAccent,
+                                                    fontSize: 11,
+                                                    fontFamily: 'monospace',
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -474,20 +589,33 @@ class _QueuePageState extends State<QueuePage> with AutomaticKeepAliveClientMixi
   void _showError(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $message'), backgroundColor: Colors.redAccent),
+        SnackBar(
+          content: Text('Error: $message'),
+          backgroundColor: Colors.redAccent,
+        ),
       );
     }
   }
 
-  Future<void> _confirmClearAllHistory(BuildContext context, QueueController controller) async {
+  Future<void> _confirmClearAllHistory(
+    BuildContext context,
+    QueueController controller,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        title: Text('Clear All History', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        title: Text(
+          'Clear All History',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
         content: Text(
           'This will remove all completed, failed, and skipped jobs from the queue. Pending jobs will be kept. Continue?',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
         ),
         actions: [
           TextButton(

@@ -16,7 +16,10 @@ class ProposalTable extends StatefulWidget {
 }
 
 class _ProposalTableState extends State<ProposalTable> {
-  Future<void> _showTrackSelectionDialog(BuildContext context, ScanProposal proposal) async {
+  Future<void> _showTrackSelectionDialog(
+    BuildContext context,
+    ScanProposal proposal,
+  ) async {
     final bridge = context.read<BackendBridge>();
     final controller = context.read<WizardController>();
 
@@ -34,7 +37,10 @@ class _ProposalTableState extends State<ProposalTable> {
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to probe tracks: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Text('Failed to probe tracks: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
       return;
@@ -63,14 +69,16 @@ class _ProposalTableState extends State<ProposalTable> {
     }
   }
 
-  Future<void> _bulkEdit(BuildContext context, WizardController controller) async {
+  Future<void> _bulkEdit(
+    BuildContext context,
+    WizardController controller,
+  ) async {
     if (controller.proposals == null || controller.proposals!.isEmpty) return;
 
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => BulkEditDialog(
-        initialBitrate: controller.defaultAudioBitrate,
-      ),
+      builder: (context) =>
+          BulkEditDialog(initialBitrate: controller.defaultAudioBitrate),
     );
 
     if (result != null) {
@@ -78,7 +86,9 @@ class _ProposalTableState extends State<ProposalTable> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Applied settings to ${controller.proposals!.length} files.'),
+            content: Text(
+              'Applied settings to ${controller.proposals!.length} files.',
+            ),
             backgroundColor: const Color(0xFF2ECC71),
           ),
         );
@@ -97,7 +107,11 @@ class _ProposalTableState extends State<ProposalTable> {
     );
 
     if (result != null) {
-      controller.updateProposalMetadata(proposal, result['poster_url'], result['overview']);
+      controller.updateProposalMetadata(
+        proposal,
+        result['poster_url'],
+        result['overview'],
+      );
     }
   }
 
@@ -114,7 +128,10 @@ class _ProposalTableState extends State<ProposalTable> {
             const SizedBox(width: 12),
             Text(
               'Discovered ${proposals.length} files. Review the naming below.',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+              ),
             ),
             const Spacer(),
             TextButton.icon(
@@ -135,7 +152,9 @@ class _ProposalTableState extends State<ProposalTable> {
                 backgroundColor: const Color(0xFFB900FF).withValues(alpha: 0.1),
                 foregroundColor: const Color(0xFFB900FF),
                 side: const BorderSide(color: Color(0xFFB900FF), width: 1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             const SizedBox(width: 24),
@@ -144,13 +163,24 @@ class _ProposalTableState extends State<ProposalTable> {
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.psychology_rounded, size: 20, color: Color(0xFFB900FF)),
+                  const Icon(
+                    Icons.psychology_rounded,
+                    size: 20,
+                    color: Color(0xFFB900FF),
+                  ),
                   const SizedBox(width: 12),
-                  const Text('Smart Naming', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                  const Text(
+                    'Smart Naming',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  ),
                   const SizedBox(width: 8),
                   Switch(
                     value: controller.useSmartNaming,
@@ -176,7 +206,11 @@ class _ProposalTableState extends State<ProposalTable> {
                       ? Colors.white.withValues(alpha: 0.03)
                       : Colors.black.withValues(alpha: 0.03),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
+                  border: Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
+                  ),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(24),
@@ -204,21 +238,39 @@ class _ProposalTableState extends State<ProposalTable> {
                                   ),
                                 ),
                                 DataCell(
-                                  Text('S${proposal.season.toString().padLeft(2, '0')}'),
+                                  Text(
+                                    'S${proposal.season.toString().padLeft(2, '0')}',
+                                  ),
                                 ),
                                 DataCell(
-                                  Text('E${proposal.episode.toString().padLeft(2, '0')}'),
+                                  Text(
+                                    'E${proposal.episode.toString().padLeft(2, '0')}',
+                                  ),
                                 ),
                                 DataCell(
                                   IconButton(
                                     icon: proposal.posterUrl != null
                                         ? ClipRRect(
-                                            borderRadius: BorderRadius.circular(4),
-                                            child: Image.network(proposal.posterUrl!, width: 24, height: 36, fit: BoxFit.cover),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                            child: Image.network(
+                                              proposal.posterUrl!,
+                                              width: 24,
+                                              height: 36,
+                                              fit: BoxFit.cover,
+                                            ),
                                           )
-                                        : Icon(Icons.add_photo_alternate_rounded,
-                                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), size: 20),
-                                    onPressed: () => _fetchPoster(context, proposal),
+                                        : Icon(
+                                            Icons.add_photo_alternate_rounded,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withValues(alpha: 0.3),
+                                            size: 20,
+                                          ),
+                                    onPressed: () =>
+                                        _fetchPoster(context, proposal),
                                     tooltip: 'Fetch Official Poster',
                                   ),
                                 ),
@@ -226,18 +278,30 @@ class _ProposalTableState extends State<ProposalTable> {
                                   IconButton(
                                     icon: Icon(
                                       Icons.tune_rounded,
-                                      color: (proposal.selectedAudioTracks != null || proposal.selectedSubtitleTracks != null)
+                                      color:
+                                          (proposal.selectedAudioTracks !=
+                                                  null ||
+                                              proposal.selectedSubtitleTracks !=
+                                                  null)
                                           ? const Color(0xFFB900FF)
-                                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                                          : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withValues(alpha: 0.4),
                                       size: 20,
                                     ),
-                                    onPressed: () => _showTrackSelectionDialog(context, proposal),
+                                    onPressed: () => _showTrackSelectionDialog(
+                                      context,
+                                      proposal,
+                                    ),
                                     tooltip: 'Configure Tracks & Quality',
                                   ),
                                 ),
                                 DataCell(
                                   Text(
-                                    controller.useSmartNaming ? proposal.outputFilename : proposal.originalFilename,
+                                    controller.useSmartNaming
+                                        ? proposal.outputFilename
+                                        : proposal.originalFilename,
                                     style: const TextStyle(
                                       color: Color(0xFFB900FF),
                                     ),

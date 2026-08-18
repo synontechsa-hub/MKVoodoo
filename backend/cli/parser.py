@@ -54,6 +54,27 @@ def build_parser() -> argparse.ArgumentParser:
     # -- probe --
     p_probe = sub.add_parser("probe", help="Probe a media file for streams")
     p_probe.add_argument("--input", "-i", required=True, help="Input file to probe")
+    p_probe.add_argument("--clip-info", action="store_true", help="Return Clipper media metadata as JSON")
+    p_probe.add_argument("--around-us", type=int, help="Return neighbouring video frames around this timestamp")
+    p_probe.add_argument("--before", type=int, default=1, help="Frames to return before the requested timestamp")
+    p_probe.add_argument("--after", type=int, default=1, help="Frames to return after the requested timestamp")
+
+    p_clip = sub.add_parser("clip", help="Precise video clip export")
+    p_clip.add_argument("--input", "-i", required=True, help="Source video")
+    p_clip.add_argument("--output", "-o", required=True, help="New MP4 or MKV output path")
+    p_clip.add_argument("--in-us", type=int, required=True, help="Inclusive In frame presentation timestamp")
+    p_clip.add_argument("--out-us", type=int, required=True, help="Inclusive Out frame presentation timestamp")
+    p_clip.add_argument("--container", choices=("mp4", "mkv"), default="mp4")
+
+    p_thumbnail = sub.add_parser("thumbnail", help="Extract Clipper thumbnail previews")
+    p_thumbnail.add_argument("--input", "-i", required=True, help="Source video")
+    p_thumbnail.add_argument("--timestamp-us", type=int, help="Exact frame presentation timestamp")
+    p_thumbnail.add_argument("--output", "-o", help="JPG or PNG output path for an exact frame")
+    p_thumbnail.add_argument("--format", choices=("jpg", "png"), default="png")
+    p_thumbnail.add_argument("--in-us", type=int, help="Selection start for candidate generation")
+    p_thumbnail.add_argument("--end-us", type=int, help="Selection end for candidate generation")
+    p_thumbnail.add_argument("--cache-dir", help="Cache directory for generated candidates")
+    p_thumbnail.add_argument("--count", type=int, default=4, help="Number of ranked candidates to return")
 
     # -- youtube --
     p_yt = sub.add_parser("youtube", help="YouTube download tools")

@@ -85,16 +85,23 @@ class WizardController extends ChangeNotifier {
     }
   }
 
-
-
-  void updateProposalTracks(ScanProposal proposal, List<int>? audio, List<int>? subs, String? bitrate) {
+  void updateProposalTracks(
+    ScanProposal proposal,
+    List<int>? audio,
+    List<int>? subs,
+    String? bitrate,
+  ) {
     proposal.selectedAudioTracks = audio;
     proposal.selectedSubtitleTracks = subs;
     proposal.audioBitrate = bitrate;
     notifyListeners();
   }
 
-  void updateProposalMetadata(ScanProposal proposal, String? posterUrl, String? description) {
+  void updateProposalMetadata(
+    ScanProposal proposal,
+    String? posterUrl,
+    String? description,
+  ) {
     proposal.posterUrl = posterUrl;
     proposal.description = description;
     notifyListeners();
@@ -122,7 +129,8 @@ class WizardController extends ChangeNotifier {
         p.audioBitrate = settings['bitrate'];
       }
 
-      final List<String>? targetLangs = (settings['languages'] as List?)?.cast<String>();
+      final List<String>? targetLangs = (settings['languages'] as List?)
+          ?.cast<String>();
 
       // Audio Strategy
       if (settings['audio_strategy'] == 'all') {
@@ -188,40 +196,46 @@ class WizardController extends ChangeNotifier {
     }
   }
 
-  String _buildOutputPath(String globalOutput, ScanProposal pScan, String outName) {
+  String _buildOutputPath(
+    String globalOutput,
+    ScanProposal pScan,
+    String outName,
+  ) {
     final src = pScan.source.replaceAll('\\', '/');
     final rel = pScan.relative.replaceAll('\\', '/');
-    
+
     String rootDir = src;
     if (src.endsWith(rel)) {
       rootDir = src.substring(0, src.length - rel.length);
     }
-    
+
     if (rootDir.endsWith('/')) {
       rootDir = rootDir.substring(0, rootDir.length - 1);
     }
-    
+
     final rootFolderName = rootDir.split('/').last;
     final relativeDir = p.dirname(pScan.relative);
-    
+
     if (rootFolderName.isEmpty || rootFolderName.contains(':')) {
       return p.join(globalOutput, relativeDir, outName);
     }
-    
+
     return p.join(globalOutput, rootFolderName, relativeDir, outName);
   }
 
   Future<void> startConversion() async {
     if (_proposals == null || _proposals!.isEmpty) return;
-    
+
     final config = await _bridge.getConfig();
     final globalOutput = config['output_dir'] as String?;
     if (globalOutput == null || globalOutput.trim().isEmpty) {
-      _conversionLog.add('❌ Cannot start: Output directory is not set in Settings.');
+      _conversionLog.add(
+        '❌ Cannot start: Output directory is not set in Settings.',
+      );
       notifyListeners();
       return;
     }
-    
+
     _isConverting = true;
     _conversionLog.clear();
     _jobTimerLineIndex.clear();
@@ -230,7 +244,9 @@ class WizardController extends ChangeNotifier {
 
     try {
       final jobs = _proposals!.map((pScan) {
-        final outName = _useSmartNaming ? pScan.outputFilename : pScan.originalFilename;
+        final outName = _useSmartNaming
+            ? pScan.outputFilename
+            : pScan.originalFilename;
         final finalOutput = _buildOutputPath(globalOutput, pScan, outName);
         return {
           'source': pScan.source,
@@ -246,7 +262,7 @@ class WizardController extends ChangeNotifier {
       }).toList();
 
       await _bridge.addJobs(jobs);
-      
+
       _conversionSubscription = _bridge.resumeQueue().listen(
         (line) {
           final trimmed = line.trim();
@@ -258,7 +274,8 @@ class WizardController extends ChangeNotifier {
             if (jobId != null) {
               if (_jobTimerLineIndex.containsKey(jobId)) {
                 final idx = _jobTimerLineIndex[jobId]!;
-                if (idx < _conversionLog.length && _conversionLog[idx].contains('[$jobId]')) {
+                if (idx < _conversionLog.length &&
+                    _conversionLog[idx].contains('[$jobId]')) {
                   _conversionLog[idx] = trimmed;
                 } else {
                   _jobTimerLineIndex[jobId] = _conversionLog.length;
@@ -284,7 +301,7 @@ class WizardController extends ChangeNotifier {
           _conversionLog.add('Error during conversion: $e');
           _isConverting = false;
           notifyListeners();
-        }
+        },
       );
     } catch (e) {
       _conversionLog.add('Error: $e');

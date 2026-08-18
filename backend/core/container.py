@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from backend.services.queue_service import QueueService
     from backend.utils.logger import SynLogger
     from backend.services.converter_service import ConverterService
+    from backend.services.clip_service import ClipService
+    from backend.services.thumbnail_service import ThumbnailService
     from backend.services.update_service import UpdateService
 
 class ServiceContainer:
@@ -90,6 +92,20 @@ class ServiceContainer:
             engine = FFmpegEngine(hw._ffmpeg)
             self._instances["converter"] = ConverterService(engine, self.get_logger())
         return cast("ConverterService", self._instances["converter"])
+
+    def get_clip_service(self) -> "ClipService":
+        from backend.core.engine import FFmpegEngine
+        from backend.services.clip_service import ClipService
+        if "clip" not in self._instances:
+            hardware = self.get_hardware_service()
+            self._instances["clip"] = ClipService(FFmpegEngine(hardware._ffmpeg), self.get_probe_service())
+        return cast("ClipService", self._instances["clip"])
+
+    def get_thumbnail_service(self) -> "ThumbnailService":
+        from backend.services.thumbnail_service import ThumbnailService
+        if "thumbnail" not in self._instances:
+            self._instances["thumbnail"] = ThumbnailService()
+        return cast("ThumbnailService", self._instances["thumbnail"])
 
     def get_update_service(self) -> UpdateService:
         from backend.services.update_service import UpdateService

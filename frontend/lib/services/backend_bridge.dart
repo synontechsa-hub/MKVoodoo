@@ -291,6 +291,155 @@ class BackendBridge {
     };
   }
 
+  Future<Map<String, dynamic>> getClipMediaInfo(String filePath) async {
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs(['probe', '--input', filePath, '--clip-info']),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+      stderrEncoding: utf8,
+    );
+
+    if (result.exitCode != 0) {
+      throw Exception('Failed to probe Clipper media: ${result.stderr}');
+    }
+    return jsonDecode(result.stdout as String) as Map<String, dynamic>;
+  }
+
+  Future<List<Map<String, dynamic>>> getNearbyClipFrames(
+    String filePath,
+    int aroundMicroseconds, {
+    int before = 1,
+    int after = 1,
+  }) async {
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs([
+        'probe',
+        '--input',
+        filePath,
+        '--around-us',
+        aroundMicroseconds.toString(),
+        '--before',
+        before.toString(),
+        '--after',
+        after.toString(),
+      ]),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+      stderrEncoding: utf8,
+    );
+
+    if (result.exitCode != 0) {
+      throw Exception(
+        'Failed to resolve nearby Clipper frames: ${result.stderr}',
+      );
+    }
+    final values = jsonDecode(result.stdout as String) as List<dynamic>;
+    return values.map((value) => value as Map<String, dynamic>).toList();
+  }
+
+  Future<Map<String, dynamic>> exportClip(
+    String filePath,
+    String outputPath,
+    int inMicroseconds,
+    int outMicroseconds,
+    String container,
+  ) async {
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs([
+        'clip',
+        '--input',
+        filePath,
+        '--output',
+        outputPath,
+        '--in-us',
+        inMicroseconds.toString(),
+        '--out-us',
+        outMicroseconds.toString(),
+        '--container',
+        container,
+      ]),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+      stderrEncoding: utf8,
+    );
+    if (result.exitCode != 0) {
+      throw Exception('Failed to export precise clip: ${result.stderr}');
+    }
+    return jsonDecode(result.stdout as String) as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> extractClipThumbnail(
+    String filePath,
+    int timestampMicroseconds,
+    String outputPath, {
+    String imageFormat = 'png',
+  }) async {
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs([
+        'thumbnail',
+        '--input',
+        filePath,
+        '--timestamp-us',
+        timestampMicroseconds.toString(),
+        '--output',
+        outputPath,
+        '--format',
+        imageFormat,
+      ]),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+      stderrEncoding: utf8,
+    );
+    if (result.exitCode != 0) {
+      throw Exception('Failed to extract Clipper thumbnail: ${result.stderr}');
+    }
+    return jsonDecode(result.stdout as String) as Map<String, dynamic>;
+  }
+
+  Future<List<Map<String, dynamic>>> getClipThumbnailCandidates(
+    String filePath,
+    int inMicroseconds,
+    int endMicroseconds,
+    String cacheDirectory, {
+    int count = 4,
+  }) async {
+    final result = await Process.run(
+      _pythonPath,
+      _buildArgs([
+        'thumbnail',
+        '--input',
+        filePath,
+        '--in-us',
+        inMicroseconds.toString(),
+        '--end-us',
+        endMicroseconds.toString(),
+        '--cache-dir',
+        cacheDirectory,
+        '--count',
+        count.toString(),
+      ]),
+      workingDirectory: _backendRoot,
+      environment: _pythonEnv,
+      stdoutEncoding: utf8,
+      stderrEncoding: utf8,
+    );
+    if (result.exitCode != 0) {
+      throw Exception(
+        'Failed to generate Clipper thumbnail candidates: ${result.stderr}',
+      );
+    }
+    final values = jsonDecode(result.stdout as String) as List<dynamic>;
+    return values.map((value) => value as Map<String, dynamic>).toList();
+  }
+
   Future<List<ScanProposal>> scanInputs(List<String> inputs) async {
     final result = await Process.run(
       _pythonPath,

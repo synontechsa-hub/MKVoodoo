@@ -32,24 +32,39 @@ class DashboardPage extends StatelessWidget {
                       children: [
                         StatusCard(
                           title: 'Queue Status',
-                          value: controller.activeJobs > 0 ? 'Processing' : 'Idle',
+                          value: controller.activeJobs > 0
+                              ? 'Processing'
+                              : 'Idle',
                           subtitle: '${controller.activeJobs} active jobs',
                           icon: Icons.loop_rounded,
-                          color: controller.activeJobs > 0 ? Colors.orangeAccent : const Color(0xFFB900FF),
+                          color: controller.activeJobs > 0
+                              ? Colors.orangeAccent
+                              : const Color(0xFFB900FF),
                         ),
                         const SizedBox(width: 24),
                         StatusCard(
                           title: 'Disk Space',
-                          value: '${controller.storage['free_gb'] ?? 0} GB Free',
-                          subtitle: '${controller.storage['used_percent'] ?? 0}% utilized',
+                          value:
+                              '${controller.storage['free_gb'] ?? 0} GB Free',
+                          subtitle:
+                              '${controller.storage['used_percent'] ?? 0}% utilized',
                           icon: Icons.storage_rounded,
-                          color: (controller.storage['used_percent'] ?? 0) > 90 ? Colors.redAccent : Colors.greenAccent,
+                          color: (controller.storage['used_percent'] ?? 0) > 90
+                              ? Colors.redAccent
+                              : Colors.greenAccent,
                         ),
                         const SizedBox(width: 24),
                         StatusCard(
                           title: 'Hardware',
-                          value: controller.hardware['label']?.split('(').first.trim() ?? 'CPU',
-                          subtitle: controller.hardware['is_hardware'] == true ? 'GPU Accelerated' : 'Software Encoding',
+                          value:
+                              controller.hardware['label']
+                                  ?.split('(')
+                                  .first
+                                  .trim() ??
+                              'CPU',
+                          subtitle: controller.hardware['is_hardware'] == true
+                              ? 'GPU Accelerated'
+                              : 'Software Encoding',
                           icon: Icons.memory_rounded,
                           color: const Color(0xFF7000FF),
                         ),
@@ -60,7 +75,8 @@ class DashboardPage extends StatelessWidget {
                       children: [
                         SmallStatsCard(
                           label: 'Processed',
-                          value: '${controller.processedGB.toStringAsFixed(2)} GB',
+                          value:
+                              '${controller.processedGB.toStringAsFixed(2)} GB',
                           icon: Icons.data_usage_rounded,
                         ),
                         const SizedBox(width: 16),
@@ -87,12 +103,16 @@ class DashboardPage extends StatelessWidget {
                     _buildSupportSection(context),
                     const SizedBox(height: 64),
                     InkWell(
-                      onTap: () => launchUrl(Uri.parse('https://synontech.vercel.app/')),
+                      onTap: () =>
+                          launchUrl(Uri.parse('https://synontech.vercel.app/')),
                       borderRadius: BorderRadius.circular(8),
                       child: Opacity(
                         opacity: 0.4,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           child: Image.asset(
                             'assets/Powered_by_dark_background.png',
                             height: 32,
@@ -120,7 +140,9 @@ class DashboardPage extends StatelessWidget {
           backgroundColor: const Color(0xFF29ABE2),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
     );
@@ -132,7 +154,9 @@ class DashboardPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFB900FF).withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFB900FF).withValues(alpha: 0.1)),
+        border: Border.all(
+          color: const Color(0xFFB900FF).withValues(alpha: 0.1),
+        ),
       ),
       child: Row(
         children: [
@@ -142,7 +166,11 @@ class DashboardPage extends StatelessWidget {
               color: const Color(0xFFB900FF).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.smart_display_rounded, color: Color(0xFFB900FF), size: 32),
+            child: const Icon(
+              Icons.smart_display_rounded,
+              color: Color(0xFFB900FF),
+              size: 32,
+            ),
           ),
           const SizedBox(width: 24),
           Expanded(
@@ -157,7 +185,9 @@ class DashboardPage extends StatelessWidget {
                 Text(
                   'Download videos directly from YouTube and convert them for mobile playback.',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                     fontSize: 13,
                   ),
                 ),
@@ -167,7 +197,9 @@ class DashboardPage extends StatelessWidget {
           const SizedBox(width: 24),
           TextButton(
             onPressed: () {}, // Future: Link to roadmap or info
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFFB900FF)),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFB900FF),
+            ),
             child: const Text('v1.1.0 ROADMAP'),
           ),
         ],
@@ -184,15 +216,17 @@ class DashboardPage extends StatelessWidget {
             Text(
               'System Overview',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Monitor your conversion engine and storage in real-time.',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -210,10 +244,20 @@ class DashboardPage extends StatelessWidget {
                 SizedBox(
                   width: 8,
                   height: 8,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFB900FF)),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Color(0xFFB900FF),
+                  ),
                 ),
                 SizedBox(width: 8),
-                Text('LIVE', style: TextStyle(color: Color(0xFF39FF14), fontWeight: FontWeight.bold, fontSize: 10)),
+                Text(
+                  'LIVE',
+                  style: TextStyle(
+                    color: Color(0xFF39FF14),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
+                ),
               ],
             ),
           ),
@@ -221,18 +265,32 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorState(BuildContext context, DashboardController controller) {
+  Widget _buildErrorState(
+    BuildContext context,
+    DashboardController controller,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.cloud_off_rounded, size: 64, color: Colors.redAccent),
+          const Icon(
+            Icons.cloud_off_rounded,
+            size: 64,
+            color: Colors.redAccent,
+          ),
           const SizedBox(height: 16),
-          const Text('Backend Disconnected', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            'Backend Disconnected',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Text(
             'Ensure the conversion engine is running.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
           ),
           const SizedBox(height: 24),
           ElevatedButton(

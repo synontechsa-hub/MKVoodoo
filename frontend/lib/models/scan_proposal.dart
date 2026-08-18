@@ -34,13 +34,16 @@ class ScanProposal {
       source: json['source'] as String,
       relative: json['relative'] as String,
       outputFilename: json['output_filename'] as String,
-      originalFilename: json['original_filename'] as String? ?? (json['output_filename'] as String),
+      originalFilename:
+          json['original_filename'] as String? ??
+          (json['output_filename'] as String),
       season: json['season'] as int,
       episode: json['episode'] as int,
       title: json['title'] as String,
       tracks: {
         'audio': (json['tracks']['audio'] as List).cast<Map<String, dynamic>>(),
-        'subtitles': (json['tracks']['subtitles'] as List).cast<Map<String, dynamic>>(),
+        'subtitles': (json['tracks']['subtitles'] as List)
+            .cast<Map<String, dynamic>>(),
       },
     );
   }

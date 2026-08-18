@@ -25,6 +25,8 @@ def main() -> None:
         "queue":    handlers.handle_queue,
         "presets":  handlers.handle_presets,
         "probe":    handlers.handle_probe,
+        "clip":     handlers.handle_clip,
+        "thumbnail": handlers.handle_thumbnail,
         "debug":    handlers.handle_debug,
         "youtube":  handlers.handle_youtube,
         "check-update": handlers.handle_check_update,

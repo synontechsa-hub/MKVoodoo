@@ -26,9 +26,11 @@ class MockBackendBridge extends Fake implements BackendBridge {
 }
 
 void main() {
-  testWidgets('SettingsPage renders TMDB API Key field', (WidgetTester tester) async {
+  testWidgets('SettingsPage renders TMDB API Key field', (
+    WidgetTester tester,
+  ) async {
     final mockBridge = MockBackendBridge();
-    
+
     await tester.pumpWidget(
       MultiProvider(
         providers: [
@@ -36,9 +38,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => SettingsController(mockBridge)),
           Provider<BackendBridge>.value(value: mockBridge),
         ],
-        child: const MaterialApp(
-          home: Scaffold(body: SettingsPage()),
-        ),
+        child: const MaterialApp(home: Scaffold(body: SettingsPage())),
       ),
     );
 
@@ -46,11 +46,11 @@ void main() {
 
     // Verify presence of "Web Services" section
     expect(find.text('WEB SERVICES'), findsOneWidget);
-    
+
     // Verify TMDB text field
     expect(find.text('TMDB API Key'), findsOneWidget);
     expect(find.text('existing-key'), findsOneWidget);
-    
+
     // Verify update toggles
     expect(find.text('Automatic Update Checks'), findsOneWidget);
   });

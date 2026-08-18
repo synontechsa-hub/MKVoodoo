@@ -11,7 +11,11 @@ class MockWorkflowBridge extends Fake implements BackendBridge {
   };
 
   @override
-  Stream<String> downloadYoutube(String url, {bool audioOnly = false, String format = 'mp3'}) async* {
+  Stream<String> downloadYoutube(
+    String url, {
+    bool audioOnly = false,
+    String format = 'mp3',
+  }) async* {
     yield '🚀 Starting download...';
     yield '⏱ Progress: 50.0%';
     yield '✓ Downloaded to: D:/Downloads/test.mp4';
@@ -35,15 +39,15 @@ void main() {
     final controller = YoutubeController(mockBridge);
 
     controller.setUrl('https://youtube.com/test');
-    
+
     // 1. Fetch metadata
     await controller.fetchMetadata();
     expect(controller.metadata!['title'], 'Test Workflow Video');
 
     // 2. Start download (simulated)
-    // Note: Since startDownload uses context and complex listeners, 
+    // Note: Since startDownload uses context and complex listeners,
     // we primarily verify the bridge interaction logic here.
-    
+
     // In a real widget test, we would use tester.tap(find.text('Download'))
   });
 }

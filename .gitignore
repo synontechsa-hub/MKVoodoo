@@ -1,36 +1,30 @@
-# Environments & Virtual Envs
-.venv/
-env/
-venv/
-ENV/
-
-# Python Build & Cache
+# Python / backend artifacts
 __pycache__/
 *.py[cod]
-*$py.class
-*.egg-info/
 .mypy_cache/
 .pytest_cache/
-main.build/
-main.dist/
+.venv/
+*.egg-info/
+.test-artifacts/
 
-# Flutter & Dart Build Output
-frontend/build/
+# Flutter / Dart artifacts
 frontend/.dart_tool/
+frontend/build/
 frontend/.flutter-plugins
 frontend/.flutter-plugins-dependencies
-frontend/flutter_*.log
-*.log
 
-# IDE & Editor Settings
-.idea/
-.vscode/
-*.swp
-*.swo
+# Packaged build artifacts
+main.build/
+main.dist/
+*.exe
 
-# Local Configuration & Queues
+# Local application state and diagnostics
 mkvoodoo_config.json
 mkvoodoo_queue.json
+*.log
 
-# Binary Release Installers
-MKVoodoo_*_Setup.exe
+# IDE / OS files
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
