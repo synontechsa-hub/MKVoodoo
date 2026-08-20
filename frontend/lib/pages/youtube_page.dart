@@ -275,6 +275,30 @@ class _YoutubePageState extends State<YoutubePage>
               ),
             ],
           ),
+        ] else ...[
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Video quality',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              DropdownButton<String>(
+                value: controller.selectedVideoQuality,
+                items: const ['1080', '720', '480', '360'].map((height) {
+                  return DropdownMenuItem(
+                    value: height,
+                    child: Text('$height p maximum'),
+                  );
+                }).toList(),
+                onChanged: (value) =>
+                    controller.setSelectedVideoQuality(value!),
+                underline: const SizedBox(),
+                dropdownColor: Theme.of(context).cardColor,
+              ),
+            ],
+          ),
         ],
       ],
     );

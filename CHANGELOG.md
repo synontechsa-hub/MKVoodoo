@@ -20,6 +20,8 @@ All notable changes to the MKVoodoo project will be documented in this file.
 - Added an argument terminator before user-provided yt-dlp URLs.
 - Pointed yt-dlp at the bundled FFmpeg/FFprobe directory for merge and audio post-processing.
 - Updated bundled yt-dlp and added a bounded Android-client fallback for YouTube SABR/403 download failures.
+- Added a video-quality selector (1080p, 720p, 480p, or 360p maximum) before YouTube video downloads.
+- Corrected VFR/long-GOP Clipper Out-frame resolution so exports stop at the selected frame instead of falling through to the end of the source.
 - Made Precision Clipper honor the configured forced video encoder.
 
 ### Release Maintenance

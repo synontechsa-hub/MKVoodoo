@@ -128,8 +128,16 @@ class ProbeService:
 
         self.get_clip_media_info(file_path)
         window_us = max(1_000_000, (before + after + 2) * 250_000)
-        start_us = max(0, around_us - window_us)
-        interval_seconds = (window_us * 2) / 1_000_000
+        # FFprobe seeks backwards to a preceding keyframe. Starting the read
+        # interval at the requested position therefore still provides prior
+        # frames, while ensuring the interval extends *after* that position.
+        # Starting it before the position could end the interval at exactly
+        # the requested Out frame and leave no exclusive end frame to select.
+        start_us = around_us
+        # FFprobe may start decoding at an earlier keyframe while measuring
+        # this duration from that keyframe. Keep a small, bounded safety span
+        # so a long-GOP source still yields frames after the requested point.
+        interval_seconds = max(10.0, (window_us * 2) / 1_000_000)
         start_seconds = start_us / 1_000_000
 
         result = subprocess.run(

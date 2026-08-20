@@ -98,6 +98,8 @@ def test_nearby_frames_uses_presentation_timestamps_and_returns_window() -> None
     assert [frame.pts_us for frame in frames] == [900_000, 1_000_000, 1_050_000]
     assert frames[1].key_frame
     assert "v:0" in run.call_args.args[0]
+    interval_index = run.call_args.args[0].index("-read_intervals")
+    assert run.call_args.args[0][interval_index + 1] == "1.000000%+10.000000"
 
 
 def test_nearby_frames_rejects_negative_positions() -> None:

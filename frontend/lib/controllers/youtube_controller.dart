@@ -12,6 +12,7 @@ class YoutubeController extends ChangeNotifier {
   bool _isDownloading = false;
   bool _audioOnly = false;
   String _selectedFormat = 'mp3';
+  String _selectedVideoQuality = '1080';
   double _downloadProgress = 0.0;
   String? _errorMessage;
   final List<String> _logs = [];
@@ -25,6 +26,7 @@ class YoutubeController extends ChangeNotifier {
   bool get isDownloading => _isDownloading;
   bool get audioOnly => _audioOnly;
   String get selectedFormat => _selectedFormat;
+  String get selectedVideoQuality => _selectedVideoQuality;
   double get downloadProgress => _downloadProgress;
   String? get errorMessage => _errorMessage;
   List<String> get logs => _logs;
@@ -46,6 +48,11 @@ class YoutubeController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSelectedVideoQuality(String value) {
+    _selectedVideoQuality = value;
+    notifyListeners();
+  }
+
   Future<void> fetchMetadata() async {
     if (_url.isEmpty) return;
     _isLoading = true;
@@ -63,7 +70,9 @@ class YoutubeController extends ChangeNotifier {
     }
   }
 
-  Future<void> startDownload({void Function(String path)? onVideoDownloaded}) async {
+  Future<void> startDownload({
+    void Function(String path)? onVideoDownloaded,
+  }) async {
     if (_metadata == null) return;
     _isDownloading = true;
     _downloadProgress = 0.0;
@@ -73,7 +82,12 @@ class YoutubeController extends ChangeNotifier {
 
     try {
       _downloadSubscription = _bridge
-          .downloadYoutube(_url, audioOnly: _audioOnly, format: _selectedFormat)
+          .downloadYoutube(
+            _url,
+            audioOnly: _audioOnly,
+            format: _selectedFormat,
+            videoQuality: _selectedVideoQuality,
+          )
           .listen(
             (line) {
               final trimmed = line.trim();

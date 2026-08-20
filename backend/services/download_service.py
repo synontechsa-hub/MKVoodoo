@@ -58,7 +58,8 @@ class DownloadService:
         output_path: Optional[Path] = None,
         on_progress: Optional[Callable[[float], None]] = None,
         audio_only: bool = False,
-        audio_format: str = "mp3"
+        audio_format: str = "mp3",
+        video_quality: str = "1080",
     ) -> Path:
         """Download video or extract audio to the downloads directory."""
         if not output_path:
@@ -67,6 +68,9 @@ class DownloadService:
             output_template = str(downloads_dir / f"%(title).200s.{ext}")
         else:
             output_template = str(output_path)
+
+        if video_quality not in {"1080", "720", "480", "360"}:
+            raise MKVoodooError("Video quality must be 1080p, 720p, 480p, or 360p.")
 
         cmd = [
             self._ytdlp,
@@ -92,8 +96,12 @@ class DownloadService:
                 "--audio-quality", "0",  # Best
             ]
         else:
+            format_selector = (
+                f"bestvideo[height<={video_quality}]+bestaudio/"
+                f"best[height<={video_quality}]/best"
+            )
             cmd += [
-                "--format", "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best",
+                "--format", format_selector,
                 "--merge-output-format", "mp4",
             ]
 

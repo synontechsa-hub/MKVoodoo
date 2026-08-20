@@ -69,6 +69,7 @@ class MockBackendBridge extends BackendBridge {
     String url, {
     bool audioOnly = false,
     String format = 'mp3',
+    String videoQuality = '1080',
   }) async* {
     yield '🚀 Starting download...';
     yield '⏱ Progress: 50.0%';
@@ -92,14 +93,15 @@ class MockBackendBridge extends BackendBridge {
 
 class FakeClipperApi implements ClipperApi {
   @override
-  Future<ClipMediaInfo> getMediaInfo(String source) async => const ClipMediaInfo(
-    source: 'mock.mp4',
-    durationUs: 1000000,
-    width: 1920,
-    height: 1080,
-    isVariableFrameRate: false,
-    frameRateReason: 'cfr',
-  );
+  Future<ClipMediaInfo> getMediaInfo(String source) async =>
+      const ClipMediaInfo(
+        source: 'mock.mp4',
+        durationUs: 1000000,
+        width: 1920,
+        height: 1080,
+        isVariableFrameRate: false,
+        frameRateReason: 'cfr',
+      );
 
   @override
   Future<List<ClipFrame>> getNearbyFrames(

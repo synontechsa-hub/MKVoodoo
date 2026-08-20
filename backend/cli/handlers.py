@@ -204,7 +204,8 @@ def handle_youtube(args: argparse.Namespace) -> int:
             args.download,
             on_progress=on_progress,
             audio_only=args.audio_only,
-            audio_format=args.format
+            audio_format=args.format,
+            video_quality=args.video_quality,
         )
         print(f"✓ Downloaded to: {path}")
     return 0

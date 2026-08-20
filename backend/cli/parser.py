@@ -82,6 +82,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_yt.add_argument("--download", help="Download video from URL")
     p_yt.add_argument("--audio-only", action="store_true", help="Extract audio only")
     p_yt.add_argument("--format", default="mp3", help="Audio format (mp3, flac, m4a)")
+    p_yt.add_argument(
+        "--video-quality", choices=("1080", "720", "480", "360"), default="1080",
+        help="Maximum video height for downloads",
+    )
 
     # -- metadata --
     p_meta = sub.add_parser("metadata", help="Fetch movie/TV show metadata")

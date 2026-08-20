@@ -15,6 +15,7 @@ class MockWorkflowBridge extends Fake implements BackendBridge {
     String url, {
     bool audioOnly = false,
     String format = 'mp3',
+    String videoQuality = '1080',
   }) async* {
     yield '🚀 Starting download...';
     yield '⏱ Progress: 50.0%';

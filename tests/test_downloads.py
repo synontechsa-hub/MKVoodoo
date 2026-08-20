@@ -69,6 +69,21 @@ def test_download_video_parsing(mock_popen, download_service):
             assert "Test Video.mp4" in str(path)
             assert 5.0 in progress_calls
             assert 10.0 in progress_calls
+            cmd = mock_popen.call_args.args[0]
+            assert "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best" in cmd
+
+@patch("subprocess.Popen")
+def test_download_video_uses_selected_quality(mock_popen, download_service):
+    output = Path("D:/Downloads/test.mp4")
+    process_mock = MagicMock()
+    process_mock.stdout = iter([f"{output}\n"])
+    process_mock.returncode = 0
+    mock_popen.return_value = process_mock
+
+    with patch("pathlib.Path.exists", return_value=True):
+        download_service.download_video("url", output_path=output, video_quality="720")
+
+    assert "bestvideo[height<=720]+bestaudio/best[height<=720]/best" in mock_popen.call_args.args[0]
 
 @patch("subprocess.Popen")
 def test_download_audio_only_flags(mock_popen, download_service):

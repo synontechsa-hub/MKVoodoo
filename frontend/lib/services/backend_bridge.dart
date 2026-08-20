@@ -172,7 +172,9 @@ class BackendBridge {
   }
 
   Future<void> cancelAllOperations() async {
-    final entries = List<MapEntry<String, Process>>.from(_activeProcesses.entries);
+    final entries = List<MapEntry<String, Process>>.from(
+      _activeProcesses.entries,
+    );
     _activeProcesses.clear();
     for (final entry in entries) {
       final process = entry.value;
@@ -569,10 +571,13 @@ class BackendBridge {
     String url, {
     bool audioOnly = false,
     String format = 'mp3',
+    String videoQuality = '1080',
   }) async* {
     final List<String> args = ['youtube', '--download', url];
     if (audioOnly) {
       args.addAll(['--audio-only', '--format', format]);
+    } else {
+      args.addAll(['--video-quality', videoQuality]);
     }
 
     const operationId = 'youtube_download';
