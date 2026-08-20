@@ -19,6 +19,7 @@ All notable changes to the MKVoodoo project will be documented in this file.
 - Routed downloaded videos into the Precision Clipper while keeping audio-only downloads as direct downloads.
 - Added an argument terminator before user-provided yt-dlp URLs.
 - Pointed yt-dlp at the bundled FFmpeg/FFprobe directory for merge and audio post-processing.
+- Updated bundled yt-dlp and added a bounded Android-client fallback for YouTube SABR/403 download failures.
 - Made Precision Clipper honor the configured forced video encoder.
 
 ### Release Maintenance

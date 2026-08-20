@@ -73,6 +73,12 @@ class DownloadService:
             "--newline",
             "--no-playlist",
             "--restrict-filenames",
+            # The Android client supplies a usable progressive fallback when
+            # YouTube enables SABR-only adaptive streams for web clients.
+            "--extractor-args", "youtube:player_client=android",
+            "--socket-timeout", "30",
+            "--retries", "3",
+            "--fragment-retries", "3",
             "--add-metadata",
             "--embed-thumbnail",
             "--print", "after_move:filepath",

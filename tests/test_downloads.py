@@ -95,6 +95,9 @@ def test_download_audio_only_flags(mock_popen, download_service):
             assert "--ffmpeg-location" in cmd
             location_index = cmd.index("--ffmpeg-location")
             assert cmd[location_index + 1] == "D:\\MKVoodoo\\backend\\bin"
+            assert "youtube:player_client=android" in cmd
+            assert cmd[cmd.index("--socket-timeout") + 1] == "30"
+            assert cmd[cmd.index("--retries") + 1] == "3"
 
 @patch("subprocess.Popen")
 def test_download_failure_includes_ytdlp_diagnostic(mock_popen, download_service):

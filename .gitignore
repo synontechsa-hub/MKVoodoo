@@ -18,6 +18,7 @@ frontend/.metadata
 main.build/
 main.dist/
 *.exe
+!backend/bin/yt-dlp.exe
 
 # Local application state and diagnostics
 mkvoodoo_config.json
