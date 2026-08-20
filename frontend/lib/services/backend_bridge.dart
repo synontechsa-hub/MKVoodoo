@@ -13,6 +13,18 @@ class BackendBridge {
 
   final Map<String, Process> _activeProcesses = {};
 
+  void _trackProcess(String operationId, Process process) {
+    _activeProcesses[operationId] = process;
+  }
+
+  void _untrackProcess(String operationId, Process process) {
+    // A replacement operation may already be running under this ID. Only
+    // remove this process's entry so an older exit callback cannot untrack it.
+    if (_activeProcesses[operationId] == process) {
+      _activeProcesses.remove(operationId);
+    }
+  }
+
   String get _backendRoot {
     final envRoot = Platform.environment['MKVOODOO_ROOT'];
     if (envRoot != null && envRoot.isNotEmpty) {
@@ -255,13 +267,14 @@ class BackendBridge {
 
   Stream<String> resumeQueue() async* {
     const operationId = 'queue_resume';
+    await cancelOperation(operationId);
     final process = await Process.start(
       _pythonPath,
       _buildArgs(['queue', '--resume']),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
-    _activeProcesses[operationId] = process;
+    _trackProcess(operationId, process);
 
     final controller = StreamController<String>();
 
@@ -276,7 +289,7 @@ class BackendBridge {
         .listen((line) => controller.add(line));
 
     process.exitCode.then((_) {
-      _activeProcesses.remove(operationId);
+      _untrackProcess(operationId, process);
       if (!controller.isClosed) controller.close();
     });
 
@@ -507,13 +520,14 @@ class BackendBridge {
     if (!review) cmdArgs.add('--no-review');
 
     const operationId = 'conversion';
+    await cancelOperation(operationId);
     final process = await Process.start(
       _pythonPath,
       _buildArgs(cmdArgs),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
-    _activeProcesses[operationId] = process;
+    _trackProcess(operationId, process);
 
     final controller = StreamController<String>();
 
@@ -528,7 +542,7 @@ class BackendBridge {
         .listen((line) => controller.add(line));
 
     process.exitCode.then((_) {
-      _activeProcesses.remove(operationId);
+      _untrackProcess(operationId, process);
       if (!controller.isClosed) controller.close();
     });
 
@@ -562,13 +576,14 @@ class BackendBridge {
     }
 
     const operationId = 'youtube_download';
+    await cancelOperation(operationId);
     final process = await Process.start(
       _pythonPath,
       _buildArgs(args),
       workingDirectory: _backendRoot,
       environment: _pythonEnv,
     );
-    _activeProcesses[operationId] = process;
+    _trackProcess(operationId, process);
 
     final controller = StreamController<String>();
 
@@ -584,7 +599,7 @@ class BackendBridge {
 
     final exitCodeFuture = process.exitCode;
     exitCodeFuture.then((_) {
-      _activeProcesses.remove(operationId);
+      _untrackProcess(operationId, process);
       if (!controller.isClosed) controller.close();
     });
 

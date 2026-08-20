@@ -4,7 +4,7 @@ import os
 import re
 from pathlib import Path
 from typing import Dict, Any, Optional, Callable
-from backend.utils.paths import get_ytdlp_path, _get_downloads_dir
+from backend.utils.paths import get_ffmpeg_path, get_ytdlp_path, _get_downloads_dir
 from backend.core.exceptions import MKVoodooError
 
 
@@ -19,6 +19,10 @@ class DownloadService:
                 f"'{ytdlp_path}'. Reinstall MKVoodoo or restore the bundled downloader."
             )
         self._ytdlp = str(ytdlp_path)
+        # yt-dlp needs both ffmpeg and ffprobe for video merging and audio
+        # extraction. Point it at the bundled binary directory instead of
+        # relying on the user's PATH.
+        self._ffmpeg_location = str(get_ffmpeg_path().parent)
 
     def fetch_metadata(self, url: str) -> Dict[str, Any]:
         """Fetch video metadata without downloading."""
@@ -72,6 +76,7 @@ class DownloadService:
             "--add-metadata",
             "--embed-thumbnail",
             "--print", "after_move:filepath",
+            "--ffmpeg-location", self._ffmpeg_location,
         ]
 
         if audio_only:

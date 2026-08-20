@@ -12,10 +12,19 @@ All notable changes to the MKVoodoo project will be documented in this file.
 ### Fixed
 - Updated the Clipper's file dialogs for the `file_picker` 11 API so the Flutter application compiles.
 - Prevented clip export from overwriting an existing destination and removed partial output after failed exports.
+- Made process cancellation target only the selected backend process tree, rather than every running FFmpeg process.
+- Prevented an older completed process from unregistering a newer operation with the same identifier.
+- Synchronized the Clipper play/pause control with the underlying player state.
+- Cleaned temporary thumbnail-candidate directories when regenerating or closing the Clipper.
+- Routed downloaded videos into the Precision Clipper while keeping audio-only downloads as direct downloads.
+- Added an argument terminator before user-provided yt-dlp URLs.
+- Pointed yt-dlp at the bundled FFmpeg/FFprobe directory for merge and audio post-processing.
+- Made Precision Clipper honor the configured forced video encoder.
 
 ### Release Maintenance
 - Synchronized version 1.2.0 across the Python package, backend manifest, Flutter package, README, and Inno Setup installer.
 - Aligned Python package metadata with the repository's MIT license.
+- Finalized the backend release date as 2026-08-20.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

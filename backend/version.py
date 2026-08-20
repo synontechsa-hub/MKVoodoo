@@ -1,3 +1,3 @@
 VERSION = "1.2.0"
-RELEASE_DATE = "Development"
+RELEASE_DATE = "2026-08-20"
 CODENAME = "Precision Clipper"

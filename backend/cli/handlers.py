@@ -154,7 +154,10 @@ def handle_probe(args: argparse.Namespace) -> int:
 
 def handle_clip(args: argparse.Namespace) -> int:
     service = container.get_clip_service()
-    encoder = container.get_hardware_service().detect_best_encoder()
+    config = container.get_config_service().load()
+    encoder = container.get_hardware_service().detect_best_encoder(
+        force=config.force_encoder
+    )
     result = service.export(args.input, args.output, args.in_us, args.out_us, args.container, encoder)
     print(json.dumps(result.to_dict(), indent=2))
     return 0

@@ -10,6 +10,9 @@ def download_service():
     with patch(
         "backend.services.download_service.get_ytdlp_path",
         return_value=Path(__file__),
+    ), patch(
+        "backend.services.download_service.get_ffmpeg_path",
+        return_value=Path("D:/MKVoodoo/backend/bin/ffmpeg.exe"),
     ):
         return DownloadService()
 
@@ -89,6 +92,9 @@ def test_download_audio_only_flags(mock_popen, download_service):
             assert "flac" in cmd
             assert "--print" in cmd
             assert "after_move:filepath" in cmd
+            assert "--ffmpeg-location" in cmd
+            location_index = cmd.index("--ffmpeg-location")
+            assert cmd[location_index + 1] == "D:\\MKVoodoo\\backend\\bin"
 
 @patch("subprocess.Popen")
 def test_download_failure_includes_ytdlp_diagnostic(mock_popen, download_service):
