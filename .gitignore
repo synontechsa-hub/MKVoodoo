@@ -19,6 +19,8 @@ main.build/
 main.dist/
 *.exe
 !backend/bin/yt-dlp.exe
+# Materialized by scripts/fetch_deno.ps1 for release builds.
+backend/bin/deno.exe
 
 # Local application state and diagnostics
 mkvoodoo_config.json

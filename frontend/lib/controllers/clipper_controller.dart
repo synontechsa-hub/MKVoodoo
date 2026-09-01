@@ -18,6 +18,11 @@ class ClipperController extends ChangeNotifier {
       _isPlaying = playing;
       notifyListeners();
     });
+    _playbackErrorSubscription = player.stream.error.listen((error) {
+      if (error.trim().isEmpty) return;
+      _errorMessage = 'Video preview failed: $error';
+      notifyListeners();
+    });
   }
 
   final ClipperApi _api;
@@ -25,6 +30,7 @@ class ClipperController extends ChangeNotifier {
   late final VideoController videoController = VideoController(player);
   late final StreamSubscription<Duration> _positionSubscription;
   late final StreamSubscription<bool> _playingSubscription;
+  late final StreamSubscription<String> _playbackErrorSubscription;
   final List<Directory> _tempDirectories = [];
 
   ClipMediaInfo? _mediaInfo;
@@ -60,7 +66,15 @@ class ClipperController extends ChangeNotifier {
     notifyListeners();
     try {
       final info = await _api.getMediaInfo(source);
-      await player.open(Media(source));
+      // Build the native video output before opening media. Creating it only
+      // after Player.open completes can leave the Windows release build with
+      // audio/position updates but no attached video surface.
+      videoController;
+      await player.stop();
+      await player.open(
+        Media(Uri.file(source, windows: Platform.isWindows).toString()),
+        play: false,
+      );
       _mediaInfo = info;
       _selection = const ClipSelection();
       _thumbnails = const [];
@@ -269,6 +283,7 @@ class ClipperController extends ChangeNotifier {
   void dispose() {
     _positionSubscription.cancel();
     _playingSubscription.cancel();
+    _playbackErrorSubscription.cancel();
     for (final dir in _tempDirectories) {
       try {
         if (dir.existsSync()) dir.deleteSync(recursive: true);

@@ -2,6 +2,16 @@
 
 All notable changes to the MKVoodoo project will be documented in this file.
 
+## [1.2.1] — 2026-09-01 (*Precision Clipper Patch*)
+
+### Fixed
+- Repaired the leaked `PROD_{title}` integration-test naming template while preserving legitimate custom templates.
+- Bundled a pinned Deno runtime for current yt-dlp YouTube challenge solving, retained Node fallback discovery, and removed the obsolete forced Android-client workaround.
+- Created the Windows video surface before opening Clipper media, normalized local paths to file URIs, and surfaced asynchronous preview errors in the UI.
+
+### Release Maintenance
+- Synchronized version 1.2.1 across the Python package, backend manifest, Flutter package, README, and Windows installer.
+
 ## [1.2.0] — 2026-08-18 (*Precision Clipper*)
 
 ### Added

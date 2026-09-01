@@ -4,7 +4,12 @@ import os
 import re
 from pathlib import Path
 from typing import Dict, Any, Optional, Callable
-from backend.utils.paths import get_ffmpeg_path, get_ytdlp_path, _get_downloads_dir
+from backend.utils.paths import (
+    _get_downloads_dir,
+    get_ffmpeg_path,
+    get_javascript_runtime,
+    get_ytdlp_path,
+)
 from backend.core.exceptions import MKVoodooError
 
 
@@ -23,6 +28,18 @@ class DownloadService:
         # extraction. Point it at the bundled binary directory instead of
         # relying on the user's PATH.
         self._ffmpeg_location = str(get_ffmpeg_path().parent)
+        runtime = get_javascript_runtime()
+        self._javascript_runtime = (
+            ["--js-runtimes", f"{runtime[0]}:{runtime[1]}"] if runtime else []
+        )
+
+    def _youtube_runtime_args(self) -> list[str]:
+        if not self._javascript_runtime:
+            raise MKVoodooError(
+                "YouTube downloads require Deno 2.3+ or Node.js 22+. "
+                "Install a supported runtime, then restart MKVoodoo."
+            )
+        return self._javascript_runtime
 
     def fetch_metadata(self, url: str) -> Dict[str, Any]:
         """Fetch video metadata without downloading."""
@@ -34,6 +51,7 @@ class DownloadService:
                     "--print-json",
                     "--skip-download",
                     "--no-playlist",
+                    *self._youtube_runtime_args(),
                     "--",
                     url
                 ],
@@ -77,9 +95,7 @@ class DownloadService:
             "--newline",
             "--no-playlist",
             "--restrict-filenames",
-            # The Android client supplies a usable progressive fallback when
-            # YouTube enables SABR-only adaptive streams for web clients.
-            "--extractor-args", "youtube:player_client=android",
+            *self._youtube_runtime_args(),
             "--socket-timeout", "30",
             "--retries", "3",
             "--fragment-retries", "3",

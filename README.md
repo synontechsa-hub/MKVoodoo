@@ -2,7 +2,7 @@
 
 **MKVoodoo** is a powerful, offline batch video transcoder designed for media enthusiasts. It combines a sleek Flutter-based UI with a high-performance Python backend to provide a seamless transcoding experience with full hardware acceleration support.
 
-![Version](https://img.shields.io/badge/version-1.2.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.2.1-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
@@ -16,7 +16,7 @@
 *   **🎧 Track Control**: Select specific audio and subtitle tracks or keep them all. Auto-conversion of audio to high-quality AAC.
 *   **💾 Storage Aware**: Real-time disk space monitoring to ensure you never run out of room during a batch.
 *   **📦 Portable Backend**: The backend is compiled into a standalone executable using Nuitka, ensuring no Python installation is required for the end user.
-*   **🎬 Bundled Downloader**: The supported Windows `yt-dlp.exe` binary is included so YouTube downloads work without a separate system installation.
+*   **🎬 Bundled Downloader**: The supported Windows `yt-dlp.exe` and Deno runtime are included for current YouTube challenge solving.
 
 ---
 
@@ -60,6 +60,10 @@
     flutter build windows --release
     ```
 3.  **Create Installer**:
+    Materialize the pinned Deno runtime first:
+    ```powershell
+    .\scripts\fetch_deno.ps1
+    ```
     Run `mkvoodoo.iss` through Inno Setup Compiler (F9).
 
 ---

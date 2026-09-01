@@ -1,6 +1,6 @@
 ; MKVoodoo Installer Script
 #define MyAppName "MKVoodoo"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.2.1"
 #define MyAppPublisher "Synontech"
 #define MyAppExeName "mkvoodoo_ui.exe"
 #define BackendExeName "mkvoodoo_backend.exe"
@@ -15,7 +15,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=.
-OutputBaseFilename=MKVoodoo_v1.2.0_Setup
+OutputBaseFilename=MKVoodoo_v1.2.1_Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -42,7 +42,11 @@ Source: "frontend\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: 
 Source: "main.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; 3. The FFmpeg Binaries (Backend expects these in backend\bin relative to the exe)
-Source: "backend\bin\*"; DestDir: "{app}\backend\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "backend\bin\*"; DestDir: "{app}\backend\bin"; Excludes: "deno.exe"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+; 4. Deno is required by current yt-dlp YouTube challenge solving. Keeping it
+; explicit makes the installer build fail instead of silently shipping a dud.
+Source: "backend\bin\deno.exe"; DestDir: "{app}\backend\bin"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

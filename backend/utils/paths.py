@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional, Tuple
 
 
 def _get_base_path() -> Path:
@@ -88,3 +89,32 @@ def get_ytdlp_path() -> Path:
     if sys_path:
         return Path(sys_path)
     return bundled
+
+
+def get_javascript_runtime() -> Optional[Tuple[str, Path]]:
+    """Find a yt-dlp-compatible JavaScript runtime.
+
+    Deno is preferred because yt-dlp enables it by default. Node is supported
+    explicitly and lets existing installations work without another download.
+    """
+    base = _get_base_path()
+    bundled_dirs = (base / "backend" / "bin", base.parent / "backend" / "bin")
+    for bundled_dir in bundled_dirs:
+        bundled_deno = bundled_dir / "deno.exe"
+        if bundled_deno.is_file():
+            return "deno", bundled_deno
+
+    deno_path = shutil.which("deno")
+    if deno_path:
+        return "deno", Path(deno_path)
+
+    for bundled_dir in bundled_dirs:
+        bundled_node = bundled_dir / "node.exe"
+        if bundled_node.is_file():
+            return "node", bundled_node
+
+    node_path = shutil.which("node")
+    if node_path:
+        return "node", Path(node_path)
+
+    return None

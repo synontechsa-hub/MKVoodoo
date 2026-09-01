@@ -13,6 +13,9 @@ def download_service():
     ), patch(
         "backend.services.download_service.get_ffmpeg_path",
         return_value=Path("D:/MKVoodoo/backend/bin/ffmpeg.exe"),
+    ), patch(
+        "backend.services.download_service.get_javascript_runtime",
+        return_value=("node", Path("C:/Program Files/nodejs/node.exe")),
     ):
         return DownloadService()
 
@@ -33,6 +36,9 @@ def test_fetch_metadata_success(download_service):
         assert meta["title"] == "Test Video"
         assert meta["duration"] == 120
         mock_run.assert_called_once()
+        command = mock_run.call_args.args[0]
+        assert "--js-runtimes" in command
+        assert "node:C:\\Program Files\\nodejs\\node.exe" in command
 
 def test_fetch_metadata_failure(download_service):
     with patch("subprocess.run") as mock_run:
@@ -110,7 +116,8 @@ def test_download_audio_only_flags(mock_popen, download_service):
             assert "--ffmpeg-location" in cmd
             location_index = cmd.index("--ffmpeg-location")
             assert cmd[location_index + 1] == "D:\\MKVoodoo\\backend\\bin"
-            assert "youtube:player_client=android" in cmd
+            assert "--extractor-args" not in cmd
+            assert "--js-runtimes" in cmd
             assert cmd[cmd.index("--socket-timeout") + 1] == "30"
             assert cmd[cmd.index("--retries") + 1] == "3"
 
@@ -123,3 +130,20 @@ def test_download_failure_includes_ytdlp_diagnostic(mock_popen, download_service
 
     with pytest.raises(MKVoodooError, match="Sign in to confirm"):
         download_service.download_video("https://youtube.com/watch?v=123")
+
+
+def test_missing_javascript_runtime_has_actionable_error():
+    with patch(
+        "backend.services.download_service.get_ytdlp_path",
+        return_value=Path(__file__),
+    ), patch(
+        "backend.services.download_service.get_ffmpeg_path",
+        return_value=Path("D:/MKVoodoo/backend/bin/ffmpeg.exe"),
+    ), patch(
+        "backend.services.download_service.get_javascript_runtime",
+        return_value=None,
+    ):
+        service = DownloadService()
+
+    with pytest.raises(MKVoodooError, match=r"Deno 2.3\+ or Node.js 22\+"):
+        service.fetch_metadata("https://youtube.com/watch?v=123")
