@@ -12,6 +12,8 @@ class WizardController extends ChangeNotifier {
   List<String> _inputPaths = [];
   String? _defaultAudioBitrate;
   List<ScanProposal>? _proposals;
+  String? _scanError;
+  String? get scanError => _scanError;
   bool _isScanning = false;
   bool _isConverting = false;
   bool _isAborting = false;
@@ -49,29 +51,41 @@ class WizardController extends ChangeNotifier {
   }
 
   Future<void> pickInputFolder() async {
-    final folder = await FilePicker.getDirectoryPath(
-      dialogTitle: 'Select Input Folder',
-    );
-    if (folder != null) {
-      _inputPaths = [folder];
-      _proposals = null;
-      _conversionLog.clear();
+    try {
+      final folder = await FilePicker.getDirectoryPath(
+        dialogTitle: 'Select Input Folder',
+      );
+      if (folder != null) {
+        _inputPaths = [folder];
+        _proposals = null;
+        _conversionLog.clear();
+        notifyListeners();
+        await runScan();
+      }
+    } catch (error) {
+      _scanError =
+          'Unable to open the file picker. Please try again or drag files into this window.\n\n$error';
       notifyListeners();
-      await runScan();
     }
   }
 
   Future<void> pickInputFiles() async {
-    final result = await FilePicker.pickFiles(
-      allowMultiple: true,
-      dialogTitle: 'Select Input Files',
-    );
-    if (result != null && result.paths.isNotEmpty) {
-      _inputPaths = result.paths.whereType<String>().toList();
-      _proposals = null;
-      _conversionLog.clear();
+    try {
+      final result = await FilePicker.pickFiles(
+        allowMultiple: true,
+        dialogTitle: 'Select Input Files',
+      );
+      if (result != null && result.paths.isNotEmpty) {
+        _inputPaths = result.paths.whereType<String>().toList();
+        _proposals = null;
+        _conversionLog.clear();
+        notifyListeners();
+        await runScan();
+      }
+    } catch (error) {
+      _scanError =
+          'Unable to open the file picker. Please try again or drag files into this window.\n\n$error';
       notifyListeners();
-      await runScan();
     }
   }
 
@@ -109,13 +123,21 @@ class WizardController extends ChangeNotifier {
 
   Future<void> runScan() async {
     if (_inputPaths.isEmpty) return;
+    _scanError = null;
+    _proposals = null;
     _isScanning = true;
     notifyListeners();
     try {
       final result = await _bridge.scanInputs(_inputPaths);
-      _proposals = result;
-    } catch (_) {
-      _proposals = [];
+      if (result.isEmpty) {
+        _scanError =
+            'No supported videos found. Choose MKV, MP4, M4V, or WebM files, or a folder containing them.';
+      } else {
+        _proposals = result;
+      }
+    } catch (error) {
+      _scanError =
+          'Unable to open the selected files. Check that they are accessible and use a supported format.\n\n$error';
     } finally {
       _isScanning = false;
       notifyListeners();
@@ -172,6 +194,7 @@ class WizardController extends ChangeNotifier {
   void reset() {
     _conversionSubscription?.cancel();
     _conversionSubscription = null;
+    _scanError = null;
     _inputPaths = [];
     _proposals = null;
     _conversionLog.clear();

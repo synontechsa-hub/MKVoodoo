@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Supported input extensions (lowercase)
-SUPPORTED_EXTENSIONS: frozenset[str] = frozenset({".mkv", ".mp4", ".webm"})
+SUPPORTED_EXTENSIONS: frozenset[str] = frozenset({".mkv", ".mp4", ".m4v", ".webm"})
 
 
 @dataclass

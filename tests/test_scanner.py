@@ -82,3 +82,31 @@ def test_scan_rejects_output_inside_input(tmp_path: Path) -> None:
     output_inside.mkdir()
     with pytest.raises(ValueError, match="must not be inside"):
         scan_directory(tmp_path, output_dir=output_inside)
+
+
+@pytest.mark.parametrize("extension", [".m4v", ".M4V"])
+def test_m4v_folder_and_individual_file(tmp_path, extension):
+    from backend.scanner import scan_directory
+    from backend.services.scanner_service import ScannerService
+    video = tmp_path / ("episode" + extension)
+    video.touch()
+    (tmp_path / "poster.jpg").touch()
+    scanner = ScannerService()
+    assert [r.source_path for r in scanner.scan(tmp_path)] == [video]
+    assert [r.source_path for r in scanner.scan(video)] == [video]
+    assert [r.source_path for r in scan_directory(tmp_path)] == [video]
+
+
+def test_unsupported_individual_file_reports_reason(tmp_path):
+    from backend.core.exceptions import ScannerError
+    from backend.services.scanner_service import ScannerService
+    unsupported = tmp_path / "video.xyz"
+    unsupported.touch()
+    with pytest.raises(ScannerError, match="Unsupported file type: video.xyz"):
+        ScannerService().scan(unsupported)
+
+
+def test_unsupported_only_folder_returns_no_results(tmp_path):
+    from backend.services.scanner_service import ScannerService
+    (tmp_path / "video.xyz").touch()
+    assert ScannerService().scan(tmp_path) == []

@@ -6,7 +6,7 @@ from backend.core.exceptions import ScannerError
 from backend.models.scan import ScanResult
 from backend.services.probe_service import ProbeService
 
-SUPPORTED_EXTENSIONS = frozenset({".mkv", ".mp4", ".webm"})
+SUPPORTED_EXTENSIONS = frozenset({".mkv", ".mp4", ".m4v", ".webm"})
 
 
 class ScannerService:
@@ -22,7 +22,10 @@ class ScannerService:
         if root_path.is_file():
             if root_path.suffix.lower() in SUPPORTED_EXTENSIONS:
                 return [self._build_result(root_path, Path(root_path.name))]
-            return []
+            raise ScannerError(
+                f"Unsupported file type: {root_path.name}. "
+                f"Supported inputs: {', '.join(sorted(SUPPORTED_EXTENSIONS))}."
+            )
 
         self._validate(root_path, output_dir)
 

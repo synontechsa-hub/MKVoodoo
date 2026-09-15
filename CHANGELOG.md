@@ -2,6 +2,13 @@
 
 All notable changes to the MKVoodoo project will be documented in this file.
 
+## [1.2.2] — 2026-09-06 (*Input Compatibility Patch*)
+
+### Fixed
+- Accept M4V videos when selecting files or scanning folders.
+- Show unsupported input and scan errors in the converter, with retry and file reselection controls.
+- Handle file-picker failures with a visible error message.
+
 ## [1.2.1] — 2026-09-01 (*Precision Clipper Patch*)
 
 ### Fixed

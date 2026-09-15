@@ -73,7 +73,9 @@ class _WizardPageState extends State<WizardPage>
                 ),
               ),
               const SizedBox(height: 32),
-              if (controller.inputPaths.isEmpty)
+              if (controller.scanError != null)
+                _buildReadyToScanView(context, controller)
+              else if (controller.inputPaths.isEmpty)
                 _buildFolderPicker(context, controller)
               else if (controller.isScanning)
                 const Expanded(
@@ -99,32 +101,42 @@ class _WizardPageState extends State<WizardPage>
   ) {
     return Expanded(
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off_rounded,
-              size: 64,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.1),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No files scanned yet',
-              style: TextStyle(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off_rounded,
+                size: 64,
                 color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-                fontSize: 16,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => controller.runScan(),
-              child: const Text('Retry Scan'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                controller.scanError ?? 'No files scanned yet',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: controller.inputPaths.isEmpty
+                    ? null
+                    : () => controller.runScan(),
+                child: const Text('Retry Scan'),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: controller.reset,
+                child: const Text('Choose Different Files'),
+              ),
+            ],
+          ),
         ),
       ),
     );

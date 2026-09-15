@@ -1,3 +1,3 @@
-VERSION = "1.2.1"
-RELEASE_DATE = "2026-09-01"
-CODENAME = "Precision Clipper Patch"
+VERSION = "1.2.2"
+RELEASE_DATE = "2026-09-06"
+CODENAME = "Input Compatibility Patch"
