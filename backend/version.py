@@ -1,3 +1,3 @@
-VERSION = "1.2.2"
-RELEASE_DATE = "2026-09-06"
-CODENAME = "Input Compatibility Patch"
+VERSION = "1.2.3"
+RELEASE_DATE = "2026-10-14"
+CODENAME = "Audio Compatibility Patch"

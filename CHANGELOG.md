@@ -2,6 +2,14 @@
 
 All notable changes to the MKVoodoo project will be documented in this file.
 
+## [1.2.3] — 2026-10-14 (*Audio Compatibility Patch*)
+
+### Fixed
+- Downmix multichannel audio to stereo when encoding AAC so dialogue in the center channel remains audible on stereo playback devices. Mono, stereo, and audio-copy jobs retain their original channel layout.
+
+### Release Maintenance
+- Synchronized version 1.2.3 across the Python package, backend manifest, Flutter package, README, and Windows installer.
+
 ## [1.2.2] — 2026-09-06 (*Input Compatibility Patch*)
 
 ### Fixed

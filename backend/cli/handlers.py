@@ -386,7 +386,7 @@ def _process_queue(q_svc: Any, cfg: Any) -> int:
             with engines_lock:
                 active_engines.append(thread_engine)
 
-            thread_converter = ConverterService(thread_engine, logger)
+            thread_converter = ConverterService(thread_engine, logger, container.get_probe_service())
 
             try:
                 success = thread_converter.process_job(

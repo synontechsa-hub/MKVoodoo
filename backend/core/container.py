@@ -92,7 +92,7 @@ class ServiceContainer:
         if "converter" not in self._instances:
             hw = self.get_hardware_service()
             engine = FFmpegEngine(hw._ffmpeg)
-            self._instances["converter"] = ConverterService(engine, self.get_logger())
+            self._instances["converter"] = ConverterService(engine, self.get_logger(), self.get_probe_service())
         return cast("ConverterService", self._instances["converter"])
 
     def get_clip_service(self) -> "ClipService":

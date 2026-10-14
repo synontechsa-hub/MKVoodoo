@@ -7,6 +7,7 @@ from backend.core.exceptions import DiskFullError
 from backend.models.hardware import EncoderBackend, EncoderInfo
 from backend.models.job import Job
 from backend.presets import Preset
+from backend.services.probe_service import ProbeService
 from backend.utils.logger import SynLogger
 
 
@@ -18,9 +19,10 @@ class ConverterService:
     and no-upscale guards.
     """
 
-    def __init__(self, engine: FFmpegEngine, logger: SynLogger):
+    def __init__(self, engine: FFmpegEngine, logger: SynLogger, probe_service: ProbeService):
         self.engine = engine
         self.logger = logger
+        self.probe_service = probe_service
 
     def process_job(
         self,
@@ -109,7 +111,7 @@ class ConverterService:
 
         Rules:
           - Video: re-encoded, downscaled only (never upscaled)
-          - Audio: ALL tracks preserved, re-encoded to AAC
+          - Audio: selected tracks preserved; multichannel AAC downmixed to stereo
           - Subtitles: ALL tracks stream-copied
           - Chapters: passed through
         """
@@ -175,6 +177,13 @@ class ConverterService:
 
         if audio_codec != "copy":
             args += ["-b:a", job.audio_bitrate or preset.audio_bitrate]
+            tracks = self.probe_service.get_tracks(job.source)["audio"]
+            if not (job.keep_all_audio or job.audio_tracks is None):
+                by_index = {track["index"]: track for track in tracks}
+                tracks = [by_index[index] for index in job.audio_tracks if index in by_index]
+            for output_index, track in enumerate(tracks):
+                if (track.get("channels") or 0) > 2:
+                    args += [f"-ac:a:{output_index}", "2"]
 
         # --- Subtitles: map selected tracks, stream copy ---
         if job.keep_all_subtitles or job.subtitle_tracks is None:
